@@ -1,0 +1,268 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.ServiceModel;
+using System.Text;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.AcuerdoComercial;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.AcuerdoComercial.Request;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.AcuerdoComercial.Response;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.Notificacion;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.AcuerdosComerciales.AcuerdoComercial;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Framework;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.LogicaNegocio;
+
+namespace TRAMARSA.AGMA.ACUERDOCOMERCIAL.ServicioWCF.ACUERDOCOMERCIAL
+{
+    // NOTA: puede usar el comando "Rename" del menú "Refactorizar" para cambiar el nombre de clase "LiberacionBLServicio" en el código y en el archivo de configuración a la vez.
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerCall, ConcurrencyMode = ConcurrencyMode.Multiple)]
+    public class AcuerdoComercialServicio : IAcuerdoComercialServicio
+    {
+        [Log]
+        public ConsultaAcuerdoComercialLocalResponseDTO ConsultarAcuerdoComercialLocal(ConsultaAcuerdoComercialLocalRequestDTO request)
+        {
+            ConsultaAcuerdoComercialLocalResponseDTO response = new ConsultaAcuerdoComercialLocalResponseDTO();
+            try
+            {
+
+                //Newtonsoft.Json.JsonConvert.SerializeObject(request);
+
+                AComercialBL aclocalBL = new AComercialBL();
+                response = aclocalBL.ConsultarAcuerdoComercialLocal(request);
+
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+            }
+
+            return response;
+        }
+
+        [Log]
+        public ConsultaAcuerdoComercialEscalonadoResponseDTO ConsultarAcuerdoComercialEscalonado(ConsultaAcuerdoComercialEscalonadoRequestDTO request)
+        {
+            ConsultaAcuerdoComercialEscalonadoResponseDTO response = new ConsultaAcuerdoComercialEscalonadoResponseDTO();
+            try
+            {
+                AComercialBL acEscalonadoBL = new AComercialBL();
+                response = acEscalonadoBL.ConsultarAcuerdoComercialEscalonado(request);
+
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+            }
+
+            return response;
+        }
+
+        [Log]
+        public ActualizaAcuerdoComercialLocalResponseDTO ActualizarAcuerdoComercialLocal(ActualizaAcuerdoComercialLocalRequestDTO request)
+        {
+            ActualizaAcuerdoComercialLocalResponseDTO response = new ActualizaAcuerdoComercialLocalResponseDTO();
+
+            string json = Newtonsoft.Json.JsonConvert.SerializeObject(request);
+
+            try
+            {
+<<<<<<< HEAD
+                var bl = new AComercialBL();
+                response = bl.ActualizarAcuerdoComercialLocal(request);
+=======
+                AComercialBL bl = new AComercialBL();
+                response = bl.RegistrarAcuerdoComercialLocal(request);
+>>>>>>> 5587b023fff2e814c48609a9bdb9a2904f39d7eb
+                return response;
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+            }
+
+            return response;
+        }
+
+        [Log]
+        public ActualizaAcuerdoComercialEscalonadoResponseDTO ActualizarAcuerdoComercialEscalonado(ActualizaAcuerdoComercialEscalonadoRequestDTO request)
+        {
+            ActualizaAcuerdoComercialEscalonadoResponseDTO response = new ActualizaAcuerdoComercialEscalonadoResponseDTO();
+
+            string json = Newtonsoft.Json.JsonConvert.SerializeObject(request);
+
+            try
+            {
+<<<<<<< HEAD
+                var bl = new AComercialBL();
+                response = bl.ActualizarAcuerdoComercialEscalonado(request);
+=======
+                AComercialBL bl = new AComercialBL();
+                response = bl.ActualizarAcuerdoComercialLocal(request);
+>>>>>>> 5587b023fff2e814c48609a9bdb9a2904f39d7eb
+                return response;
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+            }
+
+            return response;
+        }
+        [Log]
+        public ConsultaAcuerdoComercialLocalHistorialResponseDTO ConsultarAcuerdoComericalLocalHistorial(ConsultaAcuerdoComercialLocalHistorialRequestDTO request)
+        {
+            ConsultaAcuerdoComercialLocalHistorialResponseDTO response = new ConsultaAcuerdoComercialLocalHistorialResponseDTO();
+            try
+            {
+                AComercialBL aclocalBL = new AComercialBL();
+                response = aclocalBL.ConsultarAcuerdoComericalLocalHistorial(request);
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+            }
+
+            return response;
+        }
+
+        [Log]
+        public ConsultaAcuerdoComercialEscalonadoHistorialResponseDTO ConsultarAcuerdoComercialEscalonadoHistorial(ConsultaAcuerdoComercialEscalonadoHistorialRequestDTO request)
+        {
+            ConsultaAcuerdoComercialEscalonadoHistorialResponseDTO response = new ConsultaAcuerdoComercialEscalonadoHistorialResponseDTO();
+            try
+            {
+                AComercialBL acEscalonadoBL = new AComercialBL();
+                response = acEscalonadoBL.ConsultarAcuerdoComericalEscalonadoHistorial(request);
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+            }
+
+            return response;
+        }
+
+        [Log]
+<<<<<<< HEAD
+        public ConsultaAcuerdoComercialLocalResponseDTO ConsultarSeguimientoAcuerdoComercialLocal(ConsultaAcuerdoComercialLocalRequestDTO request)
+        {
+            ConsultaAcuerdoComercialLocalResponseDTO response = new ConsultaAcuerdoComercialLocalResponseDTO();
+            string json = Newtonsoft.Json.JsonConvert.SerializeObject(request);
+            try
+            {
+                AComercialBL aclocalBL = new AComercialBL();
+                response = aclocalBL.ConsultarSeguimientoAcuerdoComercialLocal(request);
+
+=======
+        public ConsultaSeguimientoAcuerdoComercialEscalonadoResponseDTO ConsultarSeguimientoAcuerdoComercialEscalonado(ConsultaSeguimientoAcuerdoComercialEscalonadoRequestDTO request)
+        {
+            ConsultaSeguimientoAcuerdoComercialEscalonadoResponseDTO response = new ConsultaSeguimientoAcuerdoComercialEscalonadoResponseDTO();
+            try
+            {
+                AComercialBL acEscalonadoBL = new AComercialBL();
+                response = acEscalonadoBL.ConsultarSeguimientoAcuerdoComercialEscalonado(request);
+>>>>>>> 5587b023fff2e814c48609a9bdb9a2904f39d7eb
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+            }
+
+            return response;
+        }
+
+<<<<<<< HEAD
+        private Result NotificarValidacion(NotificacionRequest request)
+        {
+            try
+            {
+                //TODOS LOS GUID DEBE DE ESTAR LLENOS PARA IDENTIFICAR LA NOTIFICACION
+                request.NotificacionList.ForEach(x =>
+                {
+                    Guid guidConverted;
+                    if (!Guid.TryParse(x.Guid.ToString(), out guidConverted))
+                        throw new Exception("El campo Guid debe de contener datos");
+                });
+
+                //NINGUN GUID DEBE ESTAR REPETIDA
+                var result = request.NotificacionList.GroupBy(x => x.Guid)
+                               .Select(y => new { y.Key, Count = y.Count() })
+                               .Where(z => z.Count > 1).ToList();
+
+                if (result.Any())
+                    throw new Exception("El campo Guid no puede estar repetido");
+
+                request.NotificacionList.ForEach(x =>
+                {
+                    if (string.IsNullOrEmpty(x.De))
+                        throw new Exception("El campo DE debe de contener datos");
+
+                    if (!x.CuerpoValues.Any())
+                        throw new Exception("El campo CuerpoKeyvalue debe de contener datos");
+
+                    if (!x.CuerpoValues.Any())
+                        throw new Exception("El campo CuerpoKeyvalue debe de contener datos");
+
+                    if (!x.Para.Any())
+                        throw new Exception("El campo Para debe de contener datos");
+                    else
+                        x.Para.ForEach(xy =>
+                        {
+                            if (string.IsNullOrEmpty(xy))
+                                throw new Exception("El campo Para debe de contener datos");
+                        });
+                });
+
+                return new Result { Satisfactorio = true };
+
+            }
+            catch (Exception ex)
+            {
+                return new Result { Satisfactorio = false, Mensaje = ex.Message };
+            }
+        }
+
+        [Log]
+        public NotificacionResponse Notificar(NotificacionRequest request)
+        {
+            Result result = new Result();
+            NotificacionResponse response = new NotificacionResponse();
+            try
+            {
+                result = this.NotificarValidacion(request);
+                if (result.Satisfactorio == false)
+                    throw new Exception(result.Mensaje);
+
+                (new NotificacionBL()).Notificar(request.NotificacionList);
+                
+                response.Result = new Result { Satisfactorio = true };
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Result = new Result { Satisfactorio = false, Mensaje = ex.Message };
+                return response;
+            }
+        }
+
+        public IngresoMasivoRAPTResponseDTO IngresoMasivoRAPT(IngresoMasivoRAPTRequestDTO request)
+        {
+            IngresoMasivoRAPTResponseDTO response = new IngresoMasivoRAPTResponseDTO();
+
+            try
+            {
+                AComercialBL aclocalBL = new AComercialBL();
+                response = aclocalBL.IngresoMasivoRAPT(request);
+
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+            }
+            return response;
+        }
+=======
+>>>>>>> 5587b023fff2e814c48609a9bdb9a2904f39d7eb
+    }
+}

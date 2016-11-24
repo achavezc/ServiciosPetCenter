@@ -1,0 +1,226 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.ServiceModel;
+using System.Text;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.BLAudit.Request;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.BLRecargo.Request;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.LiberacionBL;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.LiberacionBL.Request;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.LiberacionBL.Response;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.RecargoTHC.Request;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.Tramarsa;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Framework;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.LogicaNegocio;
+using Newtonsoft.Json;
+
+namespace TRAMARSA.AGMA.ACUERDOCOMERCIAL.ServicioWCF.ACUERDOCOMERCIAL
+{
+    // NOTA: puede usar el comando "Rename" del menú "Refactorizar" para cambiar el nombre de clase "LiberacionBLServicio" en el código y en el archivo de configuración a la vez.
+    public class AcuerdoComercialServicio : IAcuerdoComercialServicio
+    {
+        ///// <summary>
+        ///// Obtiene información de TRAMARSA de la relacion de Bls por cliente.
+        ///// <br/><b>Url Invocación:</b> <a href="http://tramoldev01.tramarsa.com.pe:7070/LiberacionBLServicio.svc/ConsultaLiberacionBL">http://tramoldev01.tramarsa.com.pe:7070/LiberacionBLServicio.svc/ConsultaLiberacionBL</a>
+        ///// <br/><b>Request Json:</b> ""
+        ///// <br/><b>Response Json:</b> "{"ResponseObtenerTrasladosSunat": [{Sociedad: "",TipDoc: "",NumSer: "",NumDoc: "",FecDoc: "2015-05-04 00:00:00",MonSol: 0,MonDol: 0,NoSis: "",FkSto: "",ErNam: ""}]}"
+        ///// </summary>
+        ///// <param name="request">Entidad con los datos para la identificacion de los BLs por cliente.</param>
+        ///// <returns>Entidad con datos de la respuesta de la operación.</returns>   
+        //[Log]
+        //public ResponseConsultaClienteLiberacionBL ConsultarClienteLiberacionBL(RequestConsultaClienteLiberacionBL request)
+        //{
+        //    ResponseConsultaClienteLiberacionBL response = new ResponseConsultaClienteLiberacionBL();
+
+        //    try
+        //    {
+        //        var bl = new AcuerdoComercialBL();
+        //        response = bl.ConsultarClienteLiberacionBL(request);
+        //        return response;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+        //        return null;
+        //    }
+        //}
+ 
+        [Log]
+        public ConsultaSucursalResponse ConsultaSucursales()
+        {
+            ConsultaSucursalResponse response = new ConsultaSucursalResponse();
+            try
+            {
+                response = (new AcuerdoComercialBL()).ConsultaSucursales();
+                response.Result = new Result { Success = true };
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+                return new ConsultaSucursalResponse { Result = new Result { Success = false, Message = ex.Message } };
+            }
+        }
+
+        [Log]
+        public ConsultaTerminalPortuarioResponse ConsultarTerminalPortuario()
+        {
+            ConsultaTerminalPortuarioResponse response = new ConsultaTerminalPortuarioResponse();
+            try
+            {
+                response = (new AcuerdoComercialBL()).ConsultarTerminalPortuario();
+                response.Result = new Result { Success = true };
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+                return new ConsultaTerminalPortuarioResponse { Result = new Result { Success = false, Message = ex.Message } };
+            }
+        }
+
+        [Log]
+        public ConsultaLineasResponse ConsultarLineas()
+        {
+            ConsultaLineasResponse response = new ConsultaLineasResponse();
+            try
+            {
+                response = (new AcuerdoComercialBL()).ConsultarLineas();
+                response.Result = new Result { Success = true };
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+                return new ConsultaLineasResponse { Result = new Result { Success = false, Message = ex.Message } };
+            }
+        }
+
+        [Log]
+        public ConsultaMonedasResponse ConsultarMoneda()
+        {
+            ConsultaMonedasResponse response = new ConsultaMonedasResponse();
+            try
+            {
+                response = (new AcuerdoComercialBL()).ConsultarMoneda();
+                response.Result = new Result { Success = true };
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+                return new ConsultaMonedasResponse { Result = new Result { Success = false, Message = ex.Message } };
+            }
+        }
+
+        [Log]
+        public ConsultaNavesResponse ConsultarNave(ConsultaNavesRequest request)
+        {
+            ConsultaNavesResponse response = new ConsultaNavesResponse();
+            try
+            {
+                response = (new AcuerdoComercialBL()).ConsultarNave(request);
+                response.Result = new Result { Success = true };
+
+               string json = Newtonsoft.Json.JsonConvert.SerializeObject(response);
+               return response;
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+                return new ConsultaNavesResponse { Result = new Result { Success = false, Message = ex.Message } };
+            }
+        }
+
+        [Log]
+        public ConsultaTarifasResponse ConsultarTarifa(ConsultaTarifasRequest request)
+        {
+            ConsultaTarifasResponse response = new ConsultaTarifasResponse();
+            try
+            {
+                response = (new AcuerdoComercialBL()).ConsultarTarifa(request);
+                response.Result = new Result { Success = true };
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+                return new ConsultaTarifasResponse { Result = new Result { Success = false, Message = ex.Message } };
+            }
+        }
+
+
+        [Log]
+        public ConsultaDistribucionTarifasResponse ConsultarDistribucionTarifa(ConsultaDistribucionTarifasRequest request)
+        {
+            ConsultaDistribucionTarifasResponse response = new ConsultaDistribucionTarifasResponse();
+            try
+            {
+                response = (new AcuerdoComercialBL()).ConsultarDistribucionTarifa(request);
+                response.Result = new Result { Success = true };
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+                return new ConsultaDistribucionTarifasResponse { Result = new Result { Success = false, Message = ex.Message } };
+            }
+        }
+
+        [Log]
+        public ConsultaPuertosResponse ConsultarPuertos()
+        {
+            ConsultaPuertosResponse response = new ConsultaPuertosResponse();
+            try
+            {
+                response = (new AcuerdoComercialBL()).ConsultarPuertos();
+                response.Estado = true;
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+                return new ConsultaPuertosResponse { Estado = false, ListaMensajes = new List<string> { ex.Message } };
+            }
+        }
+
+        ///// <summary>
+        ///// Graba información en TRAMARSA sobre el nuevo estado liberado para la relación de Bls pendientes de liberación.
+        ///// Graba información en TRAMARSA la relacion de recargos a Bls para ser liberados.
+        ///// Actualiza información en TRAMARSA sobre el nuevo estado Pre-Paid para los recargos permitiendo liberar Bls pendientes de liberación.
+        ///// <br/><b>Url Invocación:</b> <a href="http://tramoldev01.tramarsa.com.pe:7070/LiberacionBLServicio.svc/EjecutarLiberacionBL">http://tramoldev01.tramarsa.com.pe:7070/LiberacionBLServicio.svc/EjecutarLiberacionBL</a>
+        ///// <br/><b>Request Json:</b> ""
+        ///// <br/><b>Response Json:</b> ""
+        ///// </summary>
+        ///// <param name="request">Entidad con los datos para la identificacion de los BLs Pendientes de Liberación.</param>
+        ///// <returns>Entidad con datos de la respuesta de la operación.</returns> 
+        //[Log]
+        //public ResponseBaseDTO EjecutarLiberacionBL(RequestEjecutarLiberacionBL request)
+        //{
+        //    ResponseBaseDTO response = new ResponseBaseDTO();
+
+        //    try
+        //    {
+        //        var bl = new AcuerdoComercialBL();
+        //        response = bl.EjecutarLiberacionBL(request);
+        //        return response;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+        //        response.Estado = false;
+        //        response.ListaMensajes.Add(ex.Message);
+        //        return response;
+        //    }
+        //}
+    }
+}

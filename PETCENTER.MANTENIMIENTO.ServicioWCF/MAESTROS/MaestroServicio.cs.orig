@@ -1,0 +1,429 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.ServiceModel;
+using System.Text;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.Tramarsa;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Framework;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.LogicaNegocio;
+using Newtonsoft.Json;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.Tramarsa.Sucursal.Response;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.Tramarsa.TerminalPortuario;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.Tramarsa.Linea.Response;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.Tramarsa.Moneda.Response;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.Tramarsa.Nave.Response;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.Tramarsa.Nave.Request;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.Tramarsa.Tarifa.Response;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.Tramarsa.Tarifa.Request;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.Tramarsa.Puerto.Response;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.Tramarsa.BL.Response;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.Tramarsa.BL;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.Tramarsa.Cliente.Response;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.Tramarsa.Cliente.Request;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.DetalleCatalogo.Response;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.DetalleCatalogo.Request;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.GrupoPuertoExterno.Response;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.DetalleGrupoPuertoExterno.Response;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.DetalleGrupoPuertoExterno.Request;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.GrupoPuertoExterno.Request;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.Tarifa.Response;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.Tarifa.Request;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.Core.Response;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.Tramarsa.Servicio.Response;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.Tramarsa.Servicio.Request;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.AcuerdoComercial.Response;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.AcuerdoComercial.Request;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.Tramarsa.Puerto.Request;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.TipoContenedorExterno.Response;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.TipoContenedorExterno.Request;
+
+namespace TRAMARSA.AGMA.ACUERDOCOMERCIAL.ServicioWCF.MAESTROS
+{
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerCall, ConcurrencyMode = ConcurrencyMode.Multiple)]
+    public class MaestroServicio : IMaestroServicio
+    {
+  
+        [Log]
+        public ConsultaSucursalResponseDTO ConsultaSucursales()
+        {
+            ConsultaSucursalResponseDTO response = new ConsultaSucursalResponseDTO();
+            try
+            {
+                MaestrosBL maestrosBL = new MaestrosBL();
+                response = maestrosBL.ConsultaSucursales();                  
+
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+            }
+
+            return response;
+        }
+
+        [Log]
+        public ConsultaTerminalPortuarioResponseDTO ConsultarTerminalPortuario()
+        {
+            ConsultaTerminalPortuarioResponseDTO response = new ConsultaTerminalPortuarioResponseDTO();
+            try
+            {
+
+                MaestrosBL maestrosBL = new MaestrosBL();
+                response = maestrosBL.ConsultarTerminalPortuario();
+
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+            }
+
+            return response;
+        }
+
+        [Log]
+        public ConsultaLineasResponseDTO ConsultarLineas()
+        {
+            ConsultaLineasResponseDTO response = new ConsultaLineasResponseDTO();
+            try
+            {
+                MaestrosBL maestrosBL = new MaestrosBL();
+                response = maestrosBL.ConsultarLineas();
+
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+            }
+
+            return response;
+        }
+
+        [Log]
+        public ConsultaMonedasResponseDTO ConsultarMoneda()
+        {
+            ConsultaMonedasResponseDTO response = new ConsultaMonedasResponseDTO();
+            try
+            {
+                MaestrosBL maestrosBL = new MaestrosBL();
+                response = maestrosBL.ConsultarMoneda();
+
+
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+            }
+
+            return response;
+        }
+
+        [Log]
+        public ConsultaNavesResponseDTO ConsultarNave(ConsultaNavesRequestDTO request)
+        {
+            ConsultaNavesResponseDTO response = new ConsultaNavesResponseDTO();
+            try
+            {
+                MaestrosBL maestrosBL = new MaestrosBL();
+                response = maestrosBL.ConsultarNave(request);
+
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+            }
+
+            return response;
+        }
+
+        [Log]
+        public ConsultaTarifaResponseDTO ConsultarTarifa(ConsultaTarifasRequestDTO request)
+        {
+            ConsultaTarifaResponseDTO response = new ConsultaTarifaResponseDTO();
+            try
+            {
+                MaestrosBL maestrosBL = new MaestrosBL();
+                response = maestrosBL.ConsultarTarifa(request);
+
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+            }
+
+            return response;
+        }
+
+
+        [Log]
+        public ConsultaDistribucionTarifasResponseDTO ConsultarDistribucionTarifa(ConsultaDistribucionTarifasRequestDTO request)
+        {
+            ConsultaDistribucionTarifasResponseDTO response = new ConsultaDistribucionTarifasResponseDTO();
+            try
+            {
+                MaestrosBL maestrosBL = new MaestrosBL();
+                response = maestrosBL.ConsultarDistribucionTarifa(request);
+
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+            }
+
+            return response;
+        }
+
+        [Log]
+        public ConsultaPuertosResponseDTO ConsultarPuertos(ConsultaPuertosRequestDTO request)
+        {
+            ConsultaPuertosResponseDTO response = new ConsultaPuertosResponseDTO();
+            try
+            {
+                MaestrosBL maestrosBL = new MaestrosBL();
+                response = maestrosBL.ConsultarPuertos(request);
+
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+            }
+
+            return response;
+        }
+
+        [Log]
+        public ConsultaBLDocumentoOrigenResponseDTO ConsultarBL_DocumentoOrigen(ConsultaBLDocumentoOrigenRequestDTO request)
+        {
+            ConsultaBLDocumentoOrigenResponseDTO response = new ConsultaBLDocumentoOrigenResponseDTO();
+            try
+            {
+                MaestrosBL maestrosBL = new MaestrosBL();
+                response = maestrosBL.ConsultarBL_DocumentoOrigen(request);
+
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+            }
+
+            return response;
+        }
+
+        [Log]
+        public ConsultaClienteResponseDTO ConsultarCliente(ConsultaClienteRequestDTO request)
+        {
+            ConsultaClienteResponseDTO response = new ConsultaClienteResponseDTO();
+            try
+            {
+               // Newtonsoft.Json.JsonConvert.SerializeObject(request);
+
+                MaestrosBL maestrosBL = new MaestrosBL();
+                response = maestrosBL.ConsultarCliente(request);
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+            }
+
+            return response;
+        }
+
+        [Log]
+        public ConsultaDetalleCatalogoResponseDTO ConsultarDetalleCatalogo()
+        {
+            ConsultaDetalleCatalogoResponseDTO response = new ConsultaDetalleCatalogoResponseDTO();
+            try
+            {
+                MaestrosBL maestrosBL = new MaestrosBL();
+                response = maestrosBL.ConsultarDetalleCatalogo();
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+            }
+
+            return response;
+        }
+
+        [Log]
+        public ConsultaGrupoPuertoExternoResponseDTO ConsultarGrupoPuertoExterno(ConsultaGrupoPuertoExternoRequestDTO request)
+        {
+            ConsultaGrupoPuertoExternoResponseDTO response = new ConsultaGrupoPuertoExternoResponseDTO();
+            try
+            {
+
+                //Newtonsoft.Json.JsonConvert.SerializeObject(request);
+
+                MaestrosBL maestrosBL = new MaestrosBL();
+                response = maestrosBL.ConsultarGrupoPuertoExterno(request);
+       
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+                //return new ConsultaGrupoPuertoExternoResponseDTO { Result = new Result { Satisfactorio = false, Mensaje = "Ocurrio un problema interno en el servicio" } };
+            }
+
+            return response;
+        }
+
+        [Log]
+        public ConsultaDetalleGrupoPuertoExternoResponseDTO ConsultarDetalleGrupoPuertoExterno(ConsultaDetalleGrupoPuertoExternoRequestDTO request)
+        {
+            ConsultaDetalleGrupoPuertoExternoResponseDTO response = new ConsultaDetalleGrupoPuertoExternoResponseDTO();
+            try
+            {
+                MaestrosBL maestrosBL = new MaestrosBL();
+                response = maestrosBL.ConsultarDetalleGrupoPuertoExterno(request);
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+            }
+
+            return response;
+        }
+
+
+
+        [Log]
+        public ParametroNegocioResponseDTO ConsultarParametroNegocio()
+        {
+            ParametroNegocioResponseDTO response = new ParametroNegocioResponseDTO();
+            try
+            {
+                MaestrosBL maestrosBL = new MaestrosBL();
+                response = maestrosBL.ConsultarParametroNegocio();
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+            }
+
+            return response;
+        }
+
+        [Log]
+        public ConsultaServicioResponseDTO ConsultarServicio(ConsultaServicioRequestDTO request)
+        {
+            ConsultaServicioResponseDTO response = new ConsultaServicioResponseDTO();
+            try
+            {
+                MaestrosBL maestrosBL = new MaestrosBL();
+                response = maestrosBL.ConsultarServicio(request);
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+            }
+
+            return response;
+        }
+
+        [Log]
+        public ConsultaPesoVariableResponseDTO ConsultarPesoVariable(ConsultaPesoVariableRequestDTO request)
+        {
+            ConsultaPesoVariableResponseDTO response = new ConsultaPesoVariableResponseDTO();
+
+            try
+            {
+                MaestrosBL maestrosBL = new MaestrosBL();
+                response = maestrosBL.ConsultarPesoVariable(request);
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+            }
+
+            return response;
+        }  
+        
+        [Log]
+        public InsertaGrupoPuertoExternoResponseDTO AgregarGrupoPuertoExterno(InsertaGrupoPuertoExternoRequestDTO request)
+        {
+            InsertaGrupoPuertoExternoResponseDTO response = new InsertaGrupoPuertoExternoResponseDTO();
+
+            try
+            {
+                MaestrosBL maestrosBL = new MaestrosBL();
+                response = maestrosBL.AgregarGrupoPuertoExterno(request);
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+            }
+
+            return response;
+        }
+
+        [Log]
+        public ActualizaGrupoPuertoExternoResponseDTO ActualizarGrupoPuertoExterno(ActualizaGrupoPuertoExternoRequestDTO request)
+        {
+            ActualizaGrupoPuertoExternoResponseDTO response = new ActualizaGrupoPuertoExternoResponseDTO();
+
+            try
+            {
+                MaestrosBL maestrosBL = new MaestrosBL();
+                response = maestrosBL.ActualizarGrupoPuertoExterno(request);
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+            }
+
+            return response;
+        }
+
+        [Log]
+<<<<<<< HEAD
+        public Result GetResult(Result result)
+        {
+            try
+            {
+                return new Result { Satisfactorio = true };
+            }
+            catch (Exception)
+            {
+                return new Result { Satisfactorio = false };
+            }
+
+        }
+=======
+        public EliminaGrupoPuertoExternoResponseDTO EliminarGrupoPuertoExterno(EliminaGrupoPuertoExternoRequestDTO request)
+        {
+            EliminaGrupoPuertoExternoResponseDTO response = new EliminaGrupoPuertoExternoResponseDTO();
+            try
+            {
+                MaestrosBL maestrosBL = new MaestrosBL();
+                response = maestrosBL.EliminarGrupoPuertoExterno(request);
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+            }
+
+            return response;
+        }
+
+        [Log]
+        public ConsultaTipoContenedorExternoResponseDTO ConsultarTipoContenedorExterno(ConsultaTipoContenedorExternoRequestDTO request)
+        {
+            ConsultaTipoContenedorExternoResponseDTO response = new ConsultaTipoContenedorExternoResponseDTO();
+
+            try
+            {
+                MaestrosBL maestrosBL = new MaestrosBL();
+                response = maestrosBL.ConsultarTipoContenedorExterno(request);
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+            }
+
+            return response;
+        } 
+>>>>>>> 5587b023fff2e814c48609a9bdb9a2904f39d7eb
+    }
+}

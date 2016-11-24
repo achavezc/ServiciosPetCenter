@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8C6A55A9-8EF2-455A-B750-E6BC08DD52A4}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>PETCENTER.MANTENIMIENTO.DTO</RootNamespace>
+    <AssemblyName>PETCENTER.MANTENIMIENTO.DTO</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AcuerdoComercial\Request\RequestNotificacionDTO.cs" />
+    <Compile Include="AcuerdoComercial\Response\RegistraAcuerdoComercialEscalonadoResponseDTO.cs" />
+    <Compile Include="AcuerdoComercial\Response\RegistraAcuerdoComercialLocalResponseDTO.cs" />
+    <Compile Include="BaseDTO.cs" />
+    <Compile Include="BusquedaBaseDTO.cs" />
+    <Compile Include="Core\ParametroNegocioDTO.cs" />
+    <Compile Include="Core\RequestOperacionBusquedaDTO.cs" />
+    <Compile Include="Core\Request\ActualizarParametroNegocioRequestDTO.cs" />
+    <Compile Include="Core\Request\EliminarParametroNegocioRequestDTO.cs" />
+    <Compile Include="Core\Response\ActualizarParametroNegocioResponseDTO.cs" />
+    <Compile Include="Core\Response\EliminarParametroNegocioResponseDTO.cs" />
+    <Compile Include="Core\Response\ParametroNegocioResponseDTO.cs" />
+    <Compile Include="Mantenimientos\Sede\SedeDTO.cs" />
+    <Compile Include="Mantenimientos\Solicitud\MantenimientoDTO.cs" />
+    <Compile Include="Mantenimientos\Solicitud\MantenimientoListDTO.cs" />
+    <Compile Include="Mantenimientos\Solicitud\Request\ConsultarSolicitudRequestDTO.cs" />
+    <Compile Include="Mantenimientos\Solicitud\Request\ObtenerSolicitudRequestDTO.cs" />
+    <Compile Include="Mantenimientos\Solicitud\Request\RegistrarSolicitudRequestDTO.cs" />
+    <Compile Include="Mantenimientos\Solicitud\Response\ConsultarSolicitudResponseDTO.cs" />
+    <Compile Include="Mantenimientos\Solicitud\Response\ObtenerSolicitudResponseDTO.cs" />
+    <Compile Include="Mantenimientos\Solicitud\Response\RegistrarSolicitudResponseDTO.cs" />
+    <Compile Include="Mantenimientos\Solicitud\SolicitudDTO.cs" />
+    <Compile Include="Mantenimientos\TipoMantenimiento\AreaDTO.cs" />
+    <Compile Include="Mantenimientos\TipoMantenimiento\Response\ConsultarTipoMantenimientoResponseDTO.cs" />
+    <Compile Include="Mantenimientos\TipoMantenimiento\TipoMantenimientoDTO.cs" />
+    <Compile Include="ParametroSistema\BusquedaParametroSistemaValidacionDTO.cs" />
+    <Compile Include="ParametroSistema\ParametroSistemaDTO.cs" />
+    <Compile Include="ParametroSistema\RequestBusquedaParametroSistemaDTO.cs" />
+    <Compile Include="ParametroSistema\RequestItemParametroSistemaDTO.cs" />
+    <Compile Include="ParametroSistema\ResponseBusquedaParametroSistemaDTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ParametroSistema\ResultadoFilaParametroSistemaDTO.cs" />
+    <Compile Include="RequestPaginacionBaseDTO.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RequestBaseDTO.cs" />
+    <Compile Include="ResponseBaseDTO.cs" />
+    <Compile Include="ResponsePaginacionBaseDTO.cs" />
+    <Compile Include="Result.cs" />
+    <Compile Include="Resultado.cs" />
+    <Compile Include="ResultException.cs" />
+    <Compile Include="RolesCliente\Request\RequestRolesClientesSAPDTO.cs" />
+    <Compile Include="RolesCliente\Response\BaseSapDTO.cs" />
+    <Compile Include="RolesCliente\Response\ResponseConsultaRolesClientesSapDTO.cs" />
+    <Compile Include="RolesCliente\Response\ResponseReturnSAP.cs" />
+    <Compile Include="RolesCliente\Response\ResponseRolesClientesSAP.cs" />
+    <Compile Include="UsuarioSeguridad\Request\CambiarClaveUsuarioRequestDTO.cs" />
+    <Compile Include="UsuarioSeguridad\Request\RequestCambioClaveDTO.cs" />
+    <Compile Include="UsuarioSeguridad\Request\GenerarClaveUsuarioRequestDTO.cs" />
+    <Compile Include="UsuarioSeguridad\Request\RequestUsuarioDTO.cs" />
+    <Compile Include="UsuarioSeguridad\Request\RequestInfoBasicaUsuarioDTO2.cs" />
+    <Compile Include="UsuarioSeguridad\Request\RequestInfoBasicaUsuarioDTO.cs" />
+    <Compile Include="UsuarioSeguridad\Response\CambiarClaveUsuarioResponseDTO.cs" />
+    <Compile Include="UsuarioSeguridad\Response\ResponseCambioClaveDTO.cs" />
+    <Compile Include="UsuarioSeguridad\Response\GenerarClaveUsuarioResponseDTO.cs" />
+    <Compile Include="UsuarioSeguridad\Response\ResponseListaUsuarios.cs" />
+    <Compile Include="UsuarioSeguridad\Response\ResponseInfoBasicaUsuarioDTO.cs" />
+    <Compile Include="UsuarioSeguridad\UsuarioDTO.cs" />
+    <Compile Include="UsuarioSeguridad\UsuarioSeguridadDTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="AcuerdoComercial\AcuerdoComercialEscalonadoTarifaDTO.cs.orig" />
+    <None Include="AcuerdoComercial\Request\ConsultaAcuerdoComercialEscalonadoRequestDTO.cs.orig" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PETCENTER.MANTENIMIENTO.Entidades\PETCENTER.MANTENIMIENTO.Entidades.csproj">
+      <Project>{5bb581d9-85dc-4698-86f0-7498a06b3fa8}</Project>
+      <Name>TRAMARSA.RECLAMOS.Entidades</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

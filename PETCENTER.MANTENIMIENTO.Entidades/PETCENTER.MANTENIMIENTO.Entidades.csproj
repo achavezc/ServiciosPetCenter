@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5BB581D9-85DC-4698-86F0-7498A06B3FA8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>PETCENTER.MANTENIMIENTO.Entidades</RootNamespace>
+    <AssemblyName>PETCENTER.MANTENIMIENTO.Entidades</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Flujo\Actividad.cs" />
+    <Compile Include="Flujo\Notificacion.cs" />
+    <Compile Include="Flujo\ResponsableActividad.cs" />
+    <Compile Include="Flujo\ResponsableTarea.cs" />
+    <Compile Include="Flujo\Tarea.cs" />
+    <Compile Include="Mantenimientos\Mantenimiento.cs" />
+    <Compile Include="Mantenimientos\MantenimientoList.cs" />
+    <Compile Include="Mantenimientos\RegistrarSolicitud.cs" />
+    <Compile Include="Mantenimientos\Sede.cs" />
+    <Compile Include="Mantenimientos\Solicitud.cs" />
+    <Compile Include="Mantenimientos\TipoMantenimiento.cs" />
+    <Compile Include="ParametrosSistemas\PaginacionDTO.cs" />
+    <Compile Include="Constantes\ConstantesSistema.cs" />
+    <Compile Include="Constantes\Enumeradores.cs" />
+    <Compile Include="Core\EliminarParametroNegocio.cs" />
+    <Compile Include="Core\AuditoriaBase.cs" />
+    <Compile Include="Core\Notificacion.cs" />
+    <Compile Include="Core\ActualizarParametroNegocio.cs" />
+    <Compile Include="Core\ParametroNegocio.cs" />
+    <Compile Include="Core\ParametroSistema.cs" />
+    <Compile Include="PaginacionResponseBase.cs" />
+    <Compile Include="PaginacionBase.cs" />
+    <Compile Include="MaestroBase.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UsuarioSeguridad\ConsultarInfoBasicaUsuarioBE.cs" />
+    <Compile Include="UsuarioSeguridad\UsuarioBE.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

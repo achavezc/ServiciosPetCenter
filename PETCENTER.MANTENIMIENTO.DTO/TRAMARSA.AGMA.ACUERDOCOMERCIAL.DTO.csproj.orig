@@ -1,0 +1,317 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8C6A55A9-8EF2-455A-B750-E6BC08DD52A4}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO</RootNamespace>
+    <AssemblyName>TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialEscalonadoAgenteBLHouseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialEscalonadoAgenteBLMasterDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialEscalonadoCargaDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialEscalonadoClienteBLHouseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialEscalonadoClienteBLMasterDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialEscalonadoHistorialDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialEscalonadoPuertoDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialEscalonadoRADTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialEscalonadoServicioBLDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialEscalonadoServicioNaveDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialEscalonadoSucursalDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialEscalonadoSucursalTerminalDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialEscalonadoTarifaPeriodoDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialEscalonadoTarifaLigadaDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialEscalonadoTarifaDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialLocalAgenteBLHouseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialLocalAgenteBLMasterDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialLocalCargaDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialLocalClienteBLHouseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialLocalClienteBLMasterDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialLocalPuertoDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialLocalRADTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialLocalServicioBLDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialLocalServicioNaveDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialLocalSucursalDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialLocalSucursalTerminalDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialLocalTarifaLigadaDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialLocalTarifaDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialLocalTipoContenedorDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\DetalleAcuerdoComercialEscalonadoDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\DetalleAcuerdoComercialLocalDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\ConsultaDetalleAcuerdoComercialEscalonadoRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\ConsultaDetalleAcuerdoComercialLocalRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Response\ConsultaDetalleAcuerdoComercialEscalonadoResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Response\ConsultaDetalleAcuerdoComercialLocalResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Response\ConsultaSeguimientoAcuerdoComercialLocalResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\SeguimientoAcuerdoComercialLocalDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialLocalHistorialDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\ConsultaSeguimientoAcuerdoComercialLocalRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\ConsultaSeguimientoAcuerdoComercialEscalonadoRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\CatalogoTablas\DetalleCatalogoTablasDTO.cs" />
+    <Compile Include="AcuerdosComerciales\CatalogoTablas\CatalogoTablasDTO.cs" />
+<<<<<<< HEAD
+    <Compile Include="AcuerdosComerciales\CatalogoTablas\Request\ConsultaDetalleCatalogoTablasRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\CatalogoTablas\Request\ConsultaCatalogoTablasRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\CatalogoTablas\Response\ConsultaDetalleCatalogoTablasResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\CatalogoTablas\Response\ConsultaCatalogoTablasResponseDTO.cs" />
+=======
+    <Compile Include="AcuerdosComerciales\Notificacion\Response\NotificarContenedoresNoDevueltosResponseDTO.cs" />
+>>>>>>> a330a504e00d76ad88ede1910975ff636417f002
+    <Compile Include="AcuerdosComerciales\PesoVariable\PesoVariableDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\ActualizaAcuerdoComercialEscalonadoRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\ActualizaAcuerdoComercialLocalRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\AcuerdoComercialEscalonadoAgenteBLHouseRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\AcuerdoComercialEscalonadoAgenteBLMasterRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\AcuerdoComercialEscalonadoCargaRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\AcuerdoComercialEscalonadoClienteBLHouseRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\AcuerdoComercialEscalonadoClienteBLMasterRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\AcuerdoComercialEscalonadoTarifaPeriodoRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\AcuerdoComercialEscalonadoPuertoRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\AcuerdoComercialEscalonadoRARequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\AcuerdoComercialEscalonadoServicioBLRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\AcuerdoComercialEscalonadoServicioNaveRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\AcuerdoComercialEscalonadoSucursalRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\AcuerdoComercialEscalonadoSucursalTerminalRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\AcuerdoComercialEscalonadoTarifaRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\AcuerdoComercialEscalonadoTarifaLigadaRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\AcuerdoComercialLocalAgenteBLHouseRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\AcuerdoComercialLocalAgenteBLMasterRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\AcuerdoComercialLocalCargaRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\AcuerdoComercialLocalClienteBLHouseRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\AcuerdoComercialLocalClienteBLMasterRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\AcuerdoComercialLocalPuertoRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\AcuerdoComercialLocalRARequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\AcuerdoComercialLocalServicioBLRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\AcuerdoComercialLocalServicioNaveRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\AcuerdoComercialLocalSucursalRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\AcuerdoComercialLocalSucursalTerminalRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\AcuerdoComercialLocalTarifaRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\AcuerdoComercialLocalTarifaLigadaRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\AcuerdoComercialLocalTipoContenedorRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\ConsultaAcuerdoComercialEscalonadoHistorialRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\ConsultaAcuerdoComercialLocalHistorialRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\IngresoMasivoRAPTRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Response\IngresoMasivoRAPTResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\RequestNotificacionDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Response\ActualizaAcuerdoComercialEscalonadoResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Response\ActualizaAcuerdoComercialLocalResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Response\ConsultaSeguimientoAcuerdoComercialEscalonadoResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Response\ConsultaAcuerdoComercialEscalonadoHistorialResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Response\ConsultaAcuerdoComercialLocalHistorialResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Response\RegistraAcuerdoComercialEscalonadoResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Response\RegistraAcuerdoComercialLocalResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialEscalonadoDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\AcuerdoComercialLocalDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\ConsultaAcuerdoComercialEscalonadoRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Request\ConsultaAcuerdoComercialLocalRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Response\ConsultaAcuerdoComercialEscalonadoResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\Response\ConsultaAcuerdoComercialLocalResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\AcuerdoComercial\SeguimientoAcuerdoComercialEscalonadoDTO.cs" />
+    <Compile Include="AcuerdosComerciales\DetalleCatalogo\DetalleCatalogoDTO.cs" />
+    <Compile Include="AcuerdosComerciales\DetalleGrupoPuertoExterno\ActualizarDetalleGrupoPuertoExternoDTO.cs" />
+    <Compile Include="AcuerdosComerciales\DetalleGrupoPuertoExterno\DetalleGrupoPuertoExternoDTO.cs" />
+    <Compile Include="AcuerdosComerciales\GrupoPuertoExterno\GrupoPuertoExternoDTO.cs" />
+    <Compile Include="AcuerdosComerciales\GrupoPuertoExterno\Request\EliminaGrupoPuertoExternoRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\GrupoPuertoExterno\Request\ActualizaGrupoPuertoExternoRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\GrupoPuertoExterno\Request\InsertaGrupoPuertoExternoRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\GrupoPuertoExterno\Response\EliminaGrupoPuertoExternoResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\GrupoPuertoExterno\Response\ActualizaGrupoPuertoExternoResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\GrupoPuertoExterno\Response\InsertaGrupoPuertoExternoResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\DetalleGrupoPuertoExterno\Request\ConsultaDetalleGrupoPuertoExternoRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\DetalleGrupoPuertoExterno\Response\ConsultaDetalleGrupoPuertoExternoResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\GrupoPuertoExterno\Request\ConsultaGrupoPuertoExternoRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\GrupoPuertoExterno\Response\ConsultaGrupoPuertoExternoResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Notificacion\Request\ConsultaLiquidacionesNoDevueltasRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Notificacion\Response\ConsultaLiquidacionesNoDevueltasResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Notificacion\Response\LiquidacionesNoDevueltasDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Notificacion\Request\NotificacionRequest.cs" />
+    <Compile Include="AcuerdosComerciales\Notificacion\Response\NotificacionResponse.cs" />
+    <Compile Include="AcuerdosComerciales\PesoVariable\Request\EliminarPesoVariableRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\PesoVariable\Request\InsertarPesoVariableRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\PesoVariable\Request\ActualizarPesoVariableRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\PesoVariable\Request\ConsultaPesoVariableRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\PesoVariable\Response\EliminarPesoVariableResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\PesoVariable\Response\ActualizarPesoVariableResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\PesoVariable\Response\InsertarPesoVariableResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\PesoVariable\Response\ConsultaPesoVariableResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\ReporteTarifaEscalonadaDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\Request\ActualizaTarifaEscalonadaRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\Request\ConsultaReporteTarifaEscalonadaRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\Request\ConsultaTarifaEscalonadaHistorialRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\Request\ConsultaTarifaLocalHistorialRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\DetalleTarifaEscalonadaDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\Request\ActualizaTarifaLocalRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\Request\ConsultaDetalleTarifaEscalonadaRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\Request\ConsultaDetalleTarifaLocalRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\Request\ConsultaTarifaEscalonadaRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\Request\ConsultaReporteTarifaLocalRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\Request\InsertaTarifaEscalonadaRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\Request\InsertaTarifaEscalonadaHistorialRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\Request\InsertaTarifaLocalRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\Response\ActualizaTarifaEscalonadaResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\Response\ConsultaDetalleTarifaEscalonadaResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\Response\ConsultaDetalleTarifaLocalResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\Response\ConsultaReporteTarifaEscalonadaResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\Response\ConsultaTarifaEscalonadaResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\Response\ConsultaTarifaEscalonadaHistorialResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\Response\ConsultaTarifaLocalHistorialResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\Response\ConsultaReporteTarifaLocalResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\Response\InsertaTarifaEscalonadaHistorialResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\Response\InsertaTarifaEscalonadaResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\TarifaEscalonadaDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\TarifaEscalonadaLigadaDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\TarifaEscalonadaPeriodoDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\TarifaEscalonadaSucursalDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\DetalleTarifaLocalDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\TarifaEscalonadaHistorialDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\ReporteTarifaLocalDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\TarifaLocalHistorialDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\TarifaLocalLigadaDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\TarifaLocalSucursalDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\TarifaLocalSucursalTerminalDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\TarifaLocalVigenciaDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\Response\ActualizaTarifaLocalResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\Response\InsertaTarifaLocalResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\ClaseContenedor\Response\ConsultaClaseContenedorResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\ClaseContenedor\ClaseContenedorDTO.cs" />
+    <Compile Include="AcuerdosComerciales\TipoContenedorExterno\Request\InsertarTipoContenedorExternoRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\TipoContenedorExterno\Request\ActualizarTipoContenedorExternoRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\TipoContenedorExterno\Request\EliminarTipoContenedorExternoRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\TipoContenedorExterno\Request\ConsultaTipoContenedorExternoRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\TipoContenedorExterno\Response\InsertarTipoContenedorExternoResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\TipoContenedorExterno\Response\EliminarTipoContenedorExternoResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\TipoContenedorExterno\Response\ActualizarTipoContenedorExternoResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\TipoContenedorExterno\Response\ConsultaTipoContenedorExternoResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\TipoContenedorExterno\TipoContenedorExternoDTO.cs" />
+    <Compile Include="AcuerdosComerciales\TipoContenedor\Request\EliminarTipoContenedorRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\TipoContenedor\Request\ActualizarTipoContenedorRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\TipoContenedor\Request\InsertarTipoContenedorRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\TipoContenedor\Response\InsertarTipoContenedorResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\TipoContenedor\Response\ActualizarTipoContenedorResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\TipoContenedor\Response\EliminarTipoContenedorResponseDTO.cs" />
+    <Compile Include="BaseDTO.cs" />
+    <Compile Include="Core\ParametroNegocioDTO.cs" />
+    <Compile Include="Core\Request\ActualizarParametroNegocioRequestDTO.cs" />
+    <Compile Include="Core\Request\EliminarParametroNegocioRequestDTO.cs" />
+    <Compile Include="Core\Response\ActualizarParametroNegocioResponseDTO.cs" />
+    <Compile Include="Core\Response\EliminarParametroNegocioResponseDTO.cs" />
+    <Compile Include="Core\Response\ParametroNegocioResponseDTO.cs" />
+    <Compile Include="RequestPaginacionBaseDTO.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RequestBaseDTO.cs" />
+    <Compile Include="ResponseBaseDTO.cs" />
+    <Compile Include="ResponsePaginacionBaseDTO.cs" />
+    <Compile Include="Result.cs" />
+    <Compile Include="ResultException.cs" />
+    <Compile Include="RolesCliente\Request\RequestRolesClientesSAPDTO.cs" />
+    <Compile Include="RolesCliente\Response\BaseSapDTO.cs" />
+    <Compile Include="RolesCliente\Response\ResponseConsultaRolesClientesSapDTO.cs" />
+    <Compile Include="RolesCliente\Response\ResponseReturnSAP.cs" />
+    <Compile Include="RolesCliente\Response\ResponseRolesClientesSAP.cs" />
+    <Compile Include="Tramarsa\BL\BLDocumentoOrigenDTO.cs" />
+    <Compile Include="Tramarsa\Cliente\ClienteDTO.cs" />
+    <Compile Include="Tramarsa\BL\Request\ConsultaBLDocumentoOrigenRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\DetalleCatalogo\Request\ConsultaDetalleCatalogoRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\DetalleCatalogo\Response\ConsultaDetalleCatalogoResponseDTO.cs" />
+    <Compile Include="Tramarsa\Cliente\Request\ConsultaClienteCorreoDTO.cs" />
+    <Compile Include="Tramarsa\Cliente\Response\ClienteCorreoDTO.cs" />
+    <Compile Include="Tramarsa\Cliente\Request\ConsultaClienteCorreoRequestDTO.cs" />
+    <Compile Include="Tramarsa\Cliente\Response\ConsultaClienteCorreoResponseDTO.cs" />
+    <Compile Include="Tramarsa\Moneda\MonedaDTO.cs" />
+    <Compile Include="Tramarsa\Puerto\Request\ConsultaPuertosRequestDTO.cs" />
+    <Compile Include="Tramarsa\Servicio\ServicioDTO.cs" />
+    <Compile Include="Tramarsa\Servicio\Request\ConsultaServicioRequestDTO.cs" />
+    <Compile Include="Tramarsa\Servicio\Response\ConsultaServicioResponseDTO.cs" />
+    <Compile Include="Tramarsa\Nave\DetalleArriboNaveDTO.cs" />
+    <Compile Include="Tramarsa\Nave\NaveDTO.cs" />
+    <Compile Include="Tramarsa\Puerto\PuertoDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\Request\ConsultaTarifaLocalRequestDTO.cs" />
+    <Compile Include="AcuerdosComerciales\TipoContenedor\Response\ConsultaTipoContenedorResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\TipoContenedor\TipoContenedorDTO.cs" />
+    <Compile Include="Tramarsa\Tarifa\DistribucionTarifaDTO.cs" />
+    <Compile Include="Tramarsa\Tarifa\Request\ConsultaDistribucionTarifasRequestDTO.cs" />
+    <Compile Include="Tramarsa\BL\Response\ConsultaBLDocumentoOrigenResponseDTO.cs" />
+    <Compile Include="Tramarsa\Cliente\Request\ConsultaClienteRequestDTO.cs" />
+    <Compile Include="Tramarsa\Cliente\Response\ConsultaClienteResponseDTO.cs" />
+    <Compile Include="Tramarsa\Puerto\Response\ConsultaPuertosResponseDTO.cs" />
+    <Compile Include="Tramarsa\Tarifa\Request\ConsultaTarifasRequestDTO.cs" />
+    <Compile Include="Tramarsa\Tarifa\Response\ConsultaDistribucionTarifasResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\Response\ConsultaTarifaLocalResponseDTO.cs" />
+    <Compile Include="Tramarsa\Tarifa\Response\ConsultaTarifaResponseDTO.cs" />
+    <Compile Include="Tramarsa\Nave\Response\ConsultaNavesResponseDTO.cs" />
+    <Compile Include="Tramarsa\Moneda\Response\ConsultaMonedasResponseDTO.cs" />
+    <Compile Include="Tramarsa\Linea\LineaDTO.cs" />
+    <Compile Include="Tramarsa\Linea\Response\ConsultaLineasResponseDTO.cs" />
+    <Compile Include="AcuerdosComerciales\Tarifa\TarifaLocalDTO.cs" />
+    <Compile Include="Tramarsa\TerminalPortuario\Response\ConsultaTerminalPortuarioResponseDTO.cs" />
+    <Compile Include="Tramarsa\Sucursal\Response\ConsultaSucursalResponseDTO.cs" />
+    <Compile Include="Tramarsa\Nave\Request\ConsultaNavesRequestDTO.cs" />
+    <Compile Include="Tramarsa\Sucursal\SucursalDTO.cs" />
+    <Compile Include="Tramarsa\Tarifa\TarifaDTO.cs" />
+    <Compile Include="Tramarsa\TerminalPortuario\TerminalPortuarioDTO.cs" />
+    <Compile Include="UsuarioSeguridad\Request\RequestUsuarioDTO.cs" />
+    <Compile Include="UsuarioSeguridad\Request\RequestInfoBasicaUsuarioDTO2.cs" />
+    <Compile Include="UsuarioSeguridad\Request\RequestInfoBasicaUsuarioDTO.cs" />
+    <Compile Include="UsuarioSeguridad\Response\ResponseListaUsuarios.cs" />
+    <Compile Include="UsuarioSeguridad\Response\ResponseInfoBasicaUsuarioDTO.cs" />
+    <Compile Include="UsuarioSeguridad\UsuarioDTO.cs" />
+    <Compile Include="UsuarioSeguridad\UsuarioSeguridadDTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades\TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.csproj">
+      <Project>{5bb581d9-85dc-4698-86f0-7498a06b3fa8}</Project>
+      <Name>TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="AcuerdosComerciales\ClaseContenedor\Request\" />
+    <Folder Include="Tramarsa\Linea\Request\" />
+    <Folder Include="Tramarsa\Moneda\Request\" />
+    <Folder Include="Tramarsa\Sucursal\Request\" />
+    <Folder Include="Tramarsa\TerminalPortuario\Request\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

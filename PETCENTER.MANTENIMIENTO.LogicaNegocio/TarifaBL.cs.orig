@@ -1,0 +1,1162 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Transactions;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.AccesoDatos;
+
+using AutoMapper;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.Tarifa.Request;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.Tarifa.Response;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.AcuerdosComerciales.Tarifa;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.Tarifa;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.Tramarsa.Tarifa;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Framework;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.Constantes;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.Core;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.Core.Response;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.Core;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.Tramarsa.Sucursal;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.Tramarsa.Moneda;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.Tramarsa.Linea;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.AcuerdosComerciales.TerminalPortuario;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.AcuerdosComerciales.DetalleCatalogo;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.UsuarioSeguridad;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.UsuarioSeguridad.Request;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.AcuerdoComercial.Request;
+
+namespace TRAMARSA.AGMA.ACUERDOCOMERCIAL.LogicaNegocio
+{
+
+    public class TarifaBL
+    {
+        public ConsultaTarifaLocalResponseDTO ConsultarTarifaLocal(ConsultaTarifaLocalRequestDTO request)
+        {
+            ConsultaTarifaLocalResponseDTO response = new ConsultaTarifaLocalResponseDTO();
+            MaestrosBL maestrosBL = new MaestrosBL();
+
+            try
+            {
+                var lstTarifaLocal = new List<TarifaLocalBE>();
+                var lstTarifaLocalDTO = new List<TarifaLocalDTO>();
+                var requestTarifaLocalTramarsa = new ConsultaTarifaTramarsaBE();
+                var requestPaginacionDTO = new RequestPaginacionBaseDTO();
+                List<CodigosTarifa> lstCodigosTarifa = new List<CodigosTarifa>();
+                List<TarifaTramarsaBE> lstTarifaLocalTramarsa = new List<TarifaTramarsaBE>();
+
+
+                var requestDTO = Helper.MiMapper<ConsultaTarifaLocalRequestDTO, ConsultaTarifaLocalBE>(request);
+
+                var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.AcuerdoComercialAGMADB);
+                var repo = new RepositorioAcuerdoComercial(contextoParaBaseDatos);
+
+                int totalRegistros, cantPaginas;
+                lstTarifaLocal = repo.ConsultarTarifaLocalAGMADB(requestDTO);
+
+                lstCodigosTarifa = lstTarifaLocal.Select(x =>
+                                     new CodigosTarifa { CodigoConcepto = x.CodigoConcepto, CodigoTarifa = x.CodigoTarifa }
+                                  ).ToList<CodigosTarifa>();
+
+
+                requestTarifaLocalTramarsa.DescripcionTarifa = request.DescripcionTarifa;
+
+                if (lstCodigosTarifa.Count > 0)
+                {
+                    requestTarifaLocalTramarsa.dtCodigosTarifa = lstCodigosTarifa.GroupBy(x => new { x.CodigoConcepto, x.CodigoTarifa })
+                                                                 .Select(group => group.First()).ToList().ToDataTable();
+                }
+                else
+                {
+                    requestTarifaLocalTramarsa.dtCodigosTarifa = new System.Data.DataTable();
+                }
+
+                lstTarifaLocalTramarsa = ConsultarTarifaTramarsa(requestTarifaLocalTramarsa);
+
+                var query = (from a in lstTarifaLocal
+                             join b in lstTarifaLocalTramarsa on a.CodigoTarifa equals b.CodigoTarifa
+                             select a);
+
+                lstTarifaLocal = query.ToList();
+                //if (lstTarifaLocalTramarsa.Any() && lstTarifaLocalTramarsa.Any())
+                //{
+                //lstTarifaLocal.ForEach(x =>
+                //{
+
+
+                //    var tLocal = lstTarifaLocalTramarsa.Where(t => t.CodigoTarifa.Equals(x.CodigoTarifa)
+                //                          && t.CodigoConcepto.Equals(x.CodigoConcepto)).FirstOrDefault();
+
+                //      x.DescripcionTarifa = tLocal != null ? tLocal.DescripcionTarifa : string.Empty;
+
+                //});
+
+                //}
+
+                lstTarifaLocal.ForEach(x =>
+                {
+                    var moneda = maestrosBL.ObtenerMonedaPorCodigo(x.CodigoMoneda);
+                    var sucursal = maestrosBL.ObtenerSucursalPorCodigo(x.CodigoSucursal);
+                    var terminalPortuario = maestrosBL.ObtenerTerminalPortuarioPorCodigo(x.CodigoTerminalPortuario);
+
+                    x.DescripcionMoneda = moneda != null ? moneda.Nombre : string.Empty;
+                    x.DescripcionSucursal = sucursal != null ? sucursal.Nombre : string.Empty;
+                    x.DescripcionTerminalPortuario = terminalPortuario != null ? terminalPortuario.NombreAlmacen : string.Empty;
+                    x.DescripcionTarifa = lstTarifaLocalTramarsa.Where(xy => xy.CodigoTarifa == x.CodigoTarifa).FirstOrDefault().DescripcionTarifa;
+                });
+
+                lstTarifaLocal = lstTarifaLocal.Where(x => x.DescripcionTarifa != string.Empty).ToList();
+
+                lstTarifaLocalDTO = (from Origen in lstTarifaLocal
+                                     select Helper.MiMapper<TarifaLocalBE, TarifaLocalDTO>(Origen)).ToList();
+
+                requestPaginacionDTO.HabilitarPaginacion = true;
+                requestPaginacionDTO.OrdenCampo = request.OrdenCampo;
+                requestPaginacionDTO.OrdenOrientacion = request.OrdenOrientacion;
+                requestPaginacionDTO.PaginaActual = request.PaginaActual;
+                requestPaginacionDTO.NroRegistrosPorPagina = request.NroRegistrosPorPagina;
+
+                response.TarifaLocalList = PaginacionBL.PaginarLista(lstTarifaLocalDTO, requestPaginacionDTO, out totalRegistros, out cantPaginas, "CodigoTarifa");
+
+                response.TotalRegistros = totalRegistros;
+                response.CantidadPaginas = cantPaginas;
+
+            }
+            catch (Exception ex)
+            {
+                response.Result = new Result { IdError = Guid.NewGuid(), Satisfactorio = false, Mensaje = "Ocurrio un problema interno en el servicio" };
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.LogicaNegocio);
+            }
+
+            return response;
+        }
+
+        private List<TarifaTramarsaBE> ConsultarTarifaTramarsa(ConsultaTarifaTramarsaBE request)
+        {
+            List<TarifaTramarsaBE> lstTarifaTramarsa = new List<TarifaTramarsaBE>();
+
+            try
+            {
+                var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.Tramarsa);
+                var repo = new RepositorioAcuerdoComercial(contextoParaBaseDatos);
+
+                lstTarifaTramarsa = repo.ConsultarTarifaTramarsa(request);
+
+
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.LogicaNegocio);
+            }
+
+            return lstTarifaTramarsa;
+        }
+
+
+        public InsertaTarifaLocalResponseDTO RegistrarTarifaLocal(InsertaTarifaLocalRequestDTO request)
+        {
+
+            InsertaTarifaLocalResponseDTO response = new InsertaTarifaLocalResponseDTO();
+            CoreBL coreBL = new CoreBL();
+            List<TarifaLocalLigadaBE> valTarifasLigadasRepetidas = new List<TarifaLocalLigadaBE>();
+            var tarifaHistorial = new TarifaLocalHistorialBE();
+            int CodigoTarifaLocal = 0;
+
+
+            try
+            {
+                var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.AcuerdoComercialAGMADB);
+                var repo = new RepositorioAcuerdoComercial(contextoParaBaseDatos);
+
+                string mensajeIngresarTarifaLocal = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeIngresarTarifaLocal.ToString()).Valor;
+                string mensajeInhabilitarTarifaLocal = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeInhabilitarTarifaLocal.ToString()).Valor;
+                string mensajeModificarSeccionVigencia = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionVigencia.ToString()).Valor;
+                string mensajeModificarSeccionSucursal = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionSucursal.ToString()).Valor;
+                string mensajeModificarSeccionTerminalPortuario = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionTerminalPortuario.ToString()).Valor;
+                string mensajeModificarSeccionTarifaLigada = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionTarifaLigada.ToString()).Valor;
+                string mensajeValidacionIngresoTarifaLocal = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeValidacionIngresoTarifaLocal.ToString()).Valor;
+                string mensajeValidacionEdicionTarifaLocal = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeValidacionEdicionTarifaLocal.ToString()).Valor;
+                string mensajeValidacionEdicionTarifaLocalLigada = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeValidacionEdicionTarifaLocalLigada.ToString()).Valor;
+
+                Mapper.CreateMap<TarifaLocalLigadaDTO, TarifaLocalLigadaBE>();
+                Mapper.CreateMap<TarifaLocalSucursalDTO, TarifaLocalSucursalBE>();
+                Mapper.CreateMap<TarifaLocalSucursalTerminalDTO, TarifaLocalSucursalTerminalBE>();
+                Mapper.CreateMap<TarifaLocalVigenciaDTO, TarifaLocalVigenciaBE>();
+                var requestBE = Helper.MiMapper<InsertaTarifaLocalRequestDTO, ActualizaTarifaLocalBE>(request);
+
+
+                valTarifasLigadasRepetidas = ValidarTarifasLocalesLigadasRepetidas(requestBE.ListaTarifaLocalLigada);
+                if (valTarifasLigadasRepetidas.Count != 0)
+                {
+
+
+                    response.Result = new Result
+                    {
+                        IdError = Guid.NewGuid(),
+                        Satisfactorio = false,
+                        Mensajes = (from v in valTarifasLigadasRepetidas
+                                    select new Result
+                                    {
+                                        IdError = Guid.NewGuid(),
+                                        Satisfactorio = false,
+                                        Mensaje = mensajeValidacionEdicionTarifaLocalLigada.Replace("{CodigoTarifa}", v.CodigoTarifaLocal.ToString())
+                                    }).ToList()
+                    };
+                }
+                else
+                {
+                    var listValidarTarifa = repo.ValidarTarifaLocal(requestBE);
+
+                    if (listValidarTarifa.Count > 0)
+                    {
+                        response.Result = new Result
+                        {
+                            IdError = Guid.NewGuid(),
+                            Satisfactorio = false,
+                            Mensajes = (from v in listValidarTarifa
+                                        select new Result
+                                        {
+                                            IdError = Guid.NewGuid(),
+                                            Satisfactorio = false,
+                                            Mensaje = mensajeValidacionIngresoTarifaLocal
+                                        }).ToList()
+                        };
+                    }
+                    else
+                    {
+                        requestBE.FechaHoraCreacion = DateTime.Now;
+                        requestBE.EstadoRegistro = true;
+
+                        using (TransactionScope Transaccion = new TransactionScope())
+                        {
+
+                            CodigoTarifaLocal = repo.InsertarTarifaLocal(requestBE);
+
+                            if (!CodigoTarifaLocal.Equals(0))
+                            {
+                                requestBE.ListaTarifaLocalVigencia.ForEach(x => { x.CodigoTarifaLocal = CodigoTarifaLocal; });
+                                requestBE.ListaTarifaLocalSucursal.ForEach(x => { x.CodigoTarifaLocal = CodigoTarifaLocal; });
+                                requestBE.ListaTarifaLocalSucursalTerminal.ForEach(x => { x.CodigoTarifaLocal = CodigoTarifaLocal; });
+                                requestBE.ListaTarifaLocalLigada.ForEach(x => { x.CodigoTarifaLocal = CodigoTarifaLocal; });
+
+                                repo.RegistrarTarifaLocalVigencia(requestBE.ListaTarifaLocalVigencia);
+                                repo.RegistrarTarifaLocalSucursal(requestBE.ListaTarifaLocalSucursal);
+                                repo.RegistrarTarifaLocalSucursalTerminal(requestBE.ListaTarifaLocalSucursalTerminal);
+                                repo.RegistrarTarifaLocalLigada(requestBE.ListaTarifaLocalLigada);
+
+                                repo.InsertarTarifaLocalHistorial(new InsertaTarifaLocalHistorialBE
+                                {
+                                    CodigoTarifaLocal = CodigoTarifaLocal,
+                                    Descripcion = mensajeIngresarTarifaLocal,
+                                    Accion = Accion.Insertar.GetDescription(),
+                                    FechaHora = requestBE.FechaHoraCreacion,
+                                    Usuario = requestBE.UsuarioCreacion
+                                });
+
+                            }
+
+                            Transaccion.Complete();
+                        }
+                    }
+                }
+
+                #region NOTIFICAR
+
+                if (CodigoTarifaLocal > 0)
+                {
+                    string nombreUsuario = (new SeguridadBL()).getNombreUsuario(new RequestInfoBasicaUsuarioDTO { CodigosUsuario = new List<string> { request.CodigoUsuarioAutorizador } });
+
+                    NotificacionBL notificacionBL = new NotificacionBL();
+                    RequestNotificacionDTO requestNotificacion = new RequestNotificacionDTO();
+
+                    string listaVigencia = "<ul>";
+                    request.ListaTarifaLocalVigencia.ForEach(x =>
+                    {
+                        listaVigencia += string.Format("<li type=\"square\">Sucursal: {0} - Fecha Vigencia: {1:dd-MM-yyyy} </li>", x.DescripcionSucursal, x.Valor);
+                    });
+                    listaVigencia += "</ul>";
+
+                    #region PARAMETRO AMBIENTE
+
+                    var parametroList = (new MaestrosBL()).ConsultarParametroNegocio();
+                    var parametroFound = parametroList.ParametrosNegocioList.Where(x => x.Codigo == ((int)ConstantesParametrosNegocio.AmbinteScriptor).ToString());
+                    string ambiente = "";
+                    if (parametroFound.Any())
+                        ambiente = parametroFound.FirstOrDefault().Valor;
+
+                    #endregion
+
+                    requestNotificacion.CorreoDe = WebConfigReader.Mailer.From;
+                    requestNotificacion.CodigoNotificacion = (int)TipoNotificacion.TarifaLocal;
+                    requestNotificacion.CuerpoValores = new Dictionary<string, string>() {
+                                                                        { "{UsuarioAutorizador}", nombreUsuario },
+                                                                        { "{CodigoAcuerdoComercialLocal}", CodigoTarifaLocal.ToString() },
+                                                                        { "{FechaVigencia}", listaVigencia },
+                                                                        { "{urlpagina}", string.Format("{0}/#!/sistema/registro-de-tarifa-local?codigoTarifaLocal={1}", ambiente, CodigoTarifaLocal ) } };
+
+                    notificacionBL.requestNotificationDTO = requestNotificacion;
+                    notificacionBL.EnviarNotificacion();
+                }
+
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                response.Result = new Result { IdError = Guid.NewGuid(), Satisfactorio = false, Mensaje = "Ocurrio un problema interno en el servicio" };
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.LogicaNegocio);
+            }
+
+
+
+            return response;
+        }
+
+        public ActualizaTarifaLocalResponseDTO ActualizarTarifaLocal(ActualizaTarifaLocalRequestDTO request)
+        {
+
+            ActualizaTarifaLocalResponseDTO response = new ActualizaTarifaLocalResponseDTO();
+            CoreBL coreBL = new CoreBL();
+            List<TarifaLocalLigadaBE> valTarifasLigadasRepetidas = new List<TarifaLocalLigadaBE>();
+            int CodigoTarifaLocal = 0;
+
+            try
+            {
+                var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.AcuerdoComercialAGMADB);
+                var repo = new RepositorioAcuerdoComercial(contextoParaBaseDatos);
+
+
+                string mensajeIngresarTarifaLocal = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeIngresarTarifaLocal.ToString()).Valor;
+                string mensajeInhabilitarTarifaLocal = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeInhabilitarTarifaLocal.ToString()).Valor;
+                string mensajeModificarSeccionVigencia = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionVigencia.ToString()).Valor;
+                string mensajeModificarSeccionSucursal = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionSucursal.ToString()).Valor;
+                string mensajeModificarSeccionTerminalPortuario = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionTerminalPortuario.ToString()).Valor;
+                string mensajeModificarSeccionTarifaLigada = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionTarifaLigada.ToString()).Valor;
+                string mensajeValidacionIngresoTarifaLocal = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeValidacionIngresoTarifaLocal.ToString()).Valor;
+                string mensajeValidacionEdicionTarifaLocal = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeValidacionEdicionTarifaLocal.ToString()).Valor;
+                string mensajeValidacionEdicionTarifaLocalLigada = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeValidacionEdicionTarifaLocalLigada.ToString()).Valor;
+
+                Mapper.CreateMap<TarifaLocalLigadaDTO, TarifaLocalLigadaBE>();
+                Mapper.CreateMap<TarifaLocalSucursalDTO, TarifaLocalSucursalBE>();
+                Mapper.CreateMap<TarifaLocalSucursalTerminalDTO, TarifaLocalSucursalTerminalBE>();
+                Mapper.CreateMap<TarifaLocalVigenciaDTO, TarifaLocalVigenciaBE>();
+                var requestBE = Helper.MiMapper<ActualizaTarifaLocalRequestDTO, ActualizaTarifaLocalBE>(request);
+
+
+                valTarifasLigadasRepetidas = ValidarTarifasLocalesLigadasRepetidas(requestBE.ListaTarifaLocalLigada);
+                if (valTarifasLigadasRepetidas.Count != 0)
+                {
+
+                    response.Result = new Result
+                    {
+                        IdError = Guid.NewGuid(),
+                        Satisfactorio = false,
+                        Mensajes = (from v in valTarifasLigadasRepetidas
+                                    select new Result
+                                    {
+                                        IdError = Guid.NewGuid(),
+                                        Satisfactorio = false,
+                                        Mensaje = mensajeValidacionEdicionTarifaLocalLigada.Replace("{CodigoTarifa}", v.CodigoTarifaLocal.ToString())
+                                    }).ToList()
+                    };
+                }
+                else
+                {
+
+                    var listValidarTarifa = repo.ValidarTarifaLocal(requestBE);
+                    if (listValidarTarifa.Count > 0)
+                    {
+                        response.Result = new Result
+                        {
+                            IdError = Guid.NewGuid(),
+                            Satisfactorio = false,
+                            Mensajes = (from v in listValidarTarifa
+                                        select new Result
+                                        {
+                                            IdError = Guid.NewGuid(),
+                                            Satisfactorio = false,
+                                            Mensaje = mensajeValidacionIngresoTarifaLocal
+                                        }).ToList()
+                        };
+                    }
+                    else
+                    {
+                        requestBE.FechaHoraActualizacion = DateTime.Now;
+ 
+                        using (TransactionScope Transaccion = new TransactionScope())
+                        {
+                            CodigoTarifaLocal = repo.ActualizarTarifaLocal(requestBE);
+
+                            if (!CodigoTarifaLocal.Equals(0))
+                            {
+                                requestBE.ListaTarifaLocalVigencia.ForEach(x => { x.CodigoTarifaLocal = CodigoTarifaLocal; });
+                                requestBE.ListaTarifaLocalSucursal.ForEach(x => { x.CodigoTarifaLocal = CodigoTarifaLocal; });
+                                requestBE.ListaTarifaLocalSucursalTerminal.ForEach(x => { x.CodigoTarifaLocal = CodigoTarifaLocal; });
+                                requestBE.ListaTarifaLocalLigada.ForEach(x => { x.CodigoTarifaLocal = CodigoTarifaLocal; });
+
+
+                                if (repo.RegistrarTarifaLocalVigencia(requestBE.ListaTarifaLocalVigencia))
+                                {
+                                    repo.InsertarTarifaLocalHistorial(new InsertaTarifaLocalHistorialBE
+                                    {
+                                        CodigoTarifaLocal = CodigoTarifaLocal,
+                                        Descripcion = mensajeModificarSeccionVigencia,
+                                        Accion = Accion.Actualizar.GetDescription(),
+                                        FechaHora = requestBE.FechaHoraActualizacion,
+                                        Usuario = requestBE.UsuarioActualizacion
+                                    });
+                                }
+
+                                if (repo.RegistrarTarifaLocalSucursalTerminal(requestBE.ListaTarifaLocalSucursalTerminal))
+                                {
+                                    repo.InsertarTarifaLocalHistorial(new InsertaTarifaLocalHistorialBE
+                                    {
+                                        CodigoTarifaLocal = CodigoTarifaLocal,
+                                        Descripcion = mensajeModificarSeccionTerminalPortuario,
+                                        Accion = Accion.Actualizar.GetDescription(),
+                                        FechaHora = requestBE.FechaHoraActualizacion,
+                                        Usuario = requestBE.UsuarioActualizacion
+                                    });
+                                }
+
+                                if (repo.RegistrarTarifaLocalSucursal(requestBE.ListaTarifaLocalSucursal))
+                                {
+                                    repo.InsertarTarifaLocalHistorial(new InsertaTarifaLocalHistorialBE
+                                    {
+                                        CodigoTarifaLocal = CodigoTarifaLocal,
+                                        Descripcion = mensajeModificarSeccionSucursal,
+                                        Accion = Accion.Actualizar.GetDescription(),
+                                        FechaHora = requestBE.FechaHoraActualizacion,
+                                        Usuario = requestBE.UsuarioActualizacion
+                                    });
+                                }
+
+
+                                if (repo.RegistrarTarifaLocalLigada(requestBE.ListaTarifaLocalLigada))
+                                {
+                                    repo.InsertarTarifaLocalHistorial(new InsertaTarifaLocalHistorialBE
+                                    {
+                                        CodigoTarifaLocal = CodigoTarifaLocal,
+                                        Descripcion = mensajeModificarSeccionTarifaLigada,
+                                        Accion = Accion.Actualizar.GetDescription(),
+                                        FechaHora = requestBE.FechaHoraActualizacion,
+                                        Usuario = requestBE.UsuarioActualizacion
+                                    });
+                                }
+
+                                repo.InsertarTarifaLocalHistorial(new InsertaTarifaLocalHistorialBE
+                                {
+                                    CodigoTarifaLocal = CodigoTarifaLocal,
+                                    Descripcion = mensajeIngresarTarifaLocal,
+                                    Accion = Accion.Actualizar.GetDescription(),
+                                    FechaHora = requestBE.FechaHoraActualizacion,
+                                    Usuario = requestBE.UsuarioActualizacion
+                                });
+
+                                if (!requestBE.EstadoRegistro) 
+                                {
+                                    repo.InsertarTarifaLocalHistorial(new InsertaTarifaLocalHistorialBE
+                                    {
+                                        CodigoTarifaLocal = CodigoTarifaLocal,
+                                        Descripcion = mensajeInhabilitarTarifaLocal,
+                                        Accion = Accion.Actualizar.GetDescription(),
+                                        FechaHora = requestBE.FechaHoraActualizacion,
+                                        Usuario = requestBE.UsuarioActualizacion
+                                    }); 
+                                }
+                            }
+
+
+
+                            Transaccion.Complete();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Result = new Result { IdError = Guid.NewGuid(), Satisfactorio = false, Mensaje = "Ocurrio un problema interno en el servicio" };
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.LogicaNegocio);
+            }
+
+
+            return response;
+        }
+
+
+
+        public InsertaTarifaEscalonadaResponseDTO RegistrarTarifaEscalonada(InsertaTarifaEscalonadaRequestDTO request)
+        {
+
+            InsertaTarifaEscalonadaResponseDTO response = new InsertaTarifaEscalonadaResponseDTO();
+            CoreBL coreBL = new CoreBL();
+            List<TarifaEscalonadaLigadaBE> valTarifasLigadasRepetidas = new List<TarifaEscalonadaLigadaBE>();
+            int CodigoTarifaEscalonada = 0;
+
+
+            try
+            {
+                var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.AcuerdoComercialAGMADB);
+                var repo = new RepositorioAcuerdoComercial(contextoParaBaseDatos);
+
+                string mensajeIngresarTarifaEscalonada = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeIngresarTarifaEscalonada.ToString()).Valor;
+                string mensajeModificarSeccionGeneral = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionGeneral.ToString()).Valor;
+                string mensajeModificarSeccionVigencia = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionVigencia.ToString()).Valor;
+                string mensajeModificarSeccionSucursal = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionSucursal.ToString()).Valor;
+                string mensajeModificarSeccionTerminalPortuario = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionTerminalPortuario.ToString()).Valor;
+                string mensajeModificarSeccionTarifaLigada = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionTarifaLigada.ToString()).Valor;
+                string mensajeValidacionIngresoTarifaEscalonada = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeValidacionIngresoTarifaEscalonada.ToString()).Valor;
+                string mensajeValidacionEdicionTarifaEscalonada = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeValidacionEdicionTarifaEscalonada.ToString()).Valor;
+                string mensajeValidacionEdicionTarifaEscalonadaLigada = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeValidacionEdicionTarifaEscalonadaLigada.ToString()).Valor;
+
+                Mapper.CreateMap<TarifaEscalonadaLigadaDTO, TarifaEscalonadaLigadaBE>();
+                Mapper.CreateMap<TarifaEscalonadaSucursalDTO, TarifaEscalonadaSucursalBE>();
+                Mapper.CreateMap<TarifaEscalonadaPeriodoDTO, TarifaEscalonadaPeriodoBE>();
+                var requestBE = Helper.MiMapper<InsertaTarifaEscalonadaRequestDTO, InsertaTarifaEscalonadaBE>(request);
+
+
+                valTarifasLigadasRepetidas = ValidarTarifasEscalonadasLigadasRepetidas(requestBE.ListaTarifaEscalonadaLigada);
+
+                if (valTarifasLigadasRepetidas.Count != 0)
+                {
+                    response.Result = new Result
+                    {
+                        IdError = Guid.NewGuid(),
+                        Satisfactorio = false,
+                        Mensajes = (from v in valTarifasLigadasRepetidas
+                                    select new Result
+                                    {
+                                        IdError = Guid.NewGuid(),
+                                        Satisfactorio = false,
+                                        Mensaje = mensajeValidacionEdicionTarifaEscalonadaLigada.Replace("{CodigoTarifa}", v.CodigoTarifaLigadaEscalonada.ToString())
+                                    }).ToList()
+                    };
+                }
+                else
+                {
+
+                    var listValidarTarifa = repo.ValidarTarifaEscalonada(requestBE);
+                    if (listValidarTarifa.Count > 0)
+                    {
+                        response.Result = new Result
+                        {
+                            IdError = Guid.NewGuid(),
+                            Satisfactorio = false,
+                            Mensajes = (from v in listValidarTarifa
+                                        select new Result
+                                        {
+                                            IdError = Guid.NewGuid(),
+                                            Satisfactorio = false,
+                                            Mensaje = mensajeValidacionIngresoTarifaEscalonada
+                                        }).ToList()
+                        };
+                    }
+                    else
+                    {
+                        requestBE.FechaHora = DateTime.Now;
+                        requestBE.EstadoRegistro = true;
+
+                        using (TransactionScope Transaccion = new TransactionScope())
+                        {
+
+                            CodigoTarifaEscalonada = repo.InsertarTarifaEscalonada(requestBE);
+
+                            if (!CodigoTarifaEscalonada.Equals(0))
+                            {
+
+                                requestBE.ListaTarifaEscalonadaPeriodo.ForEach(x => { x.CodigoTarifaEscalonada = CodigoTarifaEscalonada; });
+                                requestBE.ListaTarifaEscalonadaSucursal.ForEach(x => { x.CodigoTarifaEscalonada = CodigoTarifaEscalonada; });
+                                requestBE.ListaTarifaEscalonadaLigada.ForEach(x => { x.CodigoTarifaEscalonada = CodigoTarifaEscalonada; });
+
+                                repo.RegistrarTarifaEscalonadaPeriodo(requestBE.ListaTarifaEscalonadaPeriodo);
+                                repo.RegistrarTarifaEscalonadaSucursal(requestBE.ListaTarifaEscalonadaSucursal);
+                                repo.RegistrarTarifaEscalonadaLigada(requestBE.ListaTarifaEscalonadaLigada);
+
+                                repo.InsertarTarifaEscalonadaHistorial(new InsertaTarifaEscalonadaHistorialBE
+                                {
+                                    CodigoTarifaEscalonada = CodigoTarifaEscalonada,
+                                    Descripcion = mensajeIngresarTarifaEscalonada,
+                                    Accion = Accion.Insertar.GetDescription(),
+                                    FechaHora = requestBE.FechaHora,
+                                    Usuario = requestBE.Usuario
+                                });
+
+                            }
+
+                            Transaccion.Complete();
+                        }
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Result = new Result { IdError = Guid.NewGuid(), Satisfactorio = false, Mensaje = "Ocurrio un problema interno en el servicio" };
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.LogicaNegocio);
+            }
+
+            return response;
+        }
+
+        //private List<T> ValidarTarifasLigadasRepetidas<T>(List<T> listTarifaLigada)
+        //{
+        //    var listaRepetidos = listTarifaLigada.GroupBy(item => item).SelectMany(m => m.Skip(1)).ToList();
+
+        //    return listaRepetidos;
+        //}
+
+        private List<TarifaLocalLigadaBE> ValidarTarifasLocalesLigadasRepetidas(List<TarifaLocalLigadaBE> listTarifaLocalLigada)
+        {
+
+            var listaRepetidos = (from t in listTarifaLocalLigada
+                                  select new TarifaLocalLigadaBE
+                                  {
+                                      CodigoTarifaLigadaLocal = t.CodigoTarifaLigadaLocal,
+                                      Accion = t.Accion
+                                  }).ToList();
+
+            listaRepetidos = listaRepetidos.GroupBy(item => item.CodigoTarifaLigadaLocal).SelectMany(m => m.Skip(1)).ToList();
+
+
+            return listaRepetidos;
+
+        }
+
+        private List<TarifaEscalonadaLigadaBE> ValidarTarifasEscalonadasLigadasRepetidas(List<TarifaEscalonadaLigadaBE> listTarifaEscalonadaLigada)
+        {
+
+            var listaRepetidos = (from t in listTarifaEscalonadaLigada
+                                  select new TarifaEscalonadaLigadaBE
+                                  {
+                                      CodigoTarifaLigadaEscalonada = t.CodigoTarifaLigadaEscalonada,
+                                      Accion = t.Accion
+                                  }).ToList();
+
+            listaRepetidos = listaRepetidos.GroupBy(item => item.CodigoTarifaLigadaEscalonada).SelectMany(m => m.Skip(1)).ToList();
+
+
+            return listaRepetidos;
+        }
+
+        public ConsultaDetalleTarifaLocalResponseDTO ConsultarDetalleTarifaLocal(ConsultaDetalleTarifaLocalRequestDTO request)
+        {
+
+            ConsultaDetalleTarifaLocalResponseDTO response = new ConsultaDetalleTarifaLocalResponseDTO();
+            MaestrosBL maestrosBL = new MaestrosBL();
+            try
+            {
+                var lstDetalleTarifaLocal = new List<DetalleTarifaLocalBE>();
+                ConsultaTarifaTramarsaBE requestTarifaTramarsaCab;
+                ConsultaTarifaTramarsaBE requestTarifaTramarsa;
+                List<CodigosTarifa> lstCodigosTarifa = new List<CodigosTarifa>();
+                List<CodigosTarifa> lstCodigosTarifaCab = new List<CodigosTarifa>();
+                List<TarifaTramarsaBE> lstTarifaTramarsa = new List<TarifaTramarsaBE>();
+                List<TarifaTramarsaBE> lstTarifaTramarsaCab = new List<TarifaTramarsaBE>();
+                List<DetalleCatalogoBE> lstDetalleCatalogo = new List<DetalleCatalogoBE>();
+                DetalleCatalogoBE detalleCatalogoCab = new DetalleCatalogoBE();
+                SeguridadBL seguridadBL = new SeguridadBL();
+                RequestInfoBasicaUsuarioDTO infoBasicaUsuario = new RequestInfoBasicaUsuarioDTO();
+                SucursalBE sucursal = new SucursalBE();
+                MonedaBE moneda = new MonedaBE();
+                LineaBE linea = new LineaBE();
+                TarifaTramarsaBE tarifaTramarsa = new TarifaTramarsaBE();
+                TarifaTramarsaBE tarifaTramarsaCab = new TarifaTramarsaBE();
+                TerminalPortuarioBE tportuario = new TerminalPortuarioBE();
+                string estadoCaracter;
+
+                var requestDTO = Helper.MiMapper<ConsultaDetalleTarifaLocalRequestDTO, ConsultaDetalleTarifaLocalBE>(request);
+
+                var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.AcuerdoComercialAGMADB);
+                var repo = new RepositorioAcuerdoComercial(contextoParaBaseDatos);
+
+                lstDetalleTarifaLocal = repo.ConsultarDetalleTarifaLocal(requestDTO);
+                lstDetalleCatalogo = maestrosBL.ObtenerListaDetalleCatalogo();
+
+
+
+                lstDetalleTarifaLocal.ForEach(x =>
+                {
+                    requestTarifaTramarsaCab = new ConsultaTarifaTramarsaBE();
+
+                    //cabecera
+
+                    lstCodigosTarifaCab.Add(new CodigosTarifa() { CodigoTarifa = x.CodigoTarifa, CodigoConcepto = x.CodigoConcepto });
+
+                    requestTarifaTramarsaCab.dtCodigosTarifa = lstCodigosTarifaCab.ToDataTable();
+                    lstTarifaTramarsa = ConsultarTarifaTramarsa(requestTarifaTramarsaCab);
+
+                    tarifaTramarsaCab = lstTarifaTramarsa.Where(e => e.CodigoConcepto == x.CodigoConcepto && e.CodigoTarifa == x.CodigoTarifa).FirstOrDefault();
+                    moneda = maestrosBL.ObtenerMonedaPorCodigo(x.CodigoMoneda);
+                    linea = maestrosBL.ObtenerLineaPorCodigo(x.CodigoLinea);
+
+
+                    x.DescripcionMoneda = moneda != null ? moneda.Nombre : string.Empty;
+                    x.DescripcionLinea = linea != null ? linea.Nombre : string.Empty;
+                    x.DescripcionTarifa = tarifaTramarsaCab != null ? tarifaTramarsaCab.DescripcionTarifa : string.Empty;
+
+                    if (tarifaTramarsaCab != null)
+                    {
+                        detalleCatalogoCab = lstDetalleCatalogo.Where(xy => xy.IdCatalogo == (int)CatalogoTablas.UnidadCalculo && xy.Codigo == tarifaTramarsaCab.CodigoUnidadCalculo).FirstOrDefault();
+                        x.DescripcionUnidadCalculo = detalleCatalogoCab != null ? detalleCatalogoCab.Descripcion : string.Empty;
+                    }
+
+                    estadoCaracter = x.EstadoRegistro ? "1" : "0";
+                    detalleCatalogoCab = lstDetalleCatalogo.Where(xy => xy.IdCatalogo == (int)CatalogoTablas.Estado && xy.Codigo == estadoCaracter).FirstOrDefault();
+                    x.DescripcionEstadoRegistro = detalleCatalogoCab != null ? detalleCatalogoCab.Descripcion : string.Empty;
+
+                    detalleCatalogoCab = lstDetalleCatalogo.Where(xy => xy.IdCatalogo == (int)CatalogoTablas.Regimen && xy.Codigo == x.CodigoRegimen).FirstOrDefault();
+                    x.DescripcionRegimen = detalleCatalogoCab != null ? detalleCatalogoCab.Descripcion : string.Empty;
+
+                    List<string> lstCodigosUsuarios = new List<string>();
+                    lstCodigosUsuarios.Add(x.CodigoUsuarioAutorizador);
+
+                    infoBasicaUsuario.CodigosUsuario = lstCodigosUsuarios;
+
+                    x.AutorizadoPor = seguridadBL.getNombreUsuario(infoBasicaUsuario);
+
+
+                    //detalles
+                    requestTarifaTramarsa = new ConsultaTarifaTramarsaBE();
+
+                    lstCodigosTarifa = x.TarifaLocalLigadaList.Select(y =>
+                         new CodigosTarifa { CodigoConcepto = y.CodigoConcepto, CodigoTarifa = y.CodigoTarifa }
+                      ).ToList<CodigosTarifa>();
+
+                    if (lstCodigosTarifa.Count > 0)
+                    {
+                        requestTarifaTramarsa.dtCodigosTarifa = lstCodigosTarifa.GroupBy(w => new { w.CodigoConcepto, w.CodigoTarifa })
+                                                                     .Select(group => group.First()).ToList().ToDataTable();
+                    }
+                    else
+                    {
+                        requestTarifaTramarsa.dtCodigosTarifa = new System.Data.DataTable();
+                    }
+
+                    lstTarifaTramarsa = ConsultarTarifaTramarsa(requestTarifaTramarsa);
+
+                    x.TarifaLocalVigenciaList.ForEach(v =>
+                    {
+                        sucursal = maestrosBL.ObtenerSucursalPorCodigo(v.CodigoSucursal);
+                        v.DescripcionSucursal = sucursal != null ? sucursal.Nombre : string.Empty;
+                    });
+
+                    x.TarifaLocalSucursalList.ForEach(s =>
+                    {
+                        sucursal = maestrosBL.ObtenerSucursalPorCodigo(s.CodigoSucursal);
+                        s.DescripcionSucursal = sucursal != null ? sucursal.Nombre : string.Empty;
+                    });
+
+                    x.TarifaLocalSucursalTerminalList.ForEach(t =>
+                    {
+                        sucursal = maestrosBL.ObtenerSucursalPorCodigo(t.CodigoSucursal);
+                        tportuario = maestrosBL.ObtenerTerminalPortuarioPorCodigo(t.CodigoTerminalPortuario);
+
+                        t.DescripcionSucursal = sucursal != null ? sucursal.Nombre : string.Empty;
+                        t.DescripcionTerminalPortuario = tportuario != null ? tportuario.NombreAlmacen : string.Empty;
+                    });
+
+                    x.TarifaLocalLigadaList.ForEach(l =>
+                    {
+                        var detCatalogoRegimen = lstDetalleCatalogo.Where(xy => xy.IdCatalogo == (int)CatalogoTablas.TipoConfiguracionTarifaLigada && xy.Codigo == l.CodigoConfiguracionTarifaLigada).FirstOrDefault();
+                        var monedaBase = maestrosBL.ObtenerMonedaPorCodigo(l.CodigoMonedaBase);
+                        moneda = maestrosBL.ObtenerMonedaPorCodigo(l.CodigoMoneda);
+                        tarifaTramarsa = lstTarifaTramarsa.Where(e => e.CodigoConcepto == l.CodigoConcepto && e.CodigoTarifa == l.CodigoTarifa).FirstOrDefault();
+                        l.DescripcionMoneda = moneda != null ? moneda.Nombre : string.Empty;
+                        l.DescripcionConceptoLigado = tarifaTramarsa != null ? tarifaTramarsa.DescripcionTarifa : string.Empty;
+                        l.DescripcionConfiguracion = detCatalogoRegimen != null ? detCatalogoRegimen.Descripcion : string.Empty;
+                        l.DescripcionMonedaBase = monedaBase != null ? monedaBase.Nombre : string.Empty;
+                    });
+                });
+
+
+
+                Mapper.CreateMap<TarifaLocalVigenciaBE, TarifaLocalVigenciaDTO>();
+                Mapper.CreateMap<TarifaLocalSucursalBE, TarifaLocalSucursalDTO>();
+                Mapper.CreateMap<TarifaLocalSucursalTerminalBE, TarifaLocalSucursalTerminalDTO>();
+                Mapper.CreateMap<TarifaLocalLigadaBE, TarifaLocalLigadaDTO>();
+
+                response.DetalleTarifaLocalList = (from Origen in lstDetalleTarifaLocal
+                                                   select Helper.MiMapper<DetalleTarifaLocalBE, DetalleTarifaLocalDTO>(Origen)).ToList();
+
+            }
+            catch (Exception ex)
+            {
+                response.Result = new Result { IdError = Guid.NewGuid(), Satisfactorio = false, Mensaje = "Ocurrio un problema interno en el servicio" };
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.LogicaNegocio);
+            }
+
+
+            return response;
+        }
+
+        public ConsultaTarifaEscalonadaResponseDTO ConsultarTarifaEscalonada(ConsultaTarifaEscalonadaRequestDTO request)
+        {
+            ConsultaTarifaEscalonadaResponseDTO response = new ConsultaTarifaEscalonadaResponseDTO();
+            MaestrosBL maestrosBL = new MaestrosBL();
+
+            try
+            {
+                var lstTarifaEscalonada = new List<TarifaEscalonadaBE>();
+                var lstTarifaEscalonadaDTO = new List<TarifaEscalonadaDTO>();
+                var requestTarifaEscalonadaTramarsa = new ConsultaTarifaTramarsaBE();
+                var requestPaginacionDTO = new RequestPaginacionBaseDTO();
+                List<CodigosTarifa> lstCodigosTarifa = new List<CodigosTarifa>();
+                List<TarifaTramarsaBE> lstTarifaEscalonadaTramarsa = new List<TarifaTramarsaBE>();
+
+
+                var requestDTO = Helper.MiMapper<ConsultaTarifaEscalonadaRequestDTO, ConsultaTarifaEscalonadaBE>(request);
+
+                var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.AcuerdoComercialAGMADB);
+                var repo = new RepositorioAcuerdoComercial(contextoParaBaseDatos);
+
+                int totalRegistros, cantPaginas;
+                lstTarifaEscalonada = repo.ConsultarTarifaEscalonadaAGMADB(requestDTO);
+
+                lstCodigosTarifa = lstTarifaEscalonada.Select(x =>
+                                     new CodigosTarifa { CodigoConcepto = x.CodigoConcepto, CodigoTarifa = x.CodigoTarifa }
+                                  ).ToList<CodigosTarifa>();
+
+                requestTarifaEscalonadaTramarsa.DescripcionTarifa = request.DescripcionTarifa;
+
+                if (lstCodigosTarifa.Count > 0)
+                {
+                    requestTarifaEscalonadaTramarsa.dtCodigosTarifa = lstCodigosTarifa.GroupBy(x => new { x.CodigoConcepto, x.CodigoTarifa })
+                                                                 .Select(group => group.First()).ToList().ToDataTable();
+                }
+                else
+                {
+                    requestTarifaEscalonadaTramarsa.dtCodigosTarifa = new System.Data.DataTable();
+                }
+
+                lstTarifaEscalonadaTramarsa = ConsultarTarifaTramarsa(requestTarifaEscalonadaTramarsa);
+
+                var query = (from a in lstTarifaEscalonada
+                             join b in lstTarifaEscalonadaTramarsa on a.CodigoTarifa equals b.CodigoTarifa
+                             select a);
+
+                lstTarifaEscalonada = query.ToList();
+                //if (lstTarifaEscalonadaTramarsa != null && lstTarifaEscalonadaTramarsa.Count > 0)
+                //{
+                //    lstTarifaEscalonada.ForEach(x =>
+                //    {
+                //        var tEscal = lstTarifaEscalonada.Where(t => t.CodigoTarifa.Equals(x.CodigoTarifa) && t.CodigoConcepto.Equals(x.CodigoConcepto)).FirstOrDefault();
+                //        x.DescripcionTarifa = tEscal != null ? tEscal.DescripcionTarifa : string.Empty;
+                //    });
+                //}
+
+                lstTarifaEscalonada = lstTarifaEscalonada.Where(x => x.DescripcionTarifa != string.Empty).ToList();
+
+                lstTarifaEscalonada.ForEach(x =>
+                {
+                    var moneda = maestrosBL.ObtenerMonedaPorCodigo(x.CodigoMoneda);
+                    x.DescripcionMoneda = moneda != null ? moneda.Nombre : string.Empty;
+                    x.DescripcionTarifa = lstTarifaEscalonadaTramarsa.Where(xy => xy.CodigoTarifa == x.CodigoTarifa).FirstOrDefault().DescripcionTarifa;
+                });
+
+                lstTarifaEscalonadaDTO = (from Origen in lstTarifaEscalonada
+                                          select Helper.MiMapper<TarifaEscalonadaBE, TarifaEscalonadaDTO>(Origen)).ToList();
+
+                requestPaginacionDTO.HabilitarPaginacion = true;
+                requestPaginacionDTO.OrdenCampo = request.OrdenCampo;
+                requestPaginacionDTO.OrdenOrientacion = request.OrdenOrientacion;
+                requestPaginacionDTO.PaginaActual = request.PaginaActual;
+                requestPaginacionDTO.NroRegistrosPorPagina = request.NroRegistrosPorPagina;
+
+                response.TarifaEscalonadaList = PaginacionBL.PaginarLista(lstTarifaEscalonadaDTO, requestPaginacionDTO, out totalRegistros, out cantPaginas, "CodigoTarifaEscalonada");
+
+                response.TotalRegistros = totalRegistros;
+                response.CantidadPaginas = cantPaginas;
+
+            }
+            catch (Exception ex)
+            {
+                response.Result = new Result { IdError = Guid.NewGuid(), Satisfactorio = false, Mensaje = "Ocurrio un problema interno en el servicio" };
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.LogicaNegocio);
+            }
+
+            return response;
+        }
+
+        public ConsultaDetalleTarifaEscalonadaResponseDTO ConsultarDetalleTarifaEscalonada(ConsultaDetalleTarifaEscalonadaRequestDTO request)
+        {
+
+            ConsultaDetalleTarifaEscalonadaResponseDTO response = new ConsultaDetalleTarifaEscalonadaResponseDTO();
+            MaestrosBL maestrosBL = new MaestrosBL();
+
+            try
+            {
+                var lstDetalleTarifaEscalonada = new List<DetalleTarifaEscalonadaBE>();
+                SucursalBE sucursal = new SucursalBE();
+                MonedaBE moneda = new MonedaBE();
+                LineaBE linea = new LineaBE();
+
+                var requestDTO = Helper.MiMapper<ConsultaDetalleTarifaEscalonadaRequestDTO, ConsultaDetalleTarifaEscalonadaBE>(request);
+
+                var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.AcuerdoComercialAGMADB);
+                var repo = new RepositorioAcuerdoComercial(contextoParaBaseDatos);
+
+                lstDetalleTarifaEscalonada = repo.ConsultarDetalleTarifaEscalonada(requestDTO);
+
+                lstDetalleTarifaEscalonada.ForEach(x =>
+                {
+                    linea = maestrosBL.ObtenerLineaPorCodigo(x.CodigoLinea);
+                    x.DescripcionLinea = linea != null ? linea.Nombre : string.Empty;
+
+                    x.TarifaEscalonadaSucursalList.ForEach(s =>
+                    {
+                        sucursal = maestrosBL.ObtenerSucursalPorCodigo(s.CodigoSucursal);
+                        s.DescripcionSucursal = sucursal != null ? sucursal.Nombre : string.Empty;
+                    });
+
+                    x.TarifaEscalonadaPeriodoList.ForEach(t =>
+                    {
+                        moneda = maestrosBL.ObtenerMonedaPorCodigo(t.CodigoMoneda);
+                        t.DescripcionMoneda = moneda != null ? moneda.Nombre : string.Empty;
+                    });
+
+                    x.TarifaEscalonadaLigadaList.ForEach(l =>
+                    {
+                        moneda = maestrosBL.ObtenerMonedaPorCodigo(l.CodigoMoneda);
+                        l.DescripcionMoneda = moneda != null ? moneda.Nombre : string.Empty;
+                    });
+                });
+
+                Mapper.CreateMap<TarifaEscalonadaSucursalBE, TarifaEscalonadaSucursalDTO>();
+                Mapper.CreateMap<TarifaEscalonadaPeriodoBE, TarifaEscalonadaPeriodoDTO>();
+                Mapper.CreateMap<TarifaEscalonadaLigadaBE, TarifaEscalonadaLigadaDTO>();
+
+                response.DetalleTarifaEscalonadaList = (from Origen in lstDetalleTarifaEscalonada
+                                                        select Helper.MiMapper<DetalleTarifaEscalonadaBE, DetalleTarifaEscalonadaDTO>(Origen)).ToList();
+
+            }
+            catch (Exception ex)
+            {
+                response.Result = new Result { IdError = Guid.NewGuid(), Satisfactorio = false, Mensaje = "Ocurrio un problema interno en el servicio" };
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.LogicaNegocio);
+            }
+
+
+            return response;
+        }
+
+        public ConsultaTarifaLocalHistorialResponseDTO ConsultarTarifaLocalHistorial(ConsultaTarifaLocalHistorialRequestDTO request)
+        {
+
+            ConsultaTarifaLocalHistorialResponseDTO response = new ConsultaTarifaLocalHistorialResponseDTO();
+
+            try
+            {
+                var lstTarifaLocalHistorial = new List<TarifaLocalHistorialBE>();
+
+                var requestDTO = Helper.MiMapper<ConsultaTarifaLocalHistorialRequestDTO, ConsultaTarifaLocalHistorialBE>(request);
+
+                var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.AcuerdoComercialAGMADB);
+                var repo = new RepositorioAcuerdoComercial(contextoParaBaseDatos);
+
+                int totalRegistros, cantPaginas;
+                lstTarifaLocalHistorial = repo.ConsultarTarifaLocalHistorial(requestDTO, out totalRegistros, out cantPaginas);
+
+
+                response.TarifaLocalHistorialList = (from Origen in lstTarifaLocalHistorial
+                                                     select Helper.MiMapper<TarifaLocalHistorialBE, TarifaLocalHistorialDTO>(Origen)).ToList();
+
+                response.TotalRegistros = totalRegistros;
+                response.CantidadPaginas = cantPaginas;
+            }
+            catch (Exception ex)
+            {
+                response.Result = new Result { IdError = Guid.NewGuid(), Satisfactorio = false, Mensaje = "Ocurrio un problema interno en el servicio" };
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.LogicaNegocio);
+            }
+
+
+            return response;
+        }
+
+        public ConsultaTarifaEscalonadaHistorialResponseDTO ConsultarTarifaEscalonadaHistorial(ConsultaTarifaEscalonadaHistorialRequestDTO request)
+        {
+
+            ConsultaTarifaEscalonadaHistorialResponseDTO response = new ConsultaTarifaEscalonadaHistorialResponseDTO();
+
+            try
+            {
+                var lstTarifaEscalonadaHistorial = new List<TarifaEscalonadaHistorialBE>();
+
+                var requestDTO = Helper.MiMapper<ConsultaTarifaEscalonadaHistorialRequestDTO, ConsultaTarifaEscalonadaHistorialBE>(request);
+
+                var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.AcuerdoComercialAGMADB);
+                var repo = new RepositorioAcuerdoComercial(contextoParaBaseDatos);
+
+                int totalRegistros, cantPaginas;
+                lstTarifaEscalonadaHistorial = repo.ConsultarTarifaEscalonadaHistorial(requestDTO, out totalRegistros, out cantPaginas);
+
+
+                response.TarifaEscalonadaHistorialList = (from Origen in lstTarifaEscalonadaHistorial
+                                                          select Helper.MiMapper<TarifaEscalonadaHistorialBE, TarifaEscalonadaHistorialDTO>(Origen)).ToList();
+
+                response.TotalRegistros = totalRegistros;
+                response.CantidadPaginas = cantPaginas;
+            }
+            catch (Exception ex)
+            {
+                response.Result = new Result { IdError = Guid.NewGuid(), Satisfactorio = false, Mensaje = "Ocurrio un problema interno en el servicio" };
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.LogicaNegocio);
+            }
+
+
+            return response;
+        }
+
+        public ActualizaTarifaEscalonadaResponseDTO ActualizarTarifaEscalonada(ActualizaTarifaEscalonadaRequestDTO request)
+        {
+            ActualizaTarifaEscalonadaResponseDTO response = new ActualizaTarifaEscalonadaResponseDTO();
+            CoreBL coreBL = new CoreBL();
+            List<TarifaEscalonadaLigadaBE> valTarifasLigadasRepetidas = new List<TarifaEscalonadaLigadaBE>();
+            int CodigoTarifaEscalonada = 0;
+
+            try
+            {
+                var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.AcuerdoComercialAGMADB);
+                var repo = new RepositorioAcuerdoComercial(contextoParaBaseDatos);
+
+
+                string mensajeIngresarTarifaEscalonada = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeIngresarTarifaEscalonada.ToString()).Valor;
+                string mensajeModificarSeccionGeneral = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionGeneral.ToString()).Valor;
+                string mensajeModificarSeccionVigencia = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionVigencia.ToString()).Valor;
+                string mensajeModificarSeccionSucursal = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionSucursal.ToString()).Valor;
+                string mensajeModificarSeccionTerminalPortuario = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionTerminalPortuario.ToString()).Valor;
+                string mensajeModificarSeccionTarifaLigada = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionTarifaLigada.ToString()).Valor;
+                string mensajeValidacionIngresoTarifaEscalonada = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeValidacionIngresoTarifaEscalonada.ToString()).Valor;
+                string mensajeValidacionEdicionTarifaEscalonada = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeValidacionEdicionTarifaEscalonada.ToString()).Valor;
+                string mensajeValidacionEdicionTarifaEscalonadaLigada = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeValidacionEdicionTarifaEscalonadaLigada.ToString()).Valor;
+                string mensajeInhabilitarTarifaEscalonada = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeInhabilitarTarifaEscalonada.ToString()).Valor;
+                    
+
+                Mapper.CreateMap<TarifaEscalonadaSucursalDTO, TarifaEscalonadaSucursalBE>();
+                Mapper.CreateMap<TarifaEscalonadaPeriodoDTO, TarifaEscalonadaPeriodoBE>();
+                Mapper.CreateMap<TarifaEscalonadaLigadaDTO, TarifaEscalonadaLigadaBE>();
+                var requestBE = Helper.MiMapper<ActualizaTarifaEscalonadaRequestDTO, ActualizaTarifaEscalonadaBE>(request);
+
+
+                valTarifasLigadasRepetidas = ValidarTarifasEscalonadasLigadasRepetidas(requestBE.ListaTarifaEscalonadaLigada);
+                if (valTarifasLigadasRepetidas.Count != 0)
+                {
+                    response.Result = new Result
+                    {
+                        IdError = Guid.NewGuid(),
+                        Satisfactorio = false,
+                        Mensajes = (from v in valTarifasLigadasRepetidas
+                                    select new Result
+                                    {
+                                        IdError = Guid.NewGuid(),
+                                        Satisfactorio = false,
+                                        Mensaje = mensajeValidacionEdicionTarifaEscalonadaLigada.Replace("{CodigoTarifa}", v.CodigoTarifaLigadaEscalonada.ToString())
+                                    }).ToList()
+                    };
+                }
+                else
+                {
+                    var listValidarTarifa = repo.ValidarTarifaEscalonada();
+
+                    if (listValidarTarifa.Count > 0)
+                    {
+                        response.Result = new Result
+                        {
+                            IdError = Guid.NewGuid(),
+                            Satisfactorio = false,
+                            Mensajes = (from v in listValidarTarifa
+                                        select new Result
+                                        {
+                                            IdError = Guid.NewGuid(),
+                                            Satisfactorio = false,
+                                            Mensaje = mensajeValidacionIngresoTarifaEscalonada
+                                        }).ToList()
+                        };
+                    }
+                    else
+                    {
+                        requestBE.FechaHora = DateTime.Now;
+      
+                        using (TransactionScope Transaccion = new TransactionScope())
+                        {
+                            CodigoTarifaEscalonada = repo.ActualizarTarifaEscalonada(requestBE);
+
+                            if (!CodigoTarifaEscalonada.Equals(0))
+                            {
+                                requestBE.ListaTarifaEscalonadaPeriodo.ForEach(x => { x.CodigoTarifaEscalonada = CodigoTarifaEscalonada; });
+                                requestBE.ListaTarifaEscalonadaSucursal.ForEach(x => { x.CodigoTarifaEscalonada = CodigoTarifaEscalonada; });
+                                requestBE.ListaTarifaEscalonadaLigada.ForEach(x => { x.CodigoTarifaEscalonada = CodigoTarifaEscalonada; });
+
+                                if (repo.RegistrarTarifaEscalonadaPeriodo(requestBE.ListaTarifaEscalonadaPeriodo))
+                                {
+
+                                }
+
+                                if (repo.RegistrarTarifaEscalonadaSucursal(requestBE.ListaTarifaEscalonadaSucursal))
+                                {
+                                    repo.InsertarTarifaEscalonadaHistorial(new InsertaTarifaEscalonadaHistorialBE
+                                    {
+                                        CodigoTarifaEscalonada = CodigoTarifaEscalonada,
+                                        Descripcion = mensajeModificarSeccionSucursal,
+                                        Accion = Accion.Actualizar.GetDescription(),
+                                        FechaHora = requestBE.FechaHora,
+                                        Usuario = requestBE.Usuario
+                                    });
+                                }
+
+                                if (repo.RegistrarTarifaEscalonadaLigada(requestBE.ListaTarifaEscalonadaLigada))
+                                {
+                                    repo.InsertarTarifaEscalonadaHistorial(new InsertaTarifaEscalonadaHistorialBE
+                                    {
+                                        CodigoTarifaEscalonada = CodigoTarifaEscalonada,
+                                        Descripcion = mensajeModificarSeccionTarifaLigada,
+                                        Accion = Accion.Actualizar.GetDescription(),
+                                        FechaHora = requestBE.FechaHora,
+                                        Usuario = requestBE.Usuario
+                                    });
+                                }
+
+                                repo.InsertarTarifaEscalonadaHistorial(new InsertaTarifaEscalonadaHistorialBE
+                                {
+                                    CodigoTarifaEscalonada = CodigoTarifaEscalonada,
+                                    Descripcion = mensajeIngresarTarifaEscalonada,
+                                    Accion = Accion.Actualizar.GetDescription(),
+                                    FechaHora = requestBE.FechaHora,
+                                    Usuario = requestBE.Usuario
+                                });
+
+                                if (!requestBE.EstadoRegistro) 
+                                {
+                                    repo.InsertarTarifaEscalonadaHistorial(new InsertaTarifaEscalonadaHistorialBE
+                                    {
+                                        CodigoTarifaEscalonada = CodigoTarifaEscalonada,
+                                        Descripcion = mensajeInhabilitarTarifaEscalonada,
+                                        Accion = Accion.Actualizar.GetDescription(),
+                                        FechaHora = requestBE.FechaHora,
+                                        Usuario = requestBE.Usuario
+                                    });
+                                }
+
+                                
+                            }
+
+                            Transaccion.Complete();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Result = new Result { IdError = Guid.NewGuid(), Satisfactorio = false, Mensaje = "Ocurrio un problema interno en el servicio" };
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+            }
+
+
+            return response;
+        }
+
+
+
+
+    }
+}

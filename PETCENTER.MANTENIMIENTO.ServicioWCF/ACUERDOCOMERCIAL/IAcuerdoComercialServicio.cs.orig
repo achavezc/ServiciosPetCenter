@@ -1,0 +1,101 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.ServiceModel;
+using System.ServiceModel.Web;
+using System.Text;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.AcuerdoComercial.Request;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.AcuerdoComercial.Response;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.AcuerdoComercial;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.AcuerdosComerciales.AcuerdoComercial;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.Notificacion;
+
+namespace TRAMARSA.AGMA.ACUERDOCOMERCIAL.ServicioWCF.ACUERDOCOMERCIAL
+{
+    // NOTA: puede usar el comando "Rename" del menú "Refactorizar" para cambiar el nombre de interfaz "ILiberacionBLServicio" en el código y en el archivo de configuración a la vez.
+    [ServiceContract]
+    public interface IAcuerdoComercialServicio
+    {
+        /// <summary>
+        /// Obtiene información de TRAMARSA de la relacion de tipos de documento.
+        /// <br/><b>Url Invocación:</b> <a href="http://tramoldev01.tramarsa.com.pe:7070/LiberacionBLServicio.svc/ConsultaSucursales">http://tramoldev01.tramarsa.com.pe:7070/LiberacionBLServicio.svc/ConsultaSucursales</a>
+        /// <br/><b>Request Json:</b> ""
+        /// <br/><b>ResponseDTO Json:</b> "{"ResponseDTOObtenerTrasladosSunat": [{Sociedad: "",TipDoc: "",NumSer: "",NumDoc: "",FecDoc: "2015-05-04 00:00:00",MonSol: 0,MonDol: 0,NoSis: "",FkSto: "",ErNam: ""}]}"
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns>Entidad con datos de la respuesta de la operación.</returns>  
+        [OperationContract]
+        [WebInvoke(UriTemplate = "/ConsultarAcuerdoComercialLocal", Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        ConsultaAcuerdoComercialLocalResponseDTO ConsultarAcuerdoComercialLocal(ConsultaAcuerdoComercialLocalRequestDTO request);
+
+        /// <summary>
+        /// Obtiene información de TRAMARSA de la relacion de tipos de documento.
+        /// <br/><b>Url Invocación:</b> <a href="http://tramoldev01.tramarsa.com.pe:7070/LiberacionBLServicio.svc/ConsultaSucursales">http://tramoldev01.tramarsa.com.pe:7070/LiberacionBLServicio.svc/ConsultaSucursales</a>
+        /// <br/><b>Request Json:</b> ""
+        /// <br/><b>ResponseDTO Json:</b> "{"ResponseDTOObtenerTrasladosSunat": [{Sociedad: "",TipDoc: "",NumSer: "",NumDoc: "",FecDoc: "2015-05-04 00:00:00",MonSol: 0,MonDol: 0,NoSis: "",FkSto: "",ErNam: ""}]}"
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns>Entidad con datos de la respuesta de la operación.</returns>  
+        [OperationContract]
+        [WebInvoke(UriTemplate = "/ConsultarAcuerdoComercialEscalonado", Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        ConsultaAcuerdoComercialEscalonadoResponseDTO ConsultarAcuerdoComercialEscalonado(ConsultaAcuerdoComercialEscalonadoRequestDTO request);
+
+        [OperationContract]
+        [WebInvoke(UriTemplate = "/ActualizarAcuerdoComercialLocal", Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        ActualizaAcuerdoComercialLocalResponseDTO ActualizarAcuerdoComercialLocal(ActualizaAcuerdoComercialLocalRequestDTO request);
+
+        /// <summary>
+        /// Obtiene información de TRAMARSA de la relacion de tipos de documento.
+        /// <br/><b>Url Invocación:</b> <a href="http://tramoldev01.tramarsa.com.pe:7070/LiberacionBLServicio.svc/ConsultaSucursales">http://tramoldev01.tramarsa.com.pe:7070/LiberacionBLServicio.svc/ConsultaSucursales</a>
+        /// <br/><b>Request Json:</b> ""
+        /// <br/><b>ResponseDTO Json:</b> "{"ResponseDTOObtenerTrasladosSunat": [{Sociedad: "",TipDoc: "",NumSer: "",NumDoc: "",FecDoc: "2015-05-04 00:00:00",MonSol: 0,MonDol: 0,NoSis: "",FkSto: "",ErNam: ""}]}"
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns>Entidad con datos de la respuesta de la operación.</returns>  
+        [OperationContract]
+        [WebInvoke(UriTemplate = "/ConsultarAcuerdoComericalLocalHistorial", Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        ConsultaAcuerdoComercialLocalHistorialResponseDTO ConsultarAcuerdoComericalLocalHistorial(ConsultaAcuerdoComercialLocalHistorialRequestDTO request);
+
+        /// <summary>
+        /// Obtiene información de TRAMARSA de la relacion de tipos de documento.
+        /// <br/><b>Url Invocación:</b> <a href="http://tramoldev01.tramarsa.com.pe:7070/LiberacionBLServicio.svc/ConsultaSucursales">http://tramoldev01.tramarsa.com.pe:7070/LiberacionBLServicio.svc/ConsultaSucursales</a>
+        /// <br/><b>Request Json:</b> ""
+        /// <br/><b>ResponseDTO Json:</b> "{"ResponseDTOObtenerTrasladosSunat": [{Sociedad: "",TipDoc: "",NumSer: "",NumDoc: "",FecDoc: "2015-05-04 00:00:00",MonSol: 0,MonDol: 0,NoSis: "",FkSto: "",ErNam: ""}]}"
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns>Entidad con datos de la respuesta de la operación.</returns>  
+        [OperationContract]
+        [WebInvoke(UriTemplate = "/ConsultarAcuerdoComercialEscalonadoHistorial", Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        ConsultaAcuerdoComercialEscalonadoHistorialResponseDTO ConsultarAcuerdoComercialEscalonadoHistorial(ConsultaAcuerdoComercialEscalonadoHistorialRequestDTO request);
+
+<<<<<<< HEAD
+        [OperationContract]
+        [WebInvoke(UriTemplate = "/ActualizarAcuerdoComercialEscalonado", Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        ActualizaAcuerdoComercialEscalonadoResponseDTO ActualizarAcuerdoComercialEscalonado(ActualizaAcuerdoComercialEscalonadoRequestDTO request);
+
+        [OperationContract]
+        [WebInvoke(UriTemplate = "/ConsultarSeguimientoAcuerdoComercialLocal", Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        ConsultaAcuerdoComercialLocalResponseDTO ConsultarSeguimientoAcuerdoComercialLocal(ConsultaAcuerdoComercialLocalRequestDTO request);
+
+        [OperationContract]
+        [WebInvoke(UriTemplate = "/Notificar", Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        NotificacionResponse Notificar(NotificacionRequest request);
+=======
+
+        /// <summary>
+        /// Obtiene información de TRAMARSA de la relacion de tipos de documento.
+        /// <br/><b>Url Invocación:</b> <a href="http://tramoldev01.tramarsa.com.pe:7070/LiberacionBLServicio.svc/ConsultaSucursales">http://tramoldev01.tramarsa.com.pe:7070/LiberacionBLServicio.svc/ConsultaSucursales</a>
+        /// <br/><b>Request Json:</b> ""
+        /// <br/><b>ResponseDTO Json:</b> "{"ResponseDTOObtenerTrasladosSunat": [{Sociedad: "",TipDoc: "",NumSer: "",NumDoc: "",FecDoc: "2015-05-04 00:00:00",MonSol: 0,MonDol: 0,NoSis: "",FkSto: "",ErNam: ""}]}"
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns>Entidad con datos de la respuesta de la operación.</returns>  
+        [OperationContract]
+        [WebInvoke(UriTemplate = "/ConsultarSeguimientoAcuerdoComercialEscalonado", Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        ConsultaSeguimientoAcuerdoComercialEscalonadoResponseDTO ConsultarSeguimientoAcuerdoComercialEscalonado(ConsultaSeguimientoAcuerdoComercialEscalonadoRequestDTO request);
+
+>>>>>>> 5587b023fff2e814c48609a9bdb9a2904f39d7eb
+    }
+}

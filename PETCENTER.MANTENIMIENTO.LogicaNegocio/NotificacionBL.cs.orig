@@ -1,0 +1,373 @@
+<<<<<<< HEAD
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Mail;
+using System.Text;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Net;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.AcuerdoComercial.Request;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.Core;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Framework;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.AccesoDatos;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.Constantes;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.Notificacion;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO;
+using System.Text.RegularExpressions;
+
+namespace TRAMARSA.AGMA.ACUERDOCOMERCIAL.LogicaNegocio
+{
+    public class NotificacionBL
+    {
+
+        public RequestNotificacionDTO requestNotificationDTO { get; set; }
+
+        public static void EnviarCorreo(List<String> destinatarios, int codigoNotificacion, Dictionary<string, Object> lstReplace, List<String> destinatariosCC = null)
+        {
+            NotificacionBL notificacionBL = new NotificacionBL();
+
+            var contexto3 = new ContextoParaBaseDatos(ConstantesDB.AcuerdoComercialAGMADB);
+            RepositorioNotificacion repoNotificacion = new RepositorioNotificacion(contexto3);
+
+            List<Notificacion> notificacionList = repoNotificacion.ObtenerPorCodigo(codigoNotificacion);
+            if (!notificacionList.Any())
+                return;
+
+            Notificacion notificacion = notificacionList.FirstOrDefault();
+            foreach (var reg in lstReplace)
+            {
+                notificacion.Asunto = notificacion.Asunto.Replace(reg.Key, reg.Value.ToString());
+            }
+            foreach (var reg in lstReplace)
+            {
+                notificacion.Cuerpo = notificacion.Cuerpo.Replace(reg.Key, reg.Value.ToString());
+            }
+            if (destinatariosCC == null)
+                destinatariosCC = new List<string>();
+            notificacionBL.enviarEmail(destinatarios, WebConfigReader.Mailer.From, destinatariosCC, notificacion.Asunto, notificacion.Cuerpo);
+        }
+
+        public void enviarEmail(List<string> correosPara, string correoDe, List<string> correosCopia, string asunto, string cuerpo)
+        {
+            Thread tareas = new Thread(() => { enviarEmail_Aux(correosPara, correoDe, correosCopia, asunto, cuerpo); });
+            tareas.Start();
+
+
+        }
+        public void enviarEmail_Aux(List<string> correosPara, string correoDe, List<string> correosCopia, string asunto, string cuerpo)
+        {
+            MailMessage mail = new MailMessage();
+            ManejadorLog manejadorLog = new ManejadorLog();
+            mail.From = new MailAddress(correoDe);
+            mail.Body = cuerpo;
+            mail.Subject = asunto;
+            mail.IsBodyHtml = true;
+            
+            correosPara.ForEach(x =>
+            {
+                if (!string.IsNullOrEmpty(x))
+                    mail.To.Add(x);
+            });
+            correosCopia.ForEach(x =>
+            {
+                if (!string.IsNullOrEmpty(x))
+                    mail.CC.Add(x);
+            });
+
+            SmtpClient Cliente = new SmtpClient();
+
+            manejadorLog.GrabarLog("==CLASE SMTP INSTANCIADA==");
+
+            Cliente.Host = WebConfigReader.Mailer.Host;
+            if (WebConfigReader.Mailer.Port > 0)
+                Cliente.Port = Convert.ToInt32(WebConfigReader.Mailer.Port);
+
+            manejadorLog.GrabarLog("==PORT: " + Cliente.Port + "==");
+
+            Cliente.EnableSsl = WebConfigReader.Mailer.EnabledSSL;
+
+            manejadorLog.GrabarLog("==ENABLESSL: " + Cliente.EnableSsl + "==");
+
+            Cliente.UseDefaultCredentials = WebConfigReader.Mailer.UseDefaultCredentials;
+            if (WebConfigReader.Mailer.UseDefaultCredentials == false)
+                Cliente.Credentials = new NetworkCredential(WebConfigReader.Mailer.CredentialsUser, WebConfigReader.Mailer.CredentialsClave);
+
+            manejadorLog.GrabarLog("==CREDENTIALS: " + Cliente.Credentials + "==");
+
+            try
+            {
+                Cliente.Send(mail);
+
+                manejadorLog.GrabarLog("==CORREO ENVIADO==");
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(new Exception("Fallo en Envio Correo:"), PoliticaExcepcion.LogicaNegocio);
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.LogicaNegocio);
+            }
+        }
+
+        private void enviarNotificacionAsync()
+        {
+            string asunto = "";
+            string cuerpo = "";
+            ManejadorLog manejadorLog = new ManejadorLog();
+
+            using (var contexto = new ContextoParaBaseDatos(ConstantesDB.AcuerdoComercialAGMADB))
+            {
+                RepositorioNotificacion repoNotificacion = new RepositorioNotificacion(contexto);
+                List<Notificacion> notificacionList = repoNotificacion.ObtenerPorCodigo(requestNotificationDTO.CodigoNotificacion);
+
+                if (!notificacionList.Any())
+                    return;
+
+                Notificacion notificacion = notificacionList.FirstOrDefault();
+
+                asunto = notificacion.Asunto;
+                cuerpo = notificacion.Cuerpo;
+
+                foreach (var item in requestNotificationDTO.AsuntoValores)
+                    asunto = asunto.Replace(item.Key, item.Value);
+
+                foreach (var item in requestNotificationDTO.CuerpoValores)
+                    cuerpo = cuerpo.Replace(item.Key, item.Value);
+
+                List<string> conCopiaList = notificacion.ConCopia.Split(';').ToList();
+                conCopiaList.ForEach(x =>
+                {
+                    this.requestNotificationDTO.CorreosPara.Clear();
+                    this.requestNotificationDTO.CorreosPara.Add(x);
+
+                    
+                    manejadorLog.GrabarLog("==CUERPO:" + cuerpo);
+
+                    enviarEmail(this.requestNotificationDTO.CorreosPara, this.requestNotificationDTO.CorreoDe, this.requestNotificationDTO.CorreosCopia, asunto, cuerpo);
+                });
+            }
+        }
+        public void EnviarNotificacion()
+        {
+            Thread tarea = new Thread(new ThreadStart(enviarNotificacionAsync));
+            tarea.Start();
+
+            ManejadorLog manejadorLog = new ManejadorLog();
+            manejadorLog.GrabarLog("=========TAREA COMENZADA ASINCRONAMENTE==============");
+        }
+
+        public List<NotificacionItem> Notificar(List<NotificacionItem> notificacionList)
+        {
+            foreach(var x in notificacionList)
+            {
+                List<Notificacion> notificacionDBList = new List<Notificacion>();
+                using (var contexto = new ContextoParaBaseDatos(ConstantesDB.AcuerdoComercialAGMADB))
+                {
+                    notificacionDBList = (new RepositorioNotificacion(contexto)).ObtenerPorCodigo(requestNotificationDTO.CodigoNotificacion);
+                }
+                if (!notificacionDBList.Any())
+                    continue;
+
+                Notificacion notificacion = notificacionDBList.FirstOrDefault();
+                List<string> keyList = new List<string>();
+
+                string pattern = "{(.+?)}";
+
+                foreach (Match m in Regex.Matches(notificacion.Cuerpo, pattern))
+                    keyList.Add(m.Value);
+
+                NotificacionBL notificacionBL = new NotificacionBL();
+                notificacionBL.requestNotificationDTO = new RequestNotificacionDTO
+                {
+                    //AsuntoValores = x.AsuntoValues.Select(m => new { m.Key, m.Value }).ToDictionary(m => m.Key, m => m.Value),
+                    
+                    CodigoNotificacion = x.Tipo,
+                    CorreoDe = x.De,
+                    CorreosCopia = x.ConCopia,
+                    //CuerpoValores = x.CuerpoValues.Select(m => new { m.Key, m.Value }).ToDictionary(m => m.Key, m => m.Value),
+                    CorreosPara = x.Para
+
+                };
+                notificacionBL.EnviarNotificacion();
+            };
+
+            return notificacionList;
+        }
+    }
+
+}
+=======
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Mail;
+using System.Text;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Net;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.AcuerdoComercial.Request;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.Core;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Framework;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.AccesoDatos;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.Constantes;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.Notificacion;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO;
+using System.Text.RegularExpressions;
+
+namespace TRAMARSA.AGMA.ACUERDOCOMERCIAL.LogicaNegocio
+{
+    public class NotificacionBL
+    {
+
+        public RequestNotificacionDTO requestNotificationDTO { get; set; }
+
+        public static void EnviarCorreo(List<String> destinatarios, int codigoNotificacion, Dictionary<string, Object> lstReplace, List<String> destinatariosCC = null)
+        {
+            NotificacionBL notificacionBL = new NotificacionBL();
+
+            var contexto3 = new ContextoParaBaseDatos(ConstantesDB.AcuerdoComercialAGMADB);
+            RepositorioNotificacion repoNotificacion = new RepositorioNotificacion(contexto3);
+
+            List<Notificacion> notificacionList = repoNotificacion.ObtenerPorCodigo(codigoNotificacion);
+            if (!notificacionList.Any())
+                return;
+
+            Notificacion notificacion = notificacionList.FirstOrDefault();
+            foreach (var reg in lstReplace)
+            {
+                notificacion.Asunto = notificacion.Asunto.Replace(reg.Key, reg.Value.ToString());
+            }
+            foreach (var reg in lstReplace)
+            {
+                notificacion.Cuerpo = notificacion.Cuerpo.Replace(reg.Key, reg.Value.ToString());
+            }
+            if (destinatariosCC == null)
+                destinatariosCC = new List<string>();
+            notificacionBL.enviarEmail(destinatarios, WebConfigReader.Mailer.From, destinatariosCC, notificacion.Asunto, notificacion.Cuerpo);
+        }
+
+        public void enviarEmail(List<string> correosPara, string correoDe, List<string> correosCopia, string asunto, string cuerpo)
+        {
+            Thread tareas = new Thread(() => { enviarEmail_Aux(correosPara, correoDe, correosCopia, asunto, cuerpo); });
+            tareas.Start();
+        }
+        public void enviarEmail_Aux(List<string> correosPara, string correoDe, List<string> correosCopia, string asunto, string cuerpo)
+        {
+            MailMessage mail = new MailMessage();
+            mail.From = new MailAddress(correoDe);
+            mail.Body = cuerpo;
+            mail.Subject = asunto;
+            mail.IsBodyHtml = true;
+            
+            correosPara.ForEach(x =>
+            {
+                if (!string.IsNullOrEmpty(x))
+                    mail.To.Add(x);
+            });
+            correosCopia.ForEach(x =>
+            {
+                if (!string.IsNullOrEmpty(x))
+                    mail.CC.Add(x);
+            });
+
+            SmtpClient Cliente = new SmtpClient();
+
+            Cliente.Host = WebConfigReader.Mailer.Host;
+            if (WebConfigReader.Mailer.Port > 0)
+                Cliente.Port = Convert.ToInt32(WebConfigReader.Mailer.Port);
+
+            Cliente.EnableSsl = WebConfigReader.Mailer.EnabledSSL;
+            Cliente.UseDefaultCredentials = WebConfigReader.Mailer.UseDefaultCredentials;
+            if (WebConfigReader.Mailer.UseDefaultCredentials == false)
+                Cliente.Credentials = new NetworkCredential(WebConfigReader.Mailer.CredentialsUser, WebConfigReader.Mailer.CredentialsClave);
+
+            try
+            {
+                Cliente.Send(mail);
+                (new ManejadorLog()).GrabarLog("enviado" + mail.Subject);
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(new Exception("Fallo en Envio Correo:"), PoliticaExcepcion.LogicaNegocio);
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.LogicaNegocio);
+            }
+        }
+
+        private void enviarNotificacionAsync()
+        {
+            string asunto = "";
+            string cuerpo = "";
+            using (var contexto = new ContextoParaBaseDatos(ConstantesDB.AcuerdoComercialAGMADB))
+            {
+                RepositorioNotificacion repoNotificacion = new RepositorioNotificacion(contexto);
+                List<Notificacion> notificacionList = repoNotificacion.ObtenerPorCodigo(requestNotificationDTO.CodigoNotificacion);
+
+                if (!notificacionList.Any())
+                    return;
+
+                Notificacion notificacion = notificacionList.FirstOrDefault();
+
+                asunto = notificacion.Asunto;
+                cuerpo = notificacion.Cuerpo;
+
+                foreach (var item in requestNotificationDTO.AsuntoValores)
+                    asunto = asunto.Replace(item.Key, item.Value);
+
+                foreach (var item in requestNotificationDTO.CuerpoValores)
+                    cuerpo = cuerpo.Replace(item.Key, item.Value);
+
+                List<string> conCopiaList = notificacion.ConCopia.Split(';').ToList();
+                conCopiaList.ForEach(x =>
+                {
+                    this.requestNotificationDTO.CorreosPara.Clear();
+                    this.requestNotificationDTO.CorreosPara.Add(x);
+                    enviarEmail(this.requestNotificationDTO.CorreosPara, this.requestNotificationDTO.CorreoDe, this.requestNotificationDTO.CorreosCopia, asunto, cuerpo);
+                });
+            }
+        }
+        public void EnviarNotificacion()
+        {
+            Thread tarea = new Thread(new ThreadStart(enviarNotificacionAsync));
+            tarea.Start();
+        }
+
+        public List<NotificacionItem> Notificar(List<NotificacionItem> notificacionList)
+        {
+            foreach(var x in notificacionList)
+            {
+                List<Notificacion> notificacionDBList = new List<Notificacion>();
+                using (var contexto = new ContextoParaBaseDatos(ConstantesDB.AcuerdoComercialAGMADB))
+                {
+                    notificacionDBList = (new RepositorioNotificacion(contexto)).ObtenerPorCodigo(requestNotificationDTO.CodigoNotificacion);
+                }
+                if (!notificacionDBList.Any())
+                    continue;
+
+                Notificacion notificacion = notificacionDBList.FirstOrDefault();
+                List<string> keyList = new List<string>();
+
+                string pattern = "{(.+?)}";
+
+                foreach (Match m in Regex.Matches(notificacion.Cuerpo, pattern))
+                    keyList.Add(m.Value);
+
+                NotificacionBL notificacionBL = new NotificacionBL();
+                notificacionBL.requestNotificationDTO = new RequestNotificacionDTO
+                {
+                    //AsuntoValores = x.AsuntoValues.Select(m => new { m.Key, m.Value }).ToDictionary(m => m.Key, m => m.Value),
+                    
+                    CodigoNotificacion = x.Tipo,
+                    CorreoDe = x.De,
+                    CorreosCopia = x.ConCopia,
+                    //CuerpoValores = x.CuerpoValues.Select(m => new { m.Key, m.Value }).ToDictionary(m => m.Key, m => m.Value),
+                    CorreosPara = x.Para
+
+                };
+                notificacionBL.EnviarNotificacion();
+            };
+
+            return notificacionList;
+        }
+    }
+
+}
+>>>>>>> a3ef6c3ea5e114eff2d587f0a623363b3c4caee5

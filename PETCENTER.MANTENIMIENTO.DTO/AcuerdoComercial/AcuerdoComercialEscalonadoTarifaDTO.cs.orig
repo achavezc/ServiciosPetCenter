@@ -1,0 +1,51 @@
+<<<<<<< HEAD
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales
+{
+    public class AcuerdoComercialEscalonadoTarifaDTO
+    {
+        public int? CodigoAcuerdoComercialEscalonado { get; set; }
+        public int? CodigoTarifaLocal { get; set; }
+        public string CodigoTipoDescuento { get; set; }
+        public decimal? ValorDescuento { get; set; }
+        public string CodigoMonedaAcuerdo { get; set; }
+=======
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales
+{
+    public class AcuerdoComercialEscalonadoTarifaDTO
+    {
+        public int? CodigoAcuerdoComercialEscalonado { get; set; }
+        public int? CodigoTarifaEscalonado { get; set; }
+        public string CodigoTipoDescuento { get; set; }
+        public decimal? ValorDescuento { get; set; }
+        public string CodigoMonedaAcuerdo { get; set; }
+>>>>>>> 6eaefd4158f2edfd4fa95bb4f0817f3846a503da
+        public decimal? MontoAcuerdo { get; set; }
+        public string CodigoTipoFechaCalculo { get; set; }
+        public int DiasDelayCalculo { get; set; }
+        public string CodigoTipoDiaCalculo { get; set; }
+        public string DescripcionTarifa { get; set; }
+<<<<<<< HEAD
+        //public string Moneda { get; set; }
+        //public string MontoBase { get; set; }
+        
+    }
+}
+=======
+
+        public string Accion { get; set; }
+
+    }
+}
+>>>>>>> 6eaefd4158f2edfd4fa95bb4f0817f3846a503da

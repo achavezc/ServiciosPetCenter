@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <configSections>
+    <section name="cachingConfiguration" type="Microsoft.Practices.EnterpriseLibrary.Caching.Configuration.CacheManagerSettings, Microsoft.Practices.EnterpriseLibrary.Caching, Version=5.0.505.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" requirePermission="true" />
+  </configSections>
+  <cachingConfiguration defaultCacheManager="Cache Manager">
+    <cacheManagers>
+      <add name="Cache Manager" type="Microsoft.Practices.EnterpriseLibrary.Caching.CacheManager, Microsoft.Practices.EnterpriseLibrary.Caching, Version=5.0.505.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" expirationPollFrequencyInSeconds="60" maximumElementsInCacheBeforeScavenging="1000" numberToRemoveWhenScavenging="10" backingStoreName="NullBackingStore" />
+    </cacheManagers>
+    <backingStores>
+      <add type="Microsoft.Practices.EnterpriseLibrary.Caching.BackingStoreImplementations.NullBackingStore, Microsoft.Practices.EnterpriseLibrary.Caching, Version=5.0.505.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" name="NullBackingStore" />
+    </backingStores>
+  </cachingConfiguration>
+  <system.web>
+    <compilation debug="true" />
+    <membership defaultProvider="ClientAuthenticationMembershipProvider">
+      <providers>
+        <add name="ClientAuthenticationMembershipProvider" type="System.Web.ClientServices.Providers.ClientFormsAuthenticationMembershipProvider, System.Web.Extensions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" serviceUri="" />
+      </providers>
+    </membership>
+    <roleManager defaultProvider="ClientRoleProvider" enabled="true">
+      <providers>
+        <add name="ClientRoleProvider" type="System.Web.ClientServices.Providers.ClientRoleProvider, System.Web.Extensions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" serviceUri="" cacheTimeout="86400" />
+      </providers>
+    </roleManager>
+  </system.web>
+  <connectionStrings>
+    <!--<add name="ANTP" connectionString="Data Source=10.72.20.26;Initial Catalog=ANTP;User ID=usrintope;Password=tramarsa;MultipleActiveResultSets=True" providerName="System.Data.SqlClient" />
+    <add name="ContextoParaBaseDatosLocal" connectionString="Data Source=10.72.20.26;Initial Catalog=DB;User ID=User;Password=p@$$W0rD;MultipleActiveResultSets=True" providerName="System.Data.SqlClient" />
+    <add name="TRAMARSA" connectionString="Data Source=10.72.20.27;Initial Catalog=TRAMARSA;User ID=usrAntp;Password=6;MultipleActiveResultSets=True" providerName="System.Data.SqlClient" />-->
+
+    <!--<add name="ANTP" connectionString="Data Source=10.72.20.26;Initial Catalog=ANTP;User ID=usrintope;Password=tramarsa;MultipleActiveResultSets=True" providerName="System.Data.SqlClient" />-->
+    <add name="AcuerdoComercialAGMADB" connectionString="Data Source=10.72.20.26;Initial Catalog=AcuerdoComercialAGMADB;User ID=ACAgmaUser;Password=p@$$W0rD;MultipleActiveResultSets=True" providerName="System.Data.SqlClient" />
+    <add name="TRAMARSA" connectionString="Data Source=10.72.20.26;Initial Catalog=TRAMARSA;User ID=ACAgmaOper;Password=p@$$W0rD;MultipleActiveResultSets=True" providerName="System.Data.SqlClient" />    
+    
+  </connectionStrings>
+  <system.serviceModel>
+    <services>
+      <service name="TRAMARSA.AGMA.ACUERDOCOMERCIAL.ServicioWCF.ACUERDOCOMERCIAL.AcuerdoComercialServicio">
+        <endpoint address="soapService" binding="basicHttpBinding" bindingConfiguration="MulContractbasicBinding"
+            contract="TRAMARSA.AGMA.ACUERDOCOMERCIAL.ServicioWCF.ACUERDOCOMERCIAL.IAcuerdoComercialServicio" />
+        <endpoint address="" behaviorConfiguration="restPoxBehavior"
+            binding="webHttpBinding" bindingConfiguration="MulContractWebBinding"
+            contract="TRAMARSA.AGMA.ACUERDOCOMERCIAL.ServicioWCF.ACUERDOCOMERCIAL.IAcuerdoComercialServicio" />
+        <host>
+          <baseAddresses>
+            <add baseAddress="http://localhost:8733/AcuerdosComercialesServicio.svc/" />
+          </baseAddresses>
+        </host>
+      </service>
+      <service name="TRAMARSA.AGMA.ACUERDOCOMERCIAL.ServicioWCF.MAESTROS.MaestroServicio">
+        <endpoint address="soapService" binding="basicHttpBinding" bindingConfiguration="MulContractbasicBinding"
+            contract="TRAMARSA.AGMA.ACUERDOCOMERCIAL.ServicioWCF.MAESTROS.IMaestroServicio" />
+        <endpoint address="" behaviorConfiguration="restPoxBehavior"
+            binding="webHttpBinding" bindingConfiguration="MulContractWebBinding"
+            contract="TRAMARSA.AGMA.ACUERDOCOMERCIAL.ServicioWCF.MAESTROS.IMaestroServicio" />
+        <host>
+          <baseAddresses>
+            <add baseAddress="http://localhost:8733/MaestroServicio.svc/" />
+          </baseAddresses>
+        </host>
+      </service>
+      <service name="TRAMARSA.AGMA.ACUERDOCOMERCIAL.ServicioWCF.TARIFA.TarifaServicio">
+        <endpoint address="soapService" binding="basicHttpBinding" bindingConfiguration="MulContractbasicBinding"
+            contract="TRAMARSA.AGMA.ACUERDOCOMERCIAL.ServicioWCF.TARIFA.ITarifaServicio" />
+        <endpoint address="" behaviorConfiguration="restPoxBehavior"
+            binding="webHttpBinding" bindingConfiguration="MulContractWebBinding"
+            contract="TRAMARSA.AGMA.ACUERDOCOMERCIAL.ServicioWCF.TARIFA.ITarifaServicio" />
+        <host>
+          <baseAddresses>
+            <add baseAddress="http://localhost:8733/TarifaServicio.svc" />
+          </baseAddresses>
+        </host>
+      </service>
+    </services>
+    <serviceHostingEnvironment aspNetCompatibilityEnabled="true" multipleSiteBindingsEnabled="true">
+        <serviceActivations>
+          <add relativeAddress="AcuerdosComercialesServicio.svc" service="TRAMARSA.AGMA.ACUERDOCOMERCIAL.ServicioWCF.ACUERDOCOMERCIAL.AcuerdoComercialServicio"  />
+          <add relativeAddress="MaestroServicio.svc" service="TRAMARSA.AGMA.ACUERDOCOMERCIAL.ServicioWCF.MAESTROS.MaestroServicio"  />
+          <add relativeAddress="TarifaServicio.svc" service="TRAMARSA.AGMA.ACUERDOCOMERCIAL.ServicioWCF.TARIFA.TarifaServicio"  />
+        </serviceActivations>
+    </serviceHostingEnvironment>
+    <bindings>
+      <webHttpBinding>
+        <binding name="MulContractWebBinding" maxBufferSize="2147483647" maxBufferPoolSize="2147483647" maxReceivedMessageSize="2147483647">
+          <readerQuotas maxDepth="2147483647" maxStringContentLength="2147483647" maxArrayLength="2147483647" maxBytesPerRead="2147483647" maxNameTableCharCount="2147483647" />
+        </binding>
+      </webHttpBinding>
+      <basicHttpBinding>
+        <binding name="MulContractbasicBinding" maxBufferSize="2147483647" maxBufferPoolSize="2147483647" maxReceivedMessageSize="2147483647">
+          <readerQuotas maxDepth="2147483647" maxStringContentLength="2147483647" maxArrayLength="2147483647" maxBytesPerRead="2147483647" maxNameTableCharCount="2147483647" />
+        </binding>
+      </basicHttpBinding>
+    </bindings>
+    <behaviors>
+      <endpointBehaviors>
+        <behavior name="restPoxBehavior">
+          <webHttp helpEnabled="true" />
+        </behavior>
+      </endpointBehaviors>
+      <serviceBehaviors>
+        <behavior name="restServiceBehavior">
+          <serviceMetadata httpGetEnabled="true" />
+          <serviceDebug includeExceptionDetailInFaults="false" />
+          <serviceThrottling maxConcurrentCalls="32" maxConcurrentInstances="2147483647" maxConcurrentSessions="20"/>
+        </behavior>
+        <behavior name="soapServiceBehavior">
+          <serviceMetadata httpGetEnabled="true" />
+          <serviceDebug includeExceptionDetailInFaults="false" />
+          <serviceThrottling maxConcurrentCalls="32" maxConcurrentInstances="2147483647" maxConcurrentSessions="20"/>
+        </behavior>
+        <behavior name="">
+            <serviceMetadata httpGetEnabled="true"
+              httpsGetEnabled="true" />
+            <serviceDebug includeExceptionDetailInFaults="false" />
+            <serviceThrottling maxConcurrentCalls="32" maxConcurrentInstances="2147483647" maxConcurrentSessions="20"/>
+        </behavior>
+      </serviceBehaviors>
+    </behaviors>
+  </system.serviceModel>
+  <appSettings>
+    <add key="RutaLogMain" value="C:\LOG\" />
+    <add key="NameLog" value="LogAcuerdosComerciales.txt" />
+    <add key="NameLogOperaciones" value="LogAcuerdosComercialesOperaciones.txt" />
+    <add key="NameLogMapa" value="LogMapa.csv" />
+    <add key="EntLibSymmProvider" value="COMEX_EncriptacionClaveSimetrica.snk" />
+    <add key="TrabajarConContextoLocal" value="true" />
+    <!-- SAP -->
+    <!--<add key="ipServicioBroker"             value="http://10.72.14.16:81" />
+		<add key="urlSociedad"                  value="/comex/facturacion/sap/ConsultaSociedades" />-->
+    <add key="ipServicioBroker" value="http://10.72.14.43:80" />
+    <add key="urlSociedad" value="/comex/sap/ConsultaSociedades" />
+    <!-- BROKER -->
+    <!--<add key="ipServicioSUNAT"             value="http://aixsrv03.gruporansa.gromero.net" />-->
+    <add key="ipServicioSUNAT" value="http://10.72.14.43:7803" />
+    <!--<add key="urlManifiestoSunat"   value="/Comex-Sunat" />-->
+    <add key="urlManifiestoSunat" value="/ConsultaManifiesto/Sunat" />
+    <add key="IdentificacionOperador" value="20101395031" />
+    <add key="TipoIdentificacionOperador" value="5" />
+    <add key="TipoOperador" value="31" />
+    <add key="TipoContenedor" value="118" />
+    <add key="FlagTrazasServicioWCF" value="N" />
+    <add key="FlagTrazasServicioBrocker" value="N" />
+    <add key="FormatDate"  value="yyyy-MM-dd HH:mm:ss"/>
+    <add key="ClientSettingsProvider.ServiceUri" value="" />
+    <!--Tiempo de espera en segundos por procedimiento de ingreso data-->
+    <add key="TimeOutCmd" value="120" />
+    <add key="FlagTrazasServicioWCF" value="S" />
+
+    <!--<CONFIGURACION DE CORREO> -->
+    <add key="From" value="comexAdministrador@tramarsa.com" />
+    <add key="Host" value="10.72.1.71" />
+    <add key="Port" value="0" />
+    <add key="EnableSsl" value="false" />
+    <add key="UseDefaultCredentials" value="true" />
+    <add key="CredentialsUser" value="" />
+    <add key="CredentialsClave" value="" />
+    <!--</> -->
+    <!--Servicio Seguridad -->
+    <add key="urlListaInfoUsuario" value="http://10.72.20.26/GRSeguridad/SeguridadGR.svc/GetInfoBasicaUsuariosByCodigo2" />
+  </appSettings>
+</configuration>

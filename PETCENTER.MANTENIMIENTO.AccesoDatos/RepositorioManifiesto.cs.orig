@@ -1,0 +1,638 @@
+﻿/*
+PROYECTO: 
+AUTOR: 
+FECHA: 05/05/2014 05:36:11 p.m.
+*/
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using TRAMARSA.WA.CM.DTO;
+using TRAMARSA.WA.CM.Framework;
+
+namespace TRAMARSA.WA.CM.AccesoDatos
+{
+    public class RepositorioManifiesto : RepositorioBase<CabeceraManifiestoDTO>
+    {
+        public RepositorioManifiesto(ContextoParaBaseDatos contexto) : base(contexto) { }
+
+        public ResponseBusquedaManifiesto BuscarManifiesto(string numeroManifiestoCarga)
+        {
+            var response = new ResponseBusquedaManifiesto();
+
+            List<InputEF> lstInputBD = new List<InputEF>();
+
+            string xEstado = "";
+            string xMsg = "";
+
+            lstInputBD.Add(new InputEF("@NroManifiestoCarga", numeroManifiestoCarga, DbType.String));
+            lstInputBD.Add(new InputEF("@xEstado", xEstado, SqlDbType.VarChar, 1, null, ParameterDirection.Output));
+            lstInputBD.Add(new InputEF("@xMsg", xMsg, SqlDbType.VarChar, 1000, null, ParameterDirection.Output));
+
+            response.resultadoFilaConsultaManifiestoDTO = new HelperEF(Contexto.Database).EjecutarFuncionOProcedimiento<ResultadoFilaConsultaManifiestoDTO>("USP_Manifiesto_OBTENER", lstInputBD);
+
+            return response;
+        }
+
+        public ResponseObtenerManifiesto ObtenerManifiesto(RequestObtenerManifiesto request)
+        {
+            var response = new ResponseObtenerManifiesto();
+
+            List<InputEF> lstInputBD = new List<InputEF>();
+
+            string xEstado = "";
+            string xMsg = "";
+
+            lstInputBD.Add(new InputEF("@NroManifiestoCarga", request.numeroManifiesto, DbType.String));
+            lstInputBD.Add(new InputEF("@xEstado", xEstado, SqlDbType.VarChar, 1, null, ParameterDirection.Output));
+            lstInputBD.Add(new InputEF("@xMsg", xMsg, SqlDbType.VarChar, 1000, null, ParameterDirection.Output));
+
+            response.cabeceraDetalleManifiestoDTO
+                = new HelperEF(Contexto.Database).EjecutarFuncionOProcedimiento<CabeceraDetalleManifiestoDTO>("USP_Manifiesto_OBTENER", lstInputBD)[0];
+
+            return response;
+        }
+
+        public ResponseObtenerDocumentos ObtenerDocumentos(RequestObtenerDocumentos request)
+        {
+            var response = new ResponseObtenerDocumentos();
+
+            List<InputEF> lstInputBD = new List<InputEF>();
+
+            string xEstado = "";
+            string xMsg = "";
+
+            lstInputBD.Add(new InputEF("@NroManifiestoCarga", request.NumeroManifiesto, DbType.String));
+            lstInputBD.Add(new InputEF("@TipoDocumento", request.TipoDocumento, DbType.String));
+            lstInputBD.Add(new InputEF("@NumeroDocumento", request.NumeroDocumento, DbType.String));
+            lstInputBD.Add(new InputEF("@NumeroDetalle", request.NumeroDetalle, DbType.String));
+            lstInputBD.Add(new InputEF("@Consignatario", request.Consignatario, DbType.String));
+            // Ordenamiento
+            lstInputBD.Add(new InputEF("@xOrdenCampo", request.PaginacionDTO.sidx, DbType.String));
+            lstInputBD.Add(new InputEF("@xOrdenOrientacion", request.PaginacionDTO.sord, DbType.String));
+            // Paginación
+            lstInputBD.Add(new InputEF("@xPaginaActual", request.PaginacionDTO.getNroPagina(), DbType.Int32));
+            lstInputBD.Add(new InputEF("@xNroRegistrosPorPagina", request.PaginacionDTO.getNroFilas(), DbType.Int32));
+            // Outputs
+            lstInputBD.Add(new InputEF("@xEstado", xEstado, SqlDbType.VarChar, 1, null, ParameterDirection.Output));
+            lstInputBD.Add(new InputEF("@xMsg", xMsg, SqlDbType.VarChar, 1000, null, ParameterDirection.Output));
+            lstInputBD.Add(new InputEF("@xTotalRegistros", 0, DbType.Int32, ParameterDirection.Output));
+            lstInputBD.Add(new InputEF("@xCantidadPaginas", 0, DbType.Int32, ParameterDirection.Output));
+
+            response.Documentos
+            = new HelperEF(Contexto.Database).EjecutarFuncionOProcedimiento<ResultadoFilaDocumentoDTO>("USP_DocumentosPorManifiesto_OBTENER", lstInputBD);
+            response.nroRegistros = Convert.ToInt32(lstInputBD.Find(x => x.NombreAtributo == "@xTotalRegistros").Valor);
+            response.paginasTotales = Convert.ToInt32(lstInputBD.Find(x => x.NombreAtributo == "@xCantidadPaginas").Valor);
+
+            return response;
+        }
+
+        public ResponseObtenerEquipamientos ObtenerEquipamientosPorDocumento(RequestObtenerEquipamientos request)
+        {
+            var response = new ResponseObtenerEquipamientos();
+
+            List<InputEF> lstInputBD = new List<InputEF>();
+
+            string xEstado = "";
+            string xMsg = "";
+
+            lstInputBD.Add(new InputEF("@NroManifiestoCarga", request.NroManifiestoCarga, DbType.String));
+            lstInputBD.Add(new InputEF("@TipoDocumento", request.TipoDocumento, DbType.String));
+            lstInputBD.Add(new InputEF("@NroDetalle", request.NroDetalle, DbType.String));
+            lstInputBD.Add(new InputEF("@NumeroContenedor", request.NumeroContenedor, DbType.String));
+            // Ordenamiento
+            lstInputBD.Add(new InputEF("@xOrdenCampo", request.PaginacionDTO.sidx, DbType.String));
+            lstInputBD.Add(new InputEF("@xOrdenOrientacion", request.PaginacionDTO.sord, DbType.String));
+            // Paginación
+            lstInputBD.Add(new InputEF("@xPaginaActual", request.PaginacionDTO.getNroPagina(), DbType.Int32));
+            lstInputBD.Add(new InputEF("@xNroRegistrosPorPagina", request.PaginacionDTO.getNroFilas(), DbType.Int32));
+            // Outputs
+            lstInputBD.Add(new InputEF("@xEstado", xEstado, SqlDbType.VarChar, 1, null, ParameterDirection.Output));
+            lstInputBD.Add(new InputEF("@xMsg", xMsg, SqlDbType.VarChar, 1000, null, ParameterDirection.Output));
+            lstInputBD.Add(new InputEF("@xTotalRegistros", 0, DbType.Int32, ParameterDirection.Output));
+            lstInputBD.Add(new InputEF("@xCantidadPaginas", 0, DbType.Int32, ParameterDirection.Output));
+
+            response.Equipamientos
+            = new HelperEF(Contexto.Database).EjecutarFuncionOProcedimiento<ResultadoFilaEquipamientoDTO>("USP_EquipamientosPorDocumento_OBTENER", lstInputBD);
+            response.nroRegistros = Convert.ToInt32(lstInputBD.Find(x => x.NombreAtributo == "@xTotalRegistros").Valor);
+            response.paginasTotales = Convert.ToInt32(lstInputBD.Find(x => x.NombreAtributo == "@xCantidadPaginas").Valor);
+
+            return response;
+        }
+
+        public DocumentoDatosTrasladoDTO ObtenerInformacionParaTrasladarDocumento(string NroManifiestoCarga, int IdDoc, int IdDocHijo, string TipoDoc)
+        {
+            var response = new DocumentoDatosTrasladoDTO();
+
+            List<InputEF> lstInputBD = new List<InputEF>();
+
+            string xEstado = "";
+            string xMsg = "";
+
+            lstInputBD.Add(new InputEF("@NroManifiestoCarga", NroManifiestoCarga, DbType.String));
+            lstInputBD.Add(new InputEF("@IdDoc", IdDoc, DbType.Int32));
+            lstInputBD.Add(new InputEF("@IdDocHijo", IdDocHijo, DbType.Int32));
+            lstInputBD.Add(new InputEF("@TipoDoc", TipoDoc, DbType.String));
+            lstInputBD.Add(new InputEF("@xEstado", xEstado, SqlDbType.VarChar, 1, null, ParameterDirection.Output));
+            lstInputBD.Add(new InputEF("@xMsg", xMsg, SqlDbType.VarChar, 1000, null, ParameterDirection.Output));
+
+            response
+                = new HelperEF(Contexto.Database).EjecutarFuncionOProcedimiento<DocumentoDatosTrasladoDTO>("USP_InformacionParaTrasladarDocumento_OBTENER", lstInputBD)[0];
+
+            return response;
+        }
+
+        public System.Type obtenerTipo(string tipo)
+        {
+            System.Type resp = typeof(String);
+            if (tipo.Contains("DateTime"))
+            {
+                resp = typeof(DateTime);
+            }
+            else if (tipo.Contains("String"))
+            {
+                resp = typeof(String);
+            }
+            else if (tipo.Contains("Int"))
+            {
+                resp = typeof(int);
+            }
+            else if (tipo.Contains("Boolean"))
+            {
+                resp = typeof(bool);
+            }
+            return resp;
+        }
+
+        private void GeneradorDt(object entidad, DataTable dt)
+        {
+            var propiedades = entidad.GetType().GetProperties();
+            // Creo las columnas.
+            foreach (PropertyInfo item in propiedades)
+            {
+                if (!item.PropertyType.FullName.Contains("Generic.List"))
+                {
+                    dt.Columns.Add(item.Name, obtenerTipo(item.PropertyType.FullName));
+                }
+            }
+            // Agrego la data.
+
+        }
+
+        public ResponseGuardarManifiestoMasivo GuardarManifiesto(ResponseConsultaManifiesto request)
+        {
+            var response = new ResponseGuardarManifiestoMasivo();
+            try
+            {
+                #region Variables
+                var cabeceras = new List<CabeceraManifiestoDTO>();
+                DataTable dtCabecera = new DataTable();
+                DataTable dtDocumentos = new DataTable();
+                DataTable dtParticipantes = new DataTable();
+                DataTable dtDocumentosHijos = new DataTable();
+                DataTable dtEquipamientos = new DataTable();
+                DataTable dtPuertosIntermedios = new DataTable();
+                DataTable dtDetalleMercancia = new DataTable();
+                DataTable dtEquipamientoPrincipal = new DataTable();
+                DataTable dtPrecinto = new DataTable();
+                DataTable dtTemperatura = new DataTable();
+                #endregion
+
+                cabeceras.Add(request.cabecera);
+
+                // Creo las estructuras y lleno la data.
+                #region Cabecera Manifiesto
+                GeneradorDt(request.cabecera, dtCabecera);
+                if (request.cabecera != null)
+                {
+                    dtCabecera.Rows.Add(
+                         request.cabecera.AnhoManifiestoCarga
+                        , request.cabecera.CodigoAduanaManifiesto.Trim() 
+                        , request.cabecera.DocumentoUnicoEscala
+                        , request.cabecera.EmpresaResponsableTransporte
+                        , request.cabecera.EntidadOtorgaMatricula
+                        , request.cabecera.EquipamientosManifestados
+                        , request.cabecera.Estado
+                        , request.cabecera.FechaEstimadaLlegada
+                        , request.cabecera.IdCabeceraManifiesto
+                        , request.cabecera.LugarDescarga
+                        , request.cabecera.LugarLlegada
+                        , request.cabecera.Matricula
+                        , request.cabecera.Nacionalidad
+                        , request.cabecera.NombreMedioTransporte
+                        , request.cabecera.NombreNave
+                        , request.cabecera.NombreNaviera
+                        , request.cabecera.NroBultosManifestados
+                        , request.cabecera.NroDetalles
+                        , request.cabecera.NroManifiestoCarga
+                        , request.cabecera.NroViaje
+                        , request.cabecera.OperadorPuertario
+                        , request.cabecera.PaisMedioTransporteNacionalidad
+                        , request.cabecera.PesoBruto
+                        , request.cabecera.TipoLugarDescarga
+                        , request.cabecera.TipoLugarLlegada
+                        , request.cabecera.TipoManifiestoCarga
+                        , request.cabecera.TipoUnidadPeso
+                        , request.cabecera.TipoViaTransporte
+                        );
+                }
+                #endregion
+                #region Documentos
+                var documentoDTO = new DocumentoDTO() { detalleMercancia = new List<DetalleMercanciaDTO>(), documentosHijos = new List<DocumentosHijosDTO>(), participantes = new List<ParticipantesDTO>(), puertosIntermedios = new List<PuertosIntermediosDTO>() };
+                GeneradorDt(documentoDTO, dtDocumentos);
+                if (request.documentos != null)
+                {
+                    foreach (var item in request.documentos)
+                        dtDocumentos.Rows.Add(
+                            item.AduanaSalida,
+                            item.CantidadBultos,
+                            item.CantidadEquipamientos,
+                            item.FechaEmisionDocumento,
+                            item.IdCabeceraManifiesto,
+                            item.IdDoc,
+                            item.IdentificacionResponsableDocTransporte,
+                            item.LugarEmisionDocumento,
+                            item.NroDetalle,
+                            item.NroDocumentoTransporte,
+                            item.PesoBruto,
+                            item.PuertoDescarga,
+                            item.PuertoFinal,
+                            item.TipoDocumentoTransporte,
+                            item.TipoIdentificacionResponsableDocTransporte,
+                            item.TipoOperadorResponsableDocTransporte,
+                            item.UnidadPeso,
+                            item.UnidadVolumen,
+                            item.VolumenCarga,
+                            item.DestinoCarga 
+                            );
+                }
+                #endregion
+                #region Participantes
+                var documentoDTO2 = new DocumentoDTO() { detalleMercancia = new List<DetalleMercanciaDTO>(), documentosHijos = new List<DocumentosHijosDTO>(), participantes = new List<ParticipantesDTO>(), puertosIntermedios = new List<PuertosIntermediosDTO>() };
+                documentoDTO2.participantes.Add(new ParticipantesDTO());
+                GeneradorDt(documentoDTO2.participantes[0], dtParticipantes);
+                if (request.documentos != null)
+                {
+                    foreach (var item in request.documentos)
+                    {
+                        if (item.participantes != null)
+                        {
+                            foreach (var subItem in item.participantes)
+                            {
+                                dtParticipantes.Rows.Add(
+                                    subItem.AgenteTransportista
+                                    , subItem.Ciudad
+                                    , subItem.CodigoBasc
+                                    , subItem.Consignatario
+                                    , subItem.Consolidador
+                                    , subItem.CorreoElectronico
+                                    , subItem.Direccion
+                                    , subItem.Embarcador
+                                    , subItem.Fax
+                                    , subItem.IdDoc
+                                    , subItem.Identificacion
+                                    , subItem.IdParticipante
+                                    , subItem.Nombre
+                                    , subItem.NotificarArribo
+                                    , subItem.Pais
+                                    , subItem.RolParticipante
+                                    , subItem.Telefono
+                                    , subItem.TipoIdentificacion
+                                    , subItem.Transportista);
+                            }
+                        }
+                    }
+                }
+                #endregion
+                #region Puertos Intermedios
+                var documentoDTO3 = new DocumentoDTO() { detalleMercancia = new List<DetalleMercanciaDTO>(), documentosHijos = new List<DocumentosHijosDTO>(), participantes = new List<ParticipantesDTO>(), puertosIntermedios = new List<PuertosIntermediosDTO>() };
+                documentoDTO3.puertosIntermedios.Add(new PuertosIntermediosDTO());
+                GeneradorDt(documentoDTO3.puertosIntermedios[0], dtPuertosIntermedios);
+                if (request.documentos != null)
+                {
+                    foreach (var item in request.documentos)
+                    {
+                        if (item.puertosIntermedios != null)
+                        {
+                            foreach (var subItem in item.puertosIntermedios)
+                            {
+                                dtPuertosIntermedios.Rows.Add(
+                                      subItem.Secuencia
+                                    , subItem.FechaZarpe
+                                    , subItem.CodigoPuerto
+                                    , subItem.TipoLugar
+                                    , subItem.IdDoc
+                                    , subItem.IdPuertoIntermedio);
+                            }
+                        }
+                    }
+                }
+                #endregion
+                #region Documentos Hijos
+                var documentoDTO4 = new DocumentoDTO() { detalleMercancia = new List<DetalleMercanciaDTO>(), documentosHijos = new List<DocumentosHijosDTO>(), participantes = new List<ParticipantesDTO>(), puertosIntermedios = new List<PuertosIntermediosDTO>() };
+                documentoDTO4.documentosHijos.Add(new DocumentosHijosDTO());
+                GeneradorDt(documentoDTO4.documentosHijos[0], dtDocumentosHijos);
+
+                if (request.documentos != null)
+                {
+                    foreach (var item in request.documentos)
+                    {
+                        if (item.documentosHijos != null)
+                        {
+                            foreach (var documentoHijo in item.documentosHijos)
+                            {
+                                dtDocumentosHijos.Rows.Add(
+                                    documentoHijo.CantidadBultos,
+                                    documentoHijo.CantidadEquipamientos,
+                                    documentoHijo.IdDoc,
+                                    documentoHijo.IdDocHijo,
+                                    documentoHijo.NroDetalle,
+                                    documentoHijo.PesoBruto,
+                                    documentoHijo.UnidadPeso,
+                                    documentoHijo.UnidadVolumen,
+                                    documentoHijo.VolumenCarga);
+                            }
+                        }
+                    }
+                }
+                #endregion
+                #region Equipamientos
+                var documentoDTO5 = new DocumentoDTO() { detalleMercancia = new List<DetalleMercanciaDTO>(), documentosHijos = new List<DocumentosHijosDTO>(), participantes = new List<ParticipantesDTO>(), puertosIntermedios = new List<PuertosIntermediosDTO>() };
+                documentoDTO5.documentosHijos.Add(new DocumentosHijosDTO() { equipamientos = new List<EquipamientoDTO>() });
+                documentoDTO5.documentosHijos[0].equipamientos.Add(new EquipamientoDTO());
+                GeneradorDt(documentoDTO5.documentosHijos[0].equipamientos[0], dtEquipamientos);
+                if (request.documentos != null)
+                {
+                    foreach (var item in request.documentos)
+                    {
+                        if (item.documentosHijos != null)
+                        {
+                            foreach (var docHijo in item.documentosHijos)
+                            {
+                                if (docHijo.equipamientos != null)
+                                {
+                                    foreach (var equip in docHijo.equipamientos)
+                                    {
+                                        dtEquipamientos.Rows.Add(
+                                            equip.IdentificadorEquipamiento,
+                                            equip.CantidadBultos,
+                                            equip.TipoBulto,
+                                            equip.IncoTerm,
+                                            equip.IdDoc,
+                                            equip.IdDocHijo,
+                                            equip.IdEquipamiento);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                #endregion
+                #region Detalle Mercancía
+                var documentoDTO6 = new DocumentoDTO() { detalleMercancia = new List<DetalleMercanciaDTO>(), documentosHijos = new List<DocumentosHijosDTO>(), participantes = new List<ParticipantesDTO>(), puertosIntermedios = new List<PuertosIntermediosDTO>() };
+                documentoDTO6.detalleMercancia.Add(new DetalleMercanciaDTO());
+                GeneradorDt(documentoDTO6.detalleMercancia[0], dtDetalleMercancia);
+
+                if (request.documentos != null)
+                {
+                    foreach (var item in request.documentos)
+                    {
+                        if (item.detalleMercancia != null)
+                        {
+                            foreach (var detalleMercanciaItem in item.detalleMercancia)
+                            {
+                                dtDetalleMercancia.Rows.Add(
+                                    detalleMercanciaItem.Secuencia,
+                                    detalleMercanciaItem.CondicionCarga,
+                                    detalleMercanciaItem.ValorMercancia,
+                                    detalleMercanciaItem.MonedaValor,
+                                    detalleMercanciaItem.PesoBruto,
+                                    detalleMercanciaItem.UnidadPeso,
+                                    detalleMercanciaItem.VolumenMercancia,
+                                    detalleMercanciaItem.UnidadVolumen,
+                                    detalleMercanciaItem.DescripcionMercancia,
+                                    detalleMercanciaItem.NaturalezaCarga,
+                                    detalleMercanciaItem.CodigoMercanciaAduana,
+                                    detalleMercanciaItem.IdentificadorPeligrosidad,
+                                    detalleMercanciaItem.EntidadReguladoraMercanciaPeligrosa,
+                                    detalleMercanciaItem.ClasificacionPeligrosidad,
+                                    detalleMercanciaItem.NroPaginaDocumentoClasificacion,
+                                    detalleMercanciaItem.FlashPointLiquidosInflamables,
+                                    detalleMercanciaItem.UnidadTemperaturaAsociadaFlashPoint,
+                                    detalleMercanciaItem.MarcasNumeros,
+                                    detalleMercanciaItem.VinVehiculos,
+                                    detalleMercanciaItem.IdDoc,
+                                    detalleMercanciaItem.IdDetalleMercancia);
+                            }
+                        }
+                    }
+                }
+                #endregion
+                #region Equipamiento Principal
+                var entidadEquipamientoPrincipal = new EquipamientoPrincipalDTO() { precintos = new List<PrecintoDTO>(), temperatura = new List<TemperaturaDTO>() };
+                GeneradorDt(entidadEquipamientoPrincipal, dtEquipamientoPrincipal);
+
+                if (request.documentos != null)
+                {
+                    foreach (var doc in request.documentos)
+                    {
+                        if (doc.detalleMercancia != null)
+                        {
+                            foreach (var detalleMercancia in doc.detalleMercancia)
+                            {
+                                if (detalleMercancia.equipamientoPrincipal != null)
+                                {
+                                    foreach (var equipPrincipal in detalleMercancia.equipamientoPrincipal)
+                                    {
+                                        dtEquipamientoPrincipal.Rows.Add(
+                                            equipPrincipal.NroContenedor,
+                                            equipPrincipal.TipoEquipamiento,
+                                            equipPrincipal.Dimension,
+                                            equipPrincipal.PesoBruto,
+                                            equipPrincipal.Bultos,
+                                            equipPrincipal.Peligrosa,
+                                            equipPrincipal.Temperatura,
+                                            equipPrincipal.IdEquipamientoPrincipal,
+                                            equipPrincipal.BL,
+                                            equipPrincipal.IdentificacionEquipamiento,
+                                            equipPrincipal.EmisorNroContenedor,
+                                            equipPrincipal.UnidadPeso,
+                                            equipPrincipal.Tara,
+                                            equipPrincipal.UnidadTara,
+                                            equipPrincipal.SubtipoEquipamiento,
+                                            equipPrincipal.TipoLlenado,
+                                            equipPrincipal.TipoMovimiento,
+                                            equipPrincipal.IdentificadorResponsableVacio,
+                                            equipPrincipal.TipoIdentificacionResponsableVacio,
+                                            equipPrincipal.NombreResponsableContenedorVacio,
+                                            equipPrincipal.RolOperadorResponsableVacio,
+                                            equipPrincipal.IdentificadorResponsableNacionalizado,
+                                            equipPrincipal.TipoIdentificaionRespNacionalizado,
+                                            equipPrincipal.NombreResponsableContenedorNacionalizado,
+                                            equipPrincipal.RolOperadorResponsableNacionalizado,
+                                            equipPrincipal.IdentificadorTransportista,
+                                            equipPrincipal.TipoIdentificacionTransportista,
+                                            equipPrincipal.TipoOperadorResponsableManifiestoCarga,
+                                            equipPrincipal.IdDoc,
+                                            equipPrincipal.IdDetalleMercancia
+                                            );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                #endregion
+                #region Precinto
+                entidadEquipamientoPrincipal.precintos.Add(new PrecintoDTO());
+                GeneradorDt(entidadEquipamientoPrincipal.precintos[0], dtPrecinto);
+                if (request.documentos != null)
+                {
+                    foreach (var doc in request.documentos)
+                    {
+                        if (doc.detalleMercancia != null)
+                        {
+                            foreach (var detalleMercancia in doc.detalleMercancia)
+                            {
+                                if (detalleMercancia.equipamientoPrincipal != null)
+                                {
+                                    foreach (var equipPrincipal in detalleMercancia.equipamientoPrincipal)
+                                    {
+                                        if (equipPrincipal.precintos != null)
+                                        {
+                                            foreach (var precinto in equipPrincipal.precintos)
+                                            {
+                                                dtPrecinto.Rows.Add(
+                                                    precinto.NroPrecinto,
+                                                    precinto.CondicionPrecinto,
+                                                    precinto.EntidadColocaPrecinto,
+                                                    precinto.IdEquipamientoPrincipal,
+                                                    precinto.IdPrecinto);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                #endregion
+                #region Temperatura
+                entidadEquipamientoPrincipal.temperatura.Add(new TemperaturaDTO());
+                GeneradorDt(entidadEquipamientoPrincipal.temperatura[0], dtTemperatura);
+                if (request.documentos != null)
+                {
+                    foreach (var doc in request.documentos)
+                    {
+                        if (doc.detalleMercancia != null)
+                        {
+                            foreach (var detalleMercancia in doc.detalleMercancia)
+                            {
+                                if (detalleMercancia.equipamientoPrincipal != null)
+                                {
+                                    foreach (var equipPrincipal in detalleMercancia.equipamientoPrincipal)
+                                    {
+                                        if (equipPrincipal.temperatura != null)
+                                        {
+                                            foreach (var temperatura in equipPrincipal.temperatura)
+                                            {
+                                                dtTemperatura.Rows.Add(
+                                                    temperatura.ValorTemperatura,
+                                                    temperatura.UnidadTemperatura,
+                                                    temperatura.ValorMinimo,
+                                                    temperatura.ValorMaximo,
+                                                    temperatura.TipoTemperatura,
+                                                    temperatura.IdEquipamientoPrincipal,
+                                                    temperatura.IdTemperatura);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                #endregion
+
+                #region Antiguo (Obsolete)
+                #region Inputs
+                //SqlParameter cabeceraManifiestoRequest = createParameter("@TipoCabeceraManifiesto", SqlDbType.Structured, dtCabecera, ParameterDirection.Input, null, "dbo.TipoCabeceraManifiesto");
+                //SqlParameter documentoRequest = createParameter("@TipoDocumento", SqlDbType.Structured, dtDocumentos, ParameterDirection.Input, null, "dbo.TipoDocumento");
+                //SqlParameter participantesRequest = createParameter("@TipoParticipante", SqlDbType.Structured, dtParticipantes, ParameterDirection.Input, null, "dbo.TipoParticipante");
+                //SqlParameter puertosIntermediosRequest = createParameter("@TipoPuertoIntermedio", SqlDbType.Structured, dtPuertosIntermedios, ParameterDirection.Input, null, "dbo.TipoPuertoIntermedio");
+                //SqlParameter documentosHijosRequest = createParameter("@TipoDocumentoHijo", SqlDbType.Structured, dtDocumentosHijos, ParameterDirection.Input, null, "dbo.TipoDocumentoHijo");
+                //SqlParameter equipamientosRequest = createParameter("@TipoEquipamiento", SqlDbType.Structured, dtEquipamientos, ParameterDirection.Input, null, "dbo.TipoEquipamiento");
+                //SqlParameter detalleMercanciaRequest = createParameter("@TipoDetalleMercancia", SqlDbType.Structured, dtDetalleMercancia, ParameterDirection.Input, null, "dbo.TipoDetalleMercancia");
+                //SqlParameter equipamientoPrincipalRequest = createParameter("@TipoEquipamientoPrincipal", SqlDbType.Structured, dtEquipamientoPrincipal, ParameterDirection.Input, null, "dbo.TipoEquipamientoPrincipal");
+                //SqlParameter precintoRequest = createParameter("@TipoPrecinto", SqlDbType.Structured, dtPrecinto, ParameterDirection.Input, null, "dbo.TipoPrecinto");
+                //SqlParameter temperaturaRequest = createParameter("@TipoTemperatura", SqlDbType.Structured, dtTemperatura, ParameterDirection.Input, null, "dbo.TipoTemperatura");
+                #endregion
+                #region Outputs
+                //SqlParameter pxidManifiesto = createParameter("@xIdManifiesto", SqlDbType.Int, null, ParameterDirection.Output);
+                //SqlParameter pxEstado = createParameter("@xEstado", SqlDbType.Char, string.Empty, ParameterDirection.Output, 1);
+                //SqlParameter pxMsg = createParameter("@xMsg", SqlDbType.VarChar, string.Empty, ParameterDirection.Output, 1000);
+                #endregion
+                #region Grabar
+                //var resultStoreProc = Contexto.Database.ExecuteSqlCommand(@"
+                //USP_Manifiesto_GRABAR 
+                //@TipoCabeceraManifiesto,   @TipoDocumento,   @TipoParticipante,    @TipoDocumentoHijo,     @TipoPuertoIntermedio,     @TipoEquipamiento,    @TipoDetalleMercancia,   @TipoEquipamientoPrincipal,   @TipoPrecinto,   @TipoTemperatura,   @xIdManifiesto output,  @xEstado output,    @xMsg output",
+                //cabeceraManifiestoRequest, documentoRequest, participantesRequest, documentosHijosRequest, puertosIntermediosRequest, equipamientosRequest, detalleMercanciaRequest, equipamientoPrincipalRequest, precintoRequest, temperaturaRequest, pxidManifiesto, pxEstado, pxMsg);
+
+                //var estado = pxEstado.Value;
+                //var msg = pxMsg.Value;
+                //var idManifiesto = Convert.ToInt32(pxidManifiesto.Value);
+                #endregion
+                #endregion
+
+                int xIdManifiesto = -1;
+                string xEstado = "";
+                string xMsg = "";
+
+                #region Inputs
+                List<InputEF> lstInputBD = new List<InputEF>();
+                lstInputBD.Add(new InputEF("@TipoCabeceraManifiesto", dtCabecera, "dbo.TipoCabeceraManifiesto"));
+                lstInputBD.Add(new InputEF("@TipoDocumento", dtDocumentos, "dbo.TipoDocumento"));
+                lstInputBD.Add(new InputEF("@TipoParticipante", dtParticipantes, "dbo.TipoParticipante"));
+                lstInputBD.Add(new InputEF("@TipoDocumentoHijo", dtDocumentosHijos, "dbo.TipoDocumentoHijo"));
+                lstInputBD.Add(new InputEF("@TipoPuertoIntermedio", dtPuertosIntermedios, "dbo.TipoPuertoIntermedio"));
+                lstInputBD.Add(new InputEF("@TipoEquipamiento", dtEquipamientos, "dbo.TipoEquipamiento"));
+                lstInputBD.Add(new InputEF("@TipoDetalleMercancia", dtDetalleMercancia, "dbo.TipoDetalleMercancia"));
+                lstInputBD.Add(new InputEF("@TipoEquipamientoPrincipal", dtEquipamientoPrincipal, "dbo.TipoEquipamientoPrincipal"));
+                lstInputBD.Add(new InputEF("@TipoPrecinto", dtPrecinto, "dbo.TipoPrecinto"));
+                lstInputBD.Add(new InputEF("@TipoTemperatura", dtTemperatura, "dbo.TipoTemperatura"));
+                #endregion
+                #region Outputs
+                lstInputBD.Add(new InputEF("@xIdManifiesto", xIdManifiesto, DbType.Int32, ParameterDirection.Output));
+                lstInputBD.Add(new InputEF("@xEstado", xEstado, SqlDbType.VarChar, 1, null, ParameterDirection.Output));
+                lstInputBD.Add(new InputEF("@xMsg", xMsg, SqlDbType.VarChar, 1000, null, ParameterDirection.Output));
+                #endregion
+
+                new HelperEF(Contexto.Database).EjecutarFuncionOProcedimiento("USP_Manifiesto_GRABAR", lstInputBD);
+
+                xIdManifiesto = Convert.ToInt32(lstInputBD.Where(t => t.NombreAtributo == "@xIdManifiesto").FirstOrDefault().Valor);
+                xEstado = Convert.ToString(lstInputBD.Where(t => t.NombreAtributo == "@xEstado").FirstOrDefault().Valor);
+                xMsg = Convert.ToString(lstInputBD.Where(t => t.NombreAtributo == "@xMsg").FirstOrDefault().Valor);
+            }
+            catch (Exception)
+            {
+               // ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.AccesoDatos);
+                throw; 
+            }
+            return response;
+        }
+
+        //public ResponseTrasladarDocumentos TrasladarDocumentos(RequestTrasladarDocumentos request)
+        //{
+        //    var response = new ResponseTrasladarDocumentos();
+
+        //    return response;
+        //}
+    }
+}
+
+//dtCatalogo.Columns.Add("EstadoRegistro", typeof(bool)); // sólo para guardar (no para modificar)

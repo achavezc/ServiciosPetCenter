@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{052F91F4-91D9-4AEE-8C1F-4FF6C3DDDD7D}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>PETCENTER.MANTENIMIENTO.AccesoDatos</RootNamespace>
+    <AssemblyName>PETCENTER.MANTENIMIENTO.AccesoDatos</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework">
+      <HintPath>..\Librerias Compartidas\Net4\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ContextoParaBaseDatos.cs" />
+    <Compile Include="MANTENIMIENTO\RepositorioObtenerSolicitud.cs" />
+    <Compile Include="MANTENIMIENTO\RepositorioSolicitud.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RepositorioBase.cs" />
+    <Compile Include="RepositorioEstado.cs" />
+    <Compile Include="RepositorioParametroSistema.cs" />
+    <Compile Include="RepositorioTipoMantenimiento.cs" />
+    <Compile Include="SqlHelper.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PETCENTER.MANTENIMIENTO.DTO\PETCENTER.MANTENIMIENTO.DTO.csproj">
+      <Project>{8c6a55a9-8ef2-455a-b750-e6bc08dd52a4}</Project>
+      <Name>PETCENTER.MANTENIMIENTO.DTO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PETCENTER.MANTENIMIENTO.Entidades\PETCENTER.MANTENIMIENTO.Entidades.csproj">
+      <Project>{5bb581d9-85dc-4698-86f0-7498a06b3fa8}</Project>
+      <Name>PETCENTER.MANTENIMIENTO.Entidades</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PETCENTER.MANTENIMIENTO.Framework\PETCENTER.MANTENIMIENTO.Framework.csproj">
+      <Project>{f1fe55a3-302e-447d-a8c8-206a99fc8f22}</Project>
+      <Name>PETCENTER.MANTENIMIENTO.Framework</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

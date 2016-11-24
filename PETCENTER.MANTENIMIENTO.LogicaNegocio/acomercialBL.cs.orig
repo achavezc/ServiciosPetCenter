@@ -1,0 +1,1857 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Transactions;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.AccesoDatos;
+
+using AutoMapper;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.Core;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Framework;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.Constantes;
+
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.AcuerdoComercial.Request;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.AcuerdoComercial.Response;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.AcuerdosComerciales.AcuerdoComercial;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.AcuerdoComercial;
+
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales;
+
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.Notificacion;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.UsuarioSeguridad.Request;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.TipoContenedorExterno.Request;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.AcuerdosComerciales.Tarifa.Response;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.AcuerdosComerciales.DetalleCatalogo;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.UsuarioSeguridad.Response;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.Tramarsa.Sucursal;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.AcuerdosComerciales.TerminalPortuario;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.RolesCliente.Response;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.AcuerdosComerciales.GrupoPuertoExterno;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.Tramarsa.Puerto;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.Tramarsa;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.AcuerdosComerciales.Tarifa;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.AcuerdosComerciales.DetalleGrupoPuertoExterno;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.AcuerdosComerciales.TipoContenedorExterno;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.AcuerdosComerciales.Notificacion;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.Tramarsa.Cliente.Request;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.DTO.Tramarsa.Cliente.Response;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Entidades.Tramarsa.Cliente;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.LogicaNegocio.Tramarsa.Cliente;
+using TRAMARSA.AGMA.ACUERDOCOMERCIAL.Reportes;
+using System.Net.Mail;
+using System.IO;
+using System.Reflection;
+
+namespace TRAMARSA.AGMA.ACUERDOCOMERCIAL.LogicaNegocio
+{
+
+    public partial class AComercialBL
+    {
+        public ConsultaAcuerdoComercialLocalResponseDTO ConsultarAcuerdoComercialLocal(ConsultaAcuerdoComercialLocalRequestDTO request)
+        {
+
+            ConsultaAcuerdoComercialLocalResponseDTO response = new ConsultaAcuerdoComercialLocalResponseDTO();
+            MaestrosBL maestrosBL = new MaestrosBL();
+
+            try
+            {
+                var lstACLocal = new List<AcuerdoComercialLocalBE>();
+
+                var requestDTO = Helper.MiMapper<ConsultaAcuerdoComercialLocalRequestDTO, ConsultaAcuerdoComercialLocalBE>(request);
+
+                var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.AcuerdoComercialAGMADB);
+                var repo = new RepositorioAcuerdoComercial(contextoParaBaseDatos);
+
+                int totalRegistros, cantPaginas;
+                lstACLocal = repo.ConsultarAcuerdoComercialLocal(requestDTO, out totalRegistros, out cantPaginas);
+                var lstDetalleCatalogo = maestrosBL.ObtenerListaDetalleCatalogo();
+
+
+                lstACLocal.ForEach(x =>
+                {
+                    var detalleCatalogo = lstDetalleCatalogo.Where(xy => xy.IdCatalogo == (int)CatalogoTablas.EstadoAcuerdoComercial && xy.Codigo == x.Estado).FirstOrDefault();
+
+                    x.DescripcionEstado = detalleCatalogo != null ? detalleCatalogo.Descripcion : string.Empty;
+
+                });
+
+
+
+
+                response.AcuerdoComercialLocalList = (from Origen in lstACLocal
+                                                      select Helper.MiMapper<AcuerdoComercialLocalBE, AcuerdoComercialLocalDTO>(Origen)).ToList();
+
+                response.TotalRegistros = totalRegistros;
+                response.CantidadPaginas = cantPaginas;
+
+
+            }
+            catch (Exception ex)
+            {
+                response.Result = new Result { IdError = Guid.NewGuid(), Satisfactorio = false, Mensaje = "Ocurrio un problema interno en el servicio" };
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.LogicaNegocio);
+            }
+
+
+            return response;
+        }
+
+        public ConsultaAcuerdoComercialEscalonadoResponseDTO ConsultarAcuerdoComercialEscalonado(ConsultaAcuerdoComercialEscalonadoRequestDTO request)
+        {
+
+            ConsultaAcuerdoComercialEscalonadoResponseDTO response = new ConsultaAcuerdoComercialEscalonadoResponseDTO();
+            MaestrosBL maestrosBL = new MaestrosBL();
+
+            try
+            {
+                var lstACEscalonado = new List<AcuerdoComercialEscalonadoBE>();
+
+                var requestDTO = Helper.MiMapper<ConsultaAcuerdoComercialEscalonadoRequestDTO, ConsultaAcuerdoComercialEscalonadoBE>(request);
+
+                var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.AcuerdoComercialAGMADB);
+                var repo = new RepositorioAcuerdoComercial(contextoParaBaseDatos);
+
+                int totalRegistros, cantPaginas;
+                lstACEscalonado = repo.ConsultarAcuerdoComercialEscalonado(requestDTO, out totalRegistros, out cantPaginas);
+
+
+                response.AcuerdoComercialEscalonadoList = (from Origen in lstACEscalonado
+                                                           select Helper.MiMapper<AcuerdoComercialEscalonadoBE, AcuerdoComercialEscalonadoDTO>(Origen)).ToList();
+
+                response.TotalRegistros = totalRegistros;
+                response.CantidadPaginas = cantPaginas;
+            }
+            catch (Exception ex)
+            {
+                response.Result = new Result { IdError = Guid.NewGuid(), Satisfactorio = false, Mensaje = "Ocurrio un problema interno en el servicio" };
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.LogicaNegocio);
+            }
+
+
+            return response;
+        }
+
+        public ActualizaAcuerdoComercialLocalResponseDTO ActualizarAcuerdoComercialLocal(ActualizaAcuerdoComercialLocalRequestDTO request)
+        {
+            int result = 0;
+
+            ActualizaAcuerdoComercialLocalResponseDTO response = new ActualizaAcuerdoComercialLocalResponseDTO();
+            CoreBL coreBL = new CoreBL();
+
+            try
+            {
+                var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.AcuerdoComercialAGMADB);
+                var repo = new RepositorioAcuerdoComercial(contextoParaBaseDatos);
+
+                string mensajeIngresarACLocal = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeIngresarACLocal.ToString()).Valor;
+                string mensajeInhabilitarACLocal = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeInhabilitarACLocal.ToString()).Valor;
+                string mensajeModificarSeccionRA = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionRA.ToString()).Valor;
+                string mensajeModificarSeccionPuerto = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionPuerto.ToString()).Valor;
+                string mensajeModificarSeccionClienteBLMaster = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionClienteBLMaster.ToString()).Valor;
+                string mensajeModificarSeccionAgenteBLMaster = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionAgenteBLMaster.ToString()).Valor;
+                string mensajeModificarSeccionClienteBLHouse = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionClienteBLHouse.ToString()).Valor;
+                string mensajeModificarSeccionAgenteBLHouse = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionAgenteBLHouse.ToString()).Valor;
+                string mensajeModificarSeccionServicioNave = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionServicioNave.ToString()).Valor;
+                string mensajeModificarSeccionServicioBL = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionServicioBL.ToString()).Valor;
+                string mensajeModificarSeccionTipoContenedor = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionTipoContenedor.ToString()).Valor;
+                string mensajeModificarSeccionCarga = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionCarga.ToString()).Valor;
+
+                string mensajeValidacionModificarRAACLocal = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeValidacionModificarRAACLocal.ToString()).Valor;
+
+                string mensajeModificarSeccionGeneral = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionGeneral.ToString()).Valor;
+                string mensajeModificarSeccionSucursal = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionSucursal.ToString()).Valor;
+                string mensajeModificarSeccionTerminalPortuario = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionTerminalPortuario.ToString()).Valor;
+
+
+
+                Mapper.CreateMap<AcuerdoComercialLocalSucursalRequestDTO, AcuerdoComercialLocalSucursalBE>();
+                Mapper.CreateMap<AcuerdoComercialLocalSucursalTerminalRequestDTO, AcuerdoComercialLocalSucursalTerminalBE>();
+                Mapper.CreateMap<AcuerdoComercialLocalRARequestDTO, AcuerdoComercialLocalRABE>();
+                Mapper.CreateMap<AcuerdoComercialLocalPuertoRequestDTO, AcuerdoComercialLocalPuertoBE>();
+                Mapper.CreateMap<AcuerdoComercialLocalClienteBLMasterRequestDTO, AcuerdoComercialLocalClienteBLMasterBE>();
+                Mapper.CreateMap<AcuerdoComercialLocalAgenteBLMasterRequestDTO, AcuerdoComercialLocalAgenteBLMasterBE>();
+                Mapper.CreateMap<AcuerdoComercialLocalClienteBLHouseRequestDTO, AcuerdoComercialLocalClienteBLHouseBE>();
+                Mapper.CreateMap<AcuerdoComercialLocalAgenteBLHouseRequestDTO, AcuerdoComercialLocalAgenteBLHouseBE>();
+                Mapper.CreateMap<AcuerdoComercialLocalServicioNaveRequestDTO, AcuerdoComercialLocalServicioNaveBE>();
+                Mapper.CreateMap<AcuerdoComercialLocalServicioBLRequestDTO, AcuerdoComercialLocalServicioBLBE>();
+                Mapper.CreateMap<AcuerdoComercialLocalTipoContenedorRequestDTO, AcuerdoComercialLocalTipoContenedorBE>();
+                Mapper.CreateMap<AcuerdoComercialLocalCargaRequestDTO, AcuerdoComercialLocalCargaBE>();
+                Mapper.CreateMap<AcuerdoComercialLocalTarifaRequestDTO, AcuerdoComercialLocalTarifaBE>();
+                Mapper.CreateMap<AcuerdoComercialLocalTarifaLigadaRequestDTO, AcuerdoComercialLocalTarifaLigadaBE>();
+
+                var requestBE = Helper.MiMapper<ActualizaAcuerdoComercialLocalRequestDTO, ActualizaAcuerdoComercialLocalBE>(request);
+
+                List<AcuerdoComercialLocalRABE> acLocalRABEList = repo.ValidarACLocalRA(requestBE.ListaAcuerdoComercialLocalRA, request.Accion);
+                if (acLocalRABEList.Any())
+                {
+                    response.Result = new Result
+                    {
+                        IdError = Guid.NewGuid(),
+                        Satisfactorio = false,
+                        Mensajes = (from v in acLocalRABEList
+                                    select new Result
+                                    {
+                                        IdError = Guid.NewGuid(),
+                                        Satisfactorio = false,
+                                        Mensaje = mensajeValidacionModificarRAACLocal.Replace("{CodigoRA}", v.CodigoRA.ToString())
+                                    }).ToList()
+                    };
+                }
+                else
+                {
+                    //requestBE.ListaAcuerdoComercialLocalTarifaLigada = requestBE.ListaAcuerdoComercialLocalTarifaLigada
+                    //                                                            .Where(x => x.Accion.Equals(Accion.Insertar.GetDescription()))
+                    //                                                            .GroupBy(x => x.CodigoTarifaLigadaLocal)
+                    //                                                            .Select(group => group.First()).ToList();
+
+                    if (request.Accion.Equals(Accion.Insertar.GetDescription()) && !string.IsNullOrEmpty(request.Accion))
+                    {
+                        requestBE.FechaHoraCreacion = DateTime.Now;
+                        requestBE.EstadoRegistro = true;
+                    }
+                    else //APLICA PARA UPDATE Y DELETE
+                        requestBE.FechaHoraActualizacion = DateTime.Now;
+
+                    using (TransactionScope Transaccion = new TransactionScope())
+                    {
+
+                        if (request.Accion.Equals(Accion.Insertar.GetDescription()) && !string.IsNullOrEmpty(request.Accion))
+                        {
+                            result = requestBE.CodigoAcuerdoComercialLocal = repo.RegistrarAcuerdoComercialLocal(requestBE);
+
+                            repo.InsertarAcuerdoComercialLocalHistorial(new InsertarAcuerdoComercialLocalHistorialBE
+                            {
+                                CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal,
+                                Descripcion = mensajeIngresarACLocal,
+                                Accion = Accion.Insertar.GetDescription(),
+                                FechaHora = requestBE.FechaHoraActualizacion,
+                                Usuario = requestBE.UsuarioActualizacion
+                            });
+                        }
+                        else //APLICA PARA UPDATE Y DELETE
+                        {
+                            result = repo.ActualizarAcuerdoComercialLocal(requestBE);
+
+                            if (request.Accion == Accion.Actualizar.GetDescription())
+                            {
+                                repo.InsertarAcuerdoComercialLocalHistorial(new InsertarAcuerdoComercialLocalHistorialBE
+                                {
+                                    CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal,
+                                    Descripcion = mensajeModificarSeccionGeneral,
+                                    Accion = Accion.Actualizar.GetDescription(),
+                                    FechaHora = requestBE.FechaHoraActualizacion,
+                                    Usuario = requestBE.UsuarioActualizacion
+                                });
+                            }
+
+                            if (!request.EstadoRegistro)
+                            {
+                                repo.InsertarAcuerdoComercialLocalHistorial(new InsertarAcuerdoComercialLocalHistorialBE
+                                {
+                                    CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal,
+                                    Descripcion = mensajeInhabilitarACLocal,
+                                    Accion = Accion.Actualizar.GetDescription(),
+                                    FechaHora = requestBE.FechaHoraActualizacion,
+                                    Usuario = requestBE.UsuarioActualizacion
+                                });
+                            }
+                        }
+
+                        #region DETALLE
+
+                        if (!result.Equals(0))
+                        {
+                            requestBE.ListaAcuerdoComercialLocalSucursal.ForEach(x => { x.CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal; });
+                            requestBE.ListaAcuerdoComercialLocalSucursalTerminal.ForEach(x => { x.CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal; });
+                            requestBE.ListaAcuerdoComercialLocalRA.ForEach(x => { x.CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal; });
+                            requestBE.ListaAcuerdoComercialLocalPuerto.ForEach(x => { x.CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal; });
+                            requestBE.ListaAcuerdoComercialLocalClienteBLMaster.ForEach(x => { x.CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal; });
+                            requestBE.ListaAcuerdoComercialLocalAgenteBLMaster.ForEach(x => { x.CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal; });
+                            requestBE.ListaAcuerdoComercialLocalAgenteBLHouse.ForEach(x => { x.CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal; });
+                            requestBE.ListaAcuerdoComercialLocalClienteBLHouse.ForEach(x => { x.CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal; });
+                            requestBE.ListaAcuerdoComercialLocalServicioNave.ForEach(x => { x.CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal; });
+                            requestBE.ListaAcuerdoComercialLocalServicioBL.ForEach(x => { x.CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal; });
+                            requestBE.ListaAcuerdoComercialLocalTipoContenedor.ForEach(x => { x.CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal; });
+                            requestBE.ListaAcuerdoComercialLocalCarga.ForEach(x => { x.CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal; });
+                            requestBE.ListaAcuerdoComercialLocalTarifa.ForEach(x => { x.CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal; });
+                            requestBE.ListaAcuerdoComercialLocalTarifaLigada.ForEach(x => { x.CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal; });
+
+                            if (request.Accion.Equals(Accion.Insertar.GetDescription()))
+                            {
+                                if (repo.ModificarACLocalSucursal(requestBE.ListaAcuerdoComercialLocalSucursal))
+                                {
+                                    repo.InsertarAcuerdoComercialLocalHistorial(new InsertarAcuerdoComercialLocalHistorialBE
+                                    {
+                                        CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal,
+                                        Descripcion = mensajeModificarSeccionSucursal,
+                                        Accion = Accion.Insertar.GetDescription(),
+                                        FechaHora = requestBE.FechaHoraCreacion,
+                                        Usuario = requestBE.UsuarioCreacion
+                                    });
+                                }
+
+                                if (repo.ModificarACLocalSucursalTerminal(requestBE.ListaAcuerdoComercialLocalSucursalTerminal))
+                                {
+                                    repo.InsertarAcuerdoComercialLocalHistorial(new InsertarAcuerdoComercialLocalHistorialBE
+                                    {
+                                        CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal,
+                                        Descripcion = mensajeModificarSeccionTerminalPortuario,
+                                        Accion = Accion.Insertar.GetDescription(),
+                                        FechaHora = requestBE.FechaHoraCreacion,
+                                        Usuario = requestBE.UsuarioCreacion
+                                    });
+                                }
+                            }
+                            else //APLICA PARA UPDATE Y DELETE
+                            {
+                                if (repo.ModificarACLocalSucursalTerminal(requestBE.ListaAcuerdoComercialLocalSucursalTerminal))
+                                {
+                                    repo.InsertarAcuerdoComercialLocalHistorial(new InsertarAcuerdoComercialLocalHistorialBE
+                                    {
+                                        CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal,
+                                        Descripcion = mensajeModificarSeccionTerminalPortuario,
+                                        Accion = Accion.Actualizar.GetDescription(),
+                                        FechaHora = requestBE.FechaHoraActualizacion,
+                                        Usuario = requestBE.UsuarioCreacion
+                                    });
+                                }
+
+                                if (repo.ModificarACLocalSucursal(requestBE.ListaAcuerdoComercialLocalSucursal))
+                                {
+                                    repo.InsertarAcuerdoComercialLocalHistorial(new InsertarAcuerdoComercialLocalHistorialBE
+                                    {
+                                        CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal,
+                                        Descripcion = mensajeModificarSeccionSucursal,
+                                        Accion = Accion.Actualizar.GetDescription(),
+                                        FechaHora = requestBE.FechaHoraActualizacion,
+                                        Usuario = requestBE.UsuarioCreacion
+                                    });
+                                }
+                            }
+
+                            DateTime? fechaHoraHistorial = request.Accion == Accion.Insertar.GetDescription() ? requestBE.FechaHoraCreacion : requestBE.FechaHoraActualizacion;
+
+                            if (repo.ModificarACLocalRA(requestBE.ListaAcuerdoComercialLocalRA))
+                            {
+                                repo.InsertarAcuerdoComercialLocalHistorial(new InsertarAcuerdoComercialLocalHistorialBE
+                                {
+                                    CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal,
+                                    Descripcion = mensajeModificarSeccionRA,
+                                    Accion = Accion.Actualizar.GetDescription(),
+                                    FechaHora = fechaHoraHistorial,
+                                    Usuario = requestBE.UsuarioCreacion
+                                });
+                            }
+                            if (repo.ModificarACLocalPuerto(requestBE.ListaAcuerdoComercialLocalPuerto))
+                            {
+                                repo.InsertarAcuerdoComercialLocalHistorial(new InsertarAcuerdoComercialLocalHistorialBE
+                                {
+                                    CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal,
+                                    Descripcion = mensajeModificarSeccionPuerto,
+                                    Accion = Accion.Actualizar.GetDescription(),
+                                    FechaHora = fechaHoraHistorial,
+                                    Usuario = requestBE.UsuarioCreacion
+                                });
+                            }
+                            if (repo.ModificarACLocalClienteBLMaster(requestBE.ListaAcuerdoComercialLocalClienteBLMaster))
+                            {
+                                repo.InsertarAcuerdoComercialLocalHistorial(new InsertarAcuerdoComercialLocalHistorialBE
+                                {
+                                    CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal,
+                                    Descripcion = mensajeModificarSeccionClienteBLMaster,
+                                    Accion = Accion.Actualizar.GetDescription(),
+                                    FechaHora = fechaHoraHistorial,
+                                    Usuario = requestBE.UsuarioCreacion
+                                });
+                            }
+                            if (repo.ModificarACLocalAgenteBLMaster(requestBE.ListaAcuerdoComercialLocalAgenteBLMaster))
+                            {
+                                repo.InsertarAcuerdoComercialLocalHistorial(new InsertarAcuerdoComercialLocalHistorialBE
+                                {
+                                    CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal,
+                                    Descripcion = mensajeModificarSeccionAgenteBLMaster,
+                                    Accion = Accion.Actualizar.GetDescription(),
+                                    FechaHora = fechaHoraHistorial,
+                                    Usuario = requestBE.UsuarioCreacion
+                                });
+                            }
+                            if (repo.ModificarACLocalAgenteBLHouse(requestBE.ListaAcuerdoComercialLocalAgenteBLHouse))
+                            {
+                                repo.InsertarAcuerdoComercialLocalHistorial(new InsertarAcuerdoComercialLocalHistorialBE
+                                {
+                                    CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal,
+                                    Descripcion = mensajeModificarSeccionAgenteBLHouse,
+                                    Accion = Accion.Actualizar.GetDescription(),
+                                    FechaHora = fechaHoraHistorial,
+                                    Usuario = requestBE.UsuarioCreacion
+                                });
+                            }
+                            if (repo.ModificarACLocalClienteBLHouse(requestBE.ListaAcuerdoComercialLocalClienteBLHouse))
+                            {
+                                repo.InsertarAcuerdoComercialLocalHistorial(new InsertarAcuerdoComercialLocalHistorialBE
+                                {
+                                    CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal,
+                                    Descripcion = mensajeModificarSeccionClienteBLHouse,
+                                    Accion = Accion.Actualizar.GetDescription(),
+                                    FechaHora = fechaHoraHistorial,
+                                    Usuario = requestBE.UsuarioCreacion
+                                });
+                            }
+                            if (repo.ModificarACLocalServicioNave(requestBE.ListaAcuerdoComercialLocalServicioNave))
+                            {
+                                repo.InsertarAcuerdoComercialLocalHistorial(new InsertarAcuerdoComercialLocalHistorialBE
+                                {
+                                    CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal,
+                                    Descripcion = mensajeModificarSeccionServicioNave,
+                                    Accion = Accion.Actualizar.GetDescription(),
+                                    FechaHora = fechaHoraHistorial,
+                                    Usuario = requestBE.UsuarioCreacion
+                                });
+                            }
+                            if (repo.ModificarACLocalServicioBL(requestBE.ListaAcuerdoComercialLocalServicioBL))
+                            {
+                                repo.InsertarAcuerdoComercialLocalHistorial(new InsertarAcuerdoComercialLocalHistorialBE
+                                {
+                                    CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal,
+                                    Descripcion = mensajeModificarSeccionServicioBL,
+                                    Accion = Accion.Actualizar.GetDescription(),
+                                    FechaHora = fechaHoraHistorial,
+                                    Usuario = requestBE.UsuarioCreacion
+                                });
+                            }
+
+                            if (repo.ModificarACLocalCarga(requestBE.ListaAcuerdoComercialLocalCarga))
+                            {
+                                repo.InsertarAcuerdoComercialLocalHistorial(new InsertarAcuerdoComercialLocalHistorialBE
+                                {
+                                    CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal,
+                                    Descripcion = mensajeModificarSeccionCarga,
+                                    Accion = Accion.Actualizar.GetDescription(),
+                                    FechaHora = fechaHoraHistorial,
+                                    Usuario = requestBE.UsuarioCreacion
+                                });
+                            }
+
+                            this.ModificarAClocalTarifa(repo, request.Accion, requestBE);
+
+                            if (repo.ModificarACLocalTipoContenedor(requestBE.ListaAcuerdoComercialLocalTipoContenedor))
+                            {
+                                repo.InsertarAcuerdoComercialLocalHistorial(new InsertarAcuerdoComercialLocalHistorialBE
+                                {
+                                    CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal,
+                                    Descripcion = mensajeModificarSeccionTipoContenedor,
+                                    Accion = Accion.Actualizar.GetDescription(),
+                                    FechaHora = fechaHoraHistorial,
+                                    Usuario = requestBE.UsuarioCreacion
+                                });
+                            }
+                        }
+
+                        #endregion
+
+                        Transaccion.Complete();
+
+                        response.CodigoAcuerdoComercialLocal = requestBE.CodigoAcuerdoComercialLocal;
+                    }
+                }
+
+                #region NOTIFICAR
+
+                if (request.Accion.Equals(Accion.Insertar.GetDescription()) && response.CodigoAcuerdoComercialLocal > 0)
+                {
+                    ResponseListaUsuarios usuario = new ResponseListaUsuarios();
+                    var usuarioList = (new SeguridadBL()).GetInfoUsuario(new RequestInfoBasicaUsuarioDTO { CodigosUsuario = new List<string> { request.CodigoUsuarioAutorizador } });
+                    if (usuarioList.Any())
+                        usuario = usuarioList.FirstOrDefault();
+
+                    NotificacionBL notificacionBL = new NotificacionBL();
+                    RequestNotificacionDTO requestNotificacion = new RequestNotificacionDTO();
+
+                    #region PARAMETRO AMBIENTE
+
+                    var parametroList = (new MaestrosBL()).ConsultarParametroNegocio();
+                    var parametroFound = parametroList.ParametrosNegocioList.Where(x => x.Codigo == ((int)ConstantesParametrosNegocio.AmbinteScriptor).ToString());
+                    string ambiente = "";
+                    if (parametroFound.Any())
+                        ambiente = parametroFound.FirstOrDefault().Valor;
+
+
+                    #endregion
+
+                    requestNotificacion.CorreosPara.Add(usuario.Correo);
+                    requestNotificacion.CorreoDe = WebConfigReader.Mailer.From;
+                    requestNotificacion.CodigoNotificacion = (int)TipoNotificacion.AcuerdoComercialLocal;
+                    requestNotificacion.CuerpoValores = new Dictionary<string, string>() {
+                                                                            { "{UsuarioAutorizador}", usuario.NombresCompletos },
+                                                                            { "{CodigoAcuerdoComercialLocal}", requestBE.CodigoAcuerdoComercialLocal.ToString() },
+                                                                            { "{FechaVigencia}", string.Format("{0:dd-MM-yyyy}", request.FinVigencia) },
+                                                                            { "{urlpagina}", string.Format("http://{0}/#!/sistema/registro-de-acuerdo-comercial-local?codigoAcuerdoLocal={1}", ambiente, requestBE.CodigoAcuerdoComercialLocal ) } };
+
+                    notificacionBL.requestNotificationDTO = requestNotificacion;
+                    notificacionBL.EnviarNotificacion();
+                }
+
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                response.Result = new Result { IdError = Guid.NewGuid(), Satisfactorio = false, Mensaje = "Ocurrio un problema interno en el servicio" };
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.LogicaNegocio);
+            }
+
+            return response;
+        }
+
+        public ActualizaAcuerdoComercialEscalonadoResponseDTO ActualizarAcuerdoComercialEscalonado(ActualizaAcuerdoComercialEscalonadoRequestDTO request, bool esMasivo = false)
+        {
+            int result = 0;
+
+            ActualizaAcuerdoComercialEscalonadoResponseDTO response = new ActualizaAcuerdoComercialEscalonadoResponseDTO();
+            CoreBL coreBL = new CoreBL();
+
+            try
+            {
+                var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.AcuerdoComercialAGMADB);
+                var repo = new RepositorioAcuerdoComercial(contextoParaBaseDatos);
+
+                string mensajeIngresarACEscalonado = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeIngresarACEscalonado.ToString()).Valor;
+                string mensajeInhabilitarACEscalonado = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeInhabilitarACEscalonado.ToString()).Valor;
+                string mensajeModificarSeccionRA = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionRA.ToString()).Valor;
+                string mensajeModificarSeccionPuerto = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionPuerto.ToString()).Valor;
+                string mensajeModificarSeccionClienteBLMaster = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionClienteBLMaster.ToString()).Valor;
+                string mensajeModificarSeccionAgenteBLMaster = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionAgenteBLMaster.ToString()).Valor;
+                string mensajeModificarSeccionClienteBLHouse = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionClienteBLHouse.ToString()).Valor;
+                string mensajeModificarSeccionAgenteBLHouse = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionAgenteBLHouse.ToString()).Valor;
+                string mensajeModificarSeccionServicioNave = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionServicioNave.ToString()).Valor;
+                string mensajeModificarSeccionServicioBL = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionServicioBL.ToString()).Valor;
+                string mensajeModificarSeccionTipoContenedor = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionTipoContenedor.ToString()).Valor;
+                string mensajeModificarSeccionCarga = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionCarga.ToString()).Valor;
+                string mensajeModificarSeccionTarifa = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionTarifa.ToString()).Valor;
+                string mensajeValidacionModificarACRAEscalonada = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeValidacionModificarACRAEscalonada.ToString()).Valor;
+                string mensajeValidacionEdicionACEscalonadaLigada = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeValidacionEdicionACEscalonadaLigada.ToString()).Valor;
+                string mensajeModificarSeccionGeneral = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionGeneral.ToString()).Valor;
+                string mensajeModificarSeccionSucursal = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionSucursal.ToString()).Valor;
+                string mensajeModificarSeccionTerminalPortuario = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionTerminalPortuario.ToString()).Valor;
+                string mensajeModificarSeccionTarifaLigada = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionTarifaLigada.ToString()).Valor;
+                string mensajeModificarSeccionTarifaPeriodo = coreBL.ObtenerParametroNegocio(ConstantesParametrosNegocio.MensajeModificarSeccionTarifaPeriodo.ToString()).Valor;
+
+                Mapper.CreateMap<AcuerdoComercialEscalonadoSucursalRequestDTO, AcuerdoComercialEscalonadoSucursalBE>();
+                Mapper.CreateMap<AcuerdoComercialEscalonadoSucursalTerminalRequestDTO, AcuerdoComercialEscalonadoSucursalTerminalBE>();
+                Mapper.CreateMap<AcuerdoComercialEscalonadoRARequestDTO, AcuerdoComercialEscalonadoRABE>();
+                Mapper.CreateMap<AcuerdoComercialEscalonadoPuertoRequestDTO, AcuerdoComercialEscalonadoPuertoBE>();
+                Mapper.CreateMap<AcuerdoComercialEscalonadoClienteBLMasterRequestDTO, AcuerdoComercialEscalonadoClienteBLMasterBE>();
+                Mapper.CreateMap<AcuerdoComercialEscalonadoAgenteBLMasterRequestDTO, AcuerdoComercialEscalonadoAgenteBLMasterBE>();
+                Mapper.CreateMap<AcuerdoComercialEscalonadoClienteBLHouseRequestDTO, AcuerdoComercialEscalonadoClienteBLHouseBE>();
+                Mapper.CreateMap<AcuerdoComercialEscalonadoAgenteBLHouseRequestDTO, AcuerdoComercialEscalonadoAgenteBLHouseBE>();
+                Mapper.CreateMap<AcuerdoComercialEscalonadoServicioNaveRequestDTO, AcuerdoComercialEscalonadoServicioNaveBE>();
+                Mapper.CreateMap<AcuerdoComercialEscalonadoServicioBLRequestDTO, AcuerdoComercialEscalonadoServicioBLBE>();
+                Mapper.CreateMap<AcuerdoComercialEscalonadoCargaRequestDTO, AcuerdoComercialEscalonadoCargaBE>();
+                Mapper.CreateMap<AcuerdoComercialEscalonadoTarifaRequestDTO, AcuerdoComercialEscalonadoTarifaBE>();
+                Mapper.CreateMap<AcuerdoComercialEscalonadoTarifaLigadaRequestDTO, AcuerdoComercialEscalonadoTarifaLigadaBE>();
+                Mapper.CreateMap<AcuerdoComercialEscalonadoTarifaPeriodoRequestDTO, AcuerdoComercialEscalonadoTarifaPeriodoBE>();
+
+                var requestBE = Helper.MiMapper<ActualizaAcuerdoComercialEscalonadoRequestDTO, ActualizaAcuerdoComercialEscalonadoBE>(request);
+
+                List<AcuerdoComercialEscalonadoRABE> acEscalonadoRABEList = repo.ValidarACEscalonadoRA(requestBE.ListaAcuerdoComercialEscalonadoRA, request.Accion);
+                if (acEscalonadoRABEList.Any())
+                {
+                    response.Result = new Result
+                    {
+                        IdError = Guid.NewGuid(),
+                        Satisfactorio = false,
+                        Mensajes = (from v in acEscalonadoRABEList
+                                    select new Result
+                                    {
+                                        IdError = Guid.NewGuid(),
+                                        Satisfactorio = false,
+                                        Mensaje = mensajeValidacionEdicionACEscalonadaLigada.Replace("{CodigoTarifa}", v.CodigoRA.ToString())
+                                    }).ToList()
+                    };
+                }
+                else
+                {
+                    requestBE.ListaAcuerdoComercialEscalonadoTarifaLigada = requestBE.ListaAcuerdoComercialEscalonadoTarifaLigada
+                                                                                     .Where(x => x.Accion.Equals(Accion.Insertar.GetDescription()))
+                                                                                     .GroupBy(x => x.CodigoTarifaLigadaEscalonado)
+                                                                                     .Select(group => group.First()).ToList();
+
+                    if (request.Accion.Equals(Accion.Insertar.GetDescription()))
+                    {
+                        requestBE.FechaHoraCreacion = DateTime.Now;
+                        requestBE.EstadoRegistro = true;
+                    }
+                    else //APLICA PARA UPDATE Y DELETE
+                        requestBE.FechaHoraActualizacion = DateTime.Now;
+
+                    using (TransactionScope Transaccion = new TransactionScope())
+                    {
+
+                        if (request.Accion.Equals(Accion.Insertar.GetDescription()))
+                        {
+                            result = requestBE.CodigoAcuerdoComercialEscalonado = repo.RegistrarAcuerdoComercialEscalonado(requestBE);
+
+                            repo.InsertarAcuerdoComercialEscalonadoHistorial(new InsertarAcuerdoComercialEscalonadoHistorialBE
+                            {
+                                CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado,
+                                Descripcion = mensajeIngresarACEscalonado,
+                                Accion = Accion.Insertar.GetDescription(),
+                                FechaHora = requestBE.FechaHoraCreacion,
+                                Usuario = requestBE.UsuarioCreacion
+                            });
+                        }
+                        else //APLICA PARA UPDATE Y DELETE
+                        {
+                            result = repo.ActualizarAcuerdoComercialEscalonado(requestBE);
+
+                            if (request.Accion == Accion.Actualizar.GetDescription())
+                            {
+                                repo.InsertarAcuerdoComercialEscalonadoHistorial(new InsertarAcuerdoComercialEscalonadoHistorialBE
+                                {
+                                    CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado,
+                                    Descripcion = mensajeModificarSeccionGeneral,
+                                    Accion = Accion.Actualizar.GetDescription(),
+                                    FechaHora = requestBE.FechaHoraActualizacion,
+                                    Usuario = requestBE.UsuarioActualizacion
+                                });
+                            }
+
+                            if (!request.EstadoRegistro)
+                            {
+                                repo.InsertarAcuerdoComercialEscalonadoHistorial(new InsertarAcuerdoComercialEscalonadoHistorialBE
+                                {
+                                    CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado,
+                                    Descripcion = mensajeInhabilitarACEscalonado,
+                                    Accion = Accion.Actualizar.GetDescription(),
+                                    FechaHora = requestBE.FechaHoraActualizacion,
+                                    Usuario = requestBE.UsuarioActualizacion
+                                });
+                            }
+                        }
+
+                        #region DETALLE
+
+                        if (!result.Equals(0))
+                        {
+                            requestBE.ListaAcuerdoComercialEscalonadoSucursal.ForEach(x => { x.CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado; });
+                            requestBE.ListaAcuerdoComercialEscalonadoSucursalTerminal.ForEach(x => { x.CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado; });
+                            requestBE.ListaAcuerdoComercialEscalonadoRA.ForEach(x => { x.CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado; });
+                            requestBE.ListaAcuerdoComercialEscalonadoPuerto.ForEach(x => { x.CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado; });
+                            requestBE.ListaAcuerdoComercialEscalonadoClienteBLMaster.ForEach(x => { x.CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado; });
+                            requestBE.ListaAcuerdoComercialEscalonadoAgenteBLMaster.ForEach(x => { x.CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado; });
+                            requestBE.ListaAcuerdoComercialEscalonadoAgenteBLHouse.ForEach(x => { x.CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado; });
+                            requestBE.ListaAcuerdoComercialEscalonadoClienteBLHouse.ForEach(x => { x.CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado; });
+                            requestBE.ListaAcuerdoComercialEscalonadoServicioNave.ForEach(x => { x.CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado; });
+                            requestBE.ListaAcuerdoComercialEscalonadoServicioBL.ForEach(x => { x.CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado; });
+                            requestBE.ListaAcuerdoComercialEscalonadoCarga.ForEach(x => { x.CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado; });
+                            requestBE.ListaAcuerdoComercialEscalonadoTarifa.ForEach(x => { x.CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado; });
+                            requestBE.ListaAcuerdoComercialEscalonadoTarifaLigada.ForEach(x => { x.CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado; });
+                            requestBE.ListaAcuerdoComercialEscalonadoTarifaPeriodo.ForEach(x => { x.CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado; });
+
+                            if (request.Accion.Equals(Accion.Insertar.GetDescription()))
+                            {
+                                repo.ModificarACEscalonadoSucursal(requestBE.ListaAcuerdoComercialEscalonadoSucursal);
+                                repo.ModificarACEscalonadoSucursalTerminal(requestBE.ListaAcuerdoComercialEscalonadoSucursalTerminal);
+                            }
+                            else //APLICA PARA UPDATE Y DELETE
+                            {
+                                bool ACESucursal = false;
+                                bool ACESucursalTerminal = false;
+
+                                var delACEscalonadoSucursal = requestBE.ListaAcuerdoComercialEscalonadoSucursal.Where(x => x.Accion.Equals(Accion.Eliminar.GetDescription())).ToList();
+                                var delACEscalonadoSucursalTerminal = requestBE.ListaAcuerdoComercialEscalonadoSucursalTerminal.Where(x => x.Accion.Equals(Accion.Eliminar.GetDescription())).ToList();
+
+                                if (repo.ModificarACEscalonadoSucursalTerminal(delACEscalonadoSucursalTerminal))
+                                {
+                                    ACESucursalTerminal = true;
+                                }
+
+                                if (repo.ModificarACEscalonadoSucursal(delACEscalonadoSucursal))
+                                {
+                                    ACESucursal = true;
+                                }
+
+                                var insACEscalonadoSucursal = requestBE.ListaAcuerdoComercialEscalonadoSucursal.Where(x => x.Accion.Equals(Accion.Insertar.GetDescription())).ToList();
+                                var insACEscalonadoSucursalTerminal = requestBE.ListaAcuerdoComercialEscalonadoSucursalTerminal.Where(x => x.Accion.Equals(Accion.Insertar.GetDescription())).ToList();
+
+                                if (repo.ModificarACEscalonadoSucursal(insACEscalonadoSucursal))
+                                {
+                                    ACESucursal = true;
+                                }
+
+                                if (repo.ModificarACEscalonadoSucursalTerminal(insACEscalonadoSucursalTerminal))
+                                {
+                                    ACESucursalTerminal = true;
+                                }
+
+
+                                if (ACESucursal)
+                                {
+                                    repo.InsertarAcuerdoComercialEscalonadoHistorial(new InsertarAcuerdoComercialEscalonadoHistorialBE
+                                    {
+                                        CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado,
+                                        Descripcion = mensajeModificarSeccionSucursal,
+                                        Accion = Accion.Insertar.GetDescription(),
+                                        FechaHora = DateTime.Now,
+                                        Usuario = String.IsNullOrEmpty(requestBE.UsuarioActualizacion) ? requestBE.UsuarioCreacion : requestBE.UsuarioActualizacion
+                                    });
+                                }
+
+                                if (ACESucursalTerminal)
+                                {
+                                    repo.InsertarAcuerdoComercialEscalonadoHistorial(new InsertarAcuerdoComercialEscalonadoHistorialBE
+                                    {
+                                        CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado,
+                                        Descripcion = mensajeModificarSeccionTerminalPortuario,
+                                        Accion = Accion.Insertar.GetDescription(),
+                                        FechaHora = DateTime.Now,
+                                        Usuario = String.IsNullOrEmpty(requestBE.UsuarioActualizacion) ? requestBE.UsuarioCreacion : requestBE.UsuarioActualizacion
+                                    });
+                                }
+
+
+                            }
+
+                            if (repo.ModificarACEscalonadoRA(requestBE.ListaAcuerdoComercialEscalonadoRA))
+                            {
+                                repo.InsertarAcuerdoComercialEscalonadoHistorial(new InsertarAcuerdoComercialEscalonadoHistorialBE
+                                {
+                                    CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado,
+                                    Descripcion = mensajeModificarSeccionRA,
+                                    Accion = Accion.Actualizar.GetDescription(),
+                                    FechaHora = DateTime.Now,
+                                    Usuario = String.IsNullOrEmpty(requestBE.UsuarioActualizacion) ? requestBE.UsuarioCreacion : requestBE.UsuarioActualizacion
+                                });
+                            }
+                            if (repo.ModificarACEscalonadoPuerto(requestBE.ListaAcuerdoComercialEscalonadoPuerto))
+                            {
+                                repo.InsertarAcuerdoComercialEscalonadoHistorial(new InsertarAcuerdoComercialEscalonadoHistorialBE
+                                {
+                                    CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado,
+                                    Descripcion = mensajeModificarSeccionPuerto,
+                                    Accion = Accion.Actualizar.GetDescription(),
+                                    FechaHora = DateTime.Now,
+                                    Usuario = String.IsNullOrEmpty(requestBE.UsuarioActualizacion) ? requestBE.UsuarioCreacion : requestBE.UsuarioActualizacion
+                                });
+                            }
+
+                            if (repo.ModificarACEscalonadoClienteBLMaster(requestBE.ListaAcuerdoComercialEscalonadoClienteBLMaster))
+                            {
+                                repo.InsertarAcuerdoComercialEscalonadoHistorial(new InsertarAcuerdoComercialEscalonadoHistorialBE
+                                {
+                                    CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado,
+                                    Descripcion = mensajeModificarSeccionClienteBLMaster,
+                                    Accion = Accion.Actualizar.GetDescription(),
+                                    FechaHora = DateTime.Now,
+                                    Usuario = String.IsNullOrEmpty(requestBE.UsuarioActualizacion) ? requestBE.UsuarioCreacion : requestBE.UsuarioActualizacion
+                                });
+                            }
+
+                            if (repo.ModificarACEscalonadoAgenteBLMaster(requestBE.ListaAcuerdoComercialEscalonadoAgenteBLMaster))
+                            {
+                                repo.InsertarAcuerdoComercialEscalonadoHistorial(new InsertarAcuerdoComercialEscalonadoHistorialBE
+                                {
+                                    CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado,
+                                    Descripcion = mensajeModificarSeccionAgenteBLMaster,
+                                    Accion = Accion.Actualizar.GetDescription(),
+                                    FechaHora = DateTime.Now,
+                                    Usuario = String.IsNullOrEmpty(requestBE.UsuarioActualizacion) ? requestBE.UsuarioCreacion : requestBE.UsuarioActualizacion
+                                });
+                            }
+
+                            if (repo.ModificarACEscalonadoAgenteBLHouse(requestBE.ListaAcuerdoComercialEscalonadoAgenteBLHouse))
+                            {
+                                repo.InsertarAcuerdoComercialEscalonadoHistorial(new InsertarAcuerdoComercialEscalonadoHistorialBE
+                                {
+                                    CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado,
+                                    Descripcion = mensajeModificarSeccionAgenteBLHouse,
+                                    Accion = Accion.Actualizar.GetDescription(),
+                                    FechaHora = DateTime.Now,
+                                    Usuario = String.IsNullOrEmpty(requestBE.UsuarioActualizacion) ? requestBE.UsuarioCreacion : requestBE.UsuarioActualizacion
+                                });
+                            }
+
+                            if (repo.ModificarACEscalonadoClienteBLHouse(requestBE.ListaAcuerdoComercialEscalonadoClienteBLHouse))
+                            {
+                                repo.InsertarAcuerdoComercialEscalonadoHistorial(new InsertarAcuerdoComercialEscalonadoHistorialBE
+                                {
+                                    CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado,
+                                    Descripcion = mensajeModificarSeccionClienteBLHouse,
+                                    Accion = Accion.Actualizar.GetDescription(),
+                                    FechaHora = DateTime.Now,
+                                    Usuario = String.IsNullOrEmpty(requestBE.UsuarioActualizacion) ? requestBE.UsuarioCreacion : requestBE.UsuarioActualizacion
+                                });
+                            }
+
+                            if (repo.ModificarACEscalonadoServicioNave(requestBE.ListaAcuerdoComercialEscalonadoServicioNave))
+                            {
+                                repo.InsertarAcuerdoComercialEscalonadoHistorial(new InsertarAcuerdoComercialEscalonadoHistorialBE
+                                {
+                                    CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado,
+                                    Descripcion = mensajeModificarSeccionServicioNave,
+                                    Accion = Accion.Actualizar.GetDescription(),
+                                    FechaHora = DateTime.Now,
+                                    Usuario = String.IsNullOrEmpty(requestBE.UsuarioActualizacion) ? requestBE.UsuarioCreacion : requestBE.UsuarioActualizacion
+                                });
+                            }
+
+                            if (repo.ModificarACEscalonadoServicioBL(requestBE.ListaAcuerdoComercialEscalonadoServicioBL))
+                            {
+                                repo.InsertarAcuerdoComercialEscalonadoHistorial(new InsertarAcuerdoComercialEscalonadoHistorialBE
+                                {
+                                    CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado,
+                                    Descripcion = mensajeModificarSeccionServicioBL,
+                                    Accion = Accion.Actualizar.GetDescription(),
+                                    FechaHora = DateTime.Now,
+                                    Usuario = String.IsNullOrEmpty(requestBE.UsuarioActualizacion) ? requestBE.UsuarioCreacion : requestBE.UsuarioActualizacion
+                                });
+                            }
+
+                            if (repo.ModificarACEscalonadoCarga(requestBE.ListaAcuerdoComercialEscalonadoCarga))
+                            {
+                                repo.InsertarAcuerdoComercialEscalonadoHistorial(new InsertarAcuerdoComercialEscalonadoHistorialBE
+                                {
+                                    CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado,
+                                    Descripcion = mensajeModificarSeccionCarga,
+                                    Accion = Accion.Actualizar.GetDescription(),
+                                    FechaHora = DateTime.Now,
+                                    Usuario = String.IsNullOrEmpty(requestBE.UsuarioActualizacion) ? requestBE.UsuarioCreacion : requestBE.UsuarioActualizacion
+                                });
+                            }
+
+                            this.ModificarACEscalonadoTarifa(repo, request.Accion, requestBE);
+
+                        }
+
+                        #endregion
+
+                        Transaccion.Complete();
+
+                        response.CodigoAcuerdoComercialEscalonado = requestBE.CodigoAcuerdoComercialEscalonado;
+                    }
+                }
+
+                #region NOTIFICAR
+                if (request.Accion.Equals(Accion.Insertar.GetDescription()) && response.CodigoAcuerdoComercialEscalonado > 0 && !esMasivo)
+                {
+                    ResponseListaUsuarios usuario = new ResponseListaUsuarios();
+                    var usuarioList = (new SeguridadBL()).GetInfoUsuario(new RequestInfoBasicaUsuarioDTO { CodigosUsuario = new List<string> { request.CodigoUsuarioAutorizador } });
+                    if (usuarioList.Any())
+                        usuario = usuarioList.FirstOrDefault();
+
+                    NotificacionBL notificacionBL = new NotificacionBL();
+                    RequestNotificacionDTO requestNotificacion = new RequestNotificacionDTO();
+
+                    #region PARAMETRO AMBIENTE
+
+                    var parametroList = (new MaestrosBL()).ConsultarParametroNegocio();
+                    var parametroFound = parametroList.ParametrosNegocioList.Where(x => x.Codigo == ((int)ConstantesParametrosNegocio.AmbinteScriptor).ToString());
+                    string ambiente = "";
+                    if (parametroFound.Any())
+                        ambiente = parametroFound.FirstOrDefault().Valor;
+
+
+                    #endregion
+
+                    requestNotificacion.CorreosPara.Add(usuario.Correo);
+                    requestNotificacion.CorreoDe = WebConfigReader.Mailer.From;
+                    requestNotificacion.CodigoNotificacion = (int)TipoNotificacion.AcuerdoComercialEscalonado;
+                    requestNotificacion.CuerpoValores = new Dictionary<string, string>() {
+                                                                        { "{UsuarioAutorizador}", usuario.NombresCompletos },
+                                                                        { "{CodigoAcuerdoComercialEscalonado}", requestBE.CodigoAcuerdoComercialEscalonado.ToString() },
+                                                                        { "{FechaVigencia}", string.Format("{0:dd-MM-yyyy}", request.FinVigencia) },
+                                                                        { "{urlpagina}", string.Format("http://{0}/#!/sistema/registro-de-acuerdo-comercial-escalonado?codigoAcuerdoEscalonado={1}", ambiente, requestBE.CodigoAcuerdoComercialEscalonado) } };
+
+                    notificacionBL.requestNotificationDTO = requestNotificacion;
+                    notificacionBL.EnviarNotificacion();
+                }
+
+                #endregion 
+            }
+            catch (Exception ex)
+            {
+                response.Result = new Result { IdError = Guid.NewGuid(), Satisfactorio = false, Mensaje = "Ocurrio un problema interno en el servicio" };
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.LogicaNegocio);
+            }
+            return response;
+        }
+
+        public ConsultaAcuerdoComercialLocalHistorialResponseDTO ConsultarAcuerdoComericalLocalHistorial(ConsultaAcuerdoComercialLocalHistorialRequestDTO request)
+        {
+
+            ConsultaAcuerdoComercialLocalHistorialResponseDTO response = new ConsultaAcuerdoComercialLocalHistorialResponseDTO();
+
+            try
+            {
+                var lstACLocal = new List<AcuerdoComercialLocalHistorialBE>();
+
+                var requestDTO = Helper.MiMapper<ConsultaAcuerdoComercialLocalHistorialRequestDTO, ConsultaAcuerdoComercialLocalHistorialBE>(request);
+
+                var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.AcuerdoComercialAGMADB);
+                var repo = new RepositorioAcuerdoComercial(contextoParaBaseDatos);
+
+                int totalRegistros, cantPaginas;
+                lstACLocal = repo.ConsultarAcuerdoComericalLocalHistorial(requestDTO, out totalRegistros, out cantPaginas);
+
+                response.AcuerdoComercialLocalHistorialList = (from Origen in lstACLocal
+                                                               select Helper.MiMapper<AcuerdoComercialLocalHistorialBE, AcuerdoComercialLocalHistorialDTO>(Origen)).ToList();
+
+                response.TotalRegistros = totalRegistros;
+                response.CantidadPaginas = cantPaginas;
+            }
+            catch (Exception ex)
+            {
+                response.Result = new Result { IdError = Guid.NewGuid(), Satisfactorio = false, Mensaje = "Ocurrio un problema interno en el servicio" };
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.LogicaNegocio);
+            }
+
+
+            return response;
+        }
+
+        public ConsultaAcuerdoComercialEscalonadoHistorialResponseDTO ConsultarAcuerdoComericalEscalonadoHistorial(ConsultaAcuerdoComercialEscalonadoHistorialRequestDTO request)
+        {
+
+            ConsultaAcuerdoComercialEscalonadoHistorialResponseDTO response = new ConsultaAcuerdoComercialEscalonadoHistorialResponseDTO();
+
+            try
+            {
+                var lstACEscalonado = new List<AcuerdoComercialEscalonadoHistorialBE>();
+
+                var requestDTO = Helper.MiMapper<ConsultaAcuerdoComercialEscalonadoHistorialRequestDTO, ConsultaAcuerdoComercialEscalonadoHistorialBE>(request);
+
+                var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.AcuerdoComercialAGMADB);
+                var repo = new RepositorioAcuerdoComercial(contextoParaBaseDatos);
+
+                int totalRegistros, cantPaginas;
+                lstACEscalonado = repo.ConsultarAcuerdoComercialEscalonadoHistorial(requestDTO, out totalRegistros, out cantPaginas);
+
+                response.AcuerdoComercialEscalonadoHistorialList = (from Origen in lstACEscalonado
+                                                                    select Helper.MiMapper<AcuerdoComercialEscalonadoHistorialBE, AcuerdoComercialEscalonadoHistorialDTO>(Origen)).ToList();
+
+                response.TotalRegistros = totalRegistros;
+                response.CantidadPaginas = cantPaginas;
+            }
+            catch (Exception ex)
+            {
+                response.Result = new Result { IdError = Guid.NewGuid(), Satisfactorio = false, Mensaje = "Ocurrio un problema interno en el servicio" };
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.LogicaNegocio);
+            }
+
+
+            return response;
+        }
+
+        public ConsultaSeguimientoAcuerdoComercialLocalResponseDTO ConsultarSeguimientoAcuerdoComercialLocal(ConsultaSeguimientoAcuerdoComercialLocalRequestDTO request)
+        {
+
+            ConsultaSeguimientoAcuerdoComercialLocalResponseDTO response = new ConsultaSeguimientoAcuerdoComercialLocalResponseDTO();
+
+            try
+            {
+                var lstACLocal = new List<SeguimientoAcuerdoComercialLocalBE>();
+                MaestrosBL maestrosBL = new MaestrosBL();
+                var requestDTO = Helper.MiMapper<ConsultaSeguimientoAcuerdoComercialLocalRequestDTO, ConsultaSeguimientoAcuerdoComercialLocalBE>(request);
+
+                var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.AcuerdoComercialAGMADB);
+                var repo = new RepositorioAcuerdoComercial(contextoParaBaseDatos);
+
+                int totalRegistros, cantPaginas;
+                lstACLocal = repo.ConsultarSeguimientoAcuerdoComercialLocal(requestDTO, out totalRegistros, out cantPaginas);
+
+                var lstDetalleCatalogo = maestrosBL.ObtenerListaDetalleCatalogo();
+
+
+                lstACLocal.ForEach(x =>
+                {
+                    var detalleCatalogo = lstDetalleCatalogo.Where(xy => xy.IdCatalogo == (int)CatalogoTablas.EstadoAcuerdoComercial && xy.Codigo == x.Estado).FirstOrDefault();
+
+                    x.DescripcionEstado = detalleCatalogo != null ? detalleCatalogo.Descripcion : string.Empty;
+
+                });
+
+                response.SeguimientoAcuerdoComercialLocalList = (from Origen in lstACLocal
+                                                                 select Helper.MiMapper<SeguimientoAcuerdoComercialLocalBE, SeguimientoAcuerdoComercialLocalDTO>(Origen)).ToList();
+
+                response.TotalRegistros = totalRegistros;
+                response.CantidadPaginas = cantPaginas;
+
+
+            }
+            catch (Exception ex)
+            {
+                response.Result = new Result { IdError = Guid.NewGuid(), Satisfactorio = false, Mensaje = "Ocurrio un problema interno en el servicio" };
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.LogicaNegocio);
+            }
+
+
+            return response;
+        }
+
+        public IngresoMasivoRAPTResponseDTO IngresoMasivoRAPT(IngresoMasivoRAPTRequestDTO request)
+        {
+            CoreBL coreBL = new CoreBL();
+            List<DetalleCatalogoBE> detalleCatalogoList = (new MaestrosBL()).ObtenerListaDetalleCatalogo();
+
+            IngresoMasivoRAPTResponseDTO response = new IngresoMasivoRAPTResponseDTO();
+
+            List<RAPTItemDTO> RAPTItemDTOFinalList = new List<RAPTItemDTO>();
+            List<RAPTResultDTO> RAPTResultDTOErrorList = new List<RAPTResultDTO>();
+            List<ActualizaAcuerdoComercialEscalonadoBE> acEscalonadoBEList = new List<ActualizaAcuerdoComercialEscalonadoBE>();
+
+            #region CONSULTAMOS LOS DATOS DE GRUPO Y PUERTOS DE LA BASE DE DATOS
+
+            var repo = (new RepositorioAcuerdoComercial(new ContextoParaBaseDatos(ConstantesDB.AcuerdoComercialAGMADB)));
+            var repo2 = (new RepositorioAcuerdoComercial(new ContextoParaBaseDatos(ConstantesDB.Tramarsa)));
+            List<GrupoPuertoExternoBE> grupoPuertoExternoBeList = repo.ConsultarGrupoPuertoTodos();
+            grupoPuertoExternoBeList.ForEach(x => x.Puertos = repo.ConsultarDetalleGrupoPuertoExterno(new ConsultaDetalleGrupoPuertoExternoBE { CodigoGrupoPuerto = x.CodigoGrupoPuerto }));
+            List<PuertoBE> puertoList = repo2.ConsultarPuertoTodos();
+            List<TipoContenedorExternoBE> contenedorExternoList = repo.ConsultarContenedorExternoTodo();
+
+            #endregion
+
+            //OBTENEMOS LOS PUERTOS FINALES EN UN NUEVO CAMPO
+            request.RAPTDTOList.ForEach(x => x.PuertoFinal = this.GetPuertoFinal(x.LocString));
+
+            //AGRUPAMOS POR CONTRATO
+            var groupKeysByContract = (from a in request.RAPTDTOList
+                                       group a by
+                                       new
+                                       {
+                                           a.CuName,
+                                           a.ContractNo
+                                       } into grupo
+                                       select new RAPTItemDTO()
+                                       {
+                                           CuName = grupo.Key.CuName,
+                                           ContractNo = grupo.Key.ContractNo
+                                       }).ToList();
+            bool quebrarForParent = false;
+            //RECORREMOS CADA CONTRATO
+            foreach (var keyByContract in groupKeysByContract)
+            {
+                //FILTRAMOS ITEMS POR CONTRATO
+                var groupedByContract = request.RAPTDTOList.Where(x => x.CuName == keyByContract.CuName && x.ContractNo == keyByContract.ContractNo).ToList();
+
+                #region SI NO CUMPLE CON LOS CONSTRAINTS CONTINUAMOS CON EL SIGUIENTE CONTRATO
+
+                if (groupedByContract.Any(x => !x.SrValid.Equals("R")))
+                {
+                    RAPTResultDTOErrorList.Add(new RAPTResultDTO { SeriviceID = this.GetServiceID(groupedByContract, keyByContract.ContractNo), ContractNo = keyByContract.ContractNo, Comentario = "SrValid es diferente de 'R'." });
+                    continue;
+                }
+                if (groupedByContract.Any(x => x.TpR != 5 && x.TpR != 7))
+                {
+                    RAPTResultDTOErrorList.Add(new RAPTResultDTO { SeriviceID = this.GetServiceID(groupedByContract, keyByContract.ContractNo), ContractNo = keyByContract.ContractNo, Comentario = "TPR solo acepta valores de cinco (5) ó  siete(7)." });
+                    continue;
+                }
+                if (groupedByContract.Any(x => x.TpD != 6))
+                {
+                    RAPTResultDTOErrorList.Add(new RAPTResultDTO { SeriviceID = this.GetServiceID(groupedByContract, keyByContract.ContractNo), ContractNo = keyByContract.ContractNo, Comentario = "TPD solo acepta el valor seis (6)." });
+                    continue;
+                }
+                if (groupedByContract.Any(x => x.TpB != 0))
+                {
+                    RAPTResultDTOErrorList.Add(new RAPTResultDTO { SeriviceID = this.GetServiceID(groupedByContract, keyByContract.ContractNo), ContractNo = keyByContract.ContractNo, Comentario = "TPB solo acepta el valor Cero (0)." });
+                    continue;
+                }
+
+                if (!this.SonValidosLosPuertos(groupedByContract, grupoPuertoExternoBeList, puertoList))
+                {
+                    RAPTResultDTOErrorList.Add(new RAPTResultDTO { SeriviceID = this.GetServiceID(groupedByContract, keyByContract.ContractNo), ContractNo = keyByContract.ContractNo, Comentario = "Algunos puertos no son válidos." });
+                    continue;
+                }
+
+                if (!this.SonValidosLosContenedores(groupedByContract, contenedorExternoList.Select(x => x.CodigoEquivalencia).ToList()))
+                {
+                    RAPTResultDTOErrorList.Add(new RAPTResultDTO { SeriviceID = this.GetServiceID(groupedByContract, keyByContract.ContractNo), ContractNo = keyByContract.ContractNo, Comentario = "Algunos contenedores no son válidos" });
+                    continue;
+                }
+
+                #endregion
+
+                //AGRUPAMOS POR TIPO DE CONTENEDOR
+                var groupKeysByRateGroupName = groupedByContract.GroupBy(x => x.RateGroupName).ToList();
+
+                //RECORREMOS CADA TIPO DE CONTENEDOR AGRUPADO
+                foreach (var keyRateGroupName in groupKeysByRateGroupName)
+                {
+                    //FILTRAMOS DOS GRUPOS (CON "F" y sin "F")
+                    var groupedByRateGroupNameWithF = groupedByContract.Where(x => x.RateGroupName == keyRateGroupName.Key && x.TpL == "F").ToList();
+                    var groupedByRateGroupNameWithOutF = groupedByContract.Where(x => x.RateGroupName == keyRateGroupName.Key && x.TpL != "F").ToList();
+
+                    //OBTENEMOS LOS MONTOS MINIMOS DE LOS PUERTOS FINALES REPETIDOS POR EL CAMPO TPT
+                    var puertosFinalesMinimos = groupedByRateGroupNameWithF.GroupBy(x => x.PuertoFinal).Select(x => x.OrderBy(y => y.TpT)).Select(x => x.First()).ToList();
+
+                    //AGRUPAMOS POR "GRUPOPUERTO"
+                    List<GrupoPuerto> groupKeysByGrupoPuerto = new List<GrupoPuerto>();
+                    foreach (var x in puertosFinalesMinimos)
+                    {
+                        //VALIDAMOS SI EL PUERTO ES UN "GRUPOPUERTO"
+                        if (grupoPuertoExternoBeList.Select(xy => xy.NombreGrupoPuerto).ToList().Contains(x.PuertoFinal))
+                        {
+                            groupKeysByGrupoPuerto.Add(new GrupoPuerto { Puerto = x.PuertoFinal, TpT = x.TpT, Id = x.Id });
+                            x.EsGrupo = true;
+                            x.EsBorrable = true;
+                        }
+                    }
+
+                    //RECORREMOS CADA "GRUPOPUERTO" ENCONTRADO
+                    foreach (var keyByGrupoPuerto in groupKeysByGrupoPuerto)
+                    {   //RECORREMOS TODOS LO PUERTOS CON MONTO MINIMO TPT
+                        foreach (var puertoMinimo in puertosFinalesMinimos)
+                        {
+                            //Y BUSCAMOS SI EL PUERTO PERTENECE A UN DETALLE DEL "GRUPOPUERTO" DE LA BASE DE DATOS
+                            List<GrupoPuertoExternoBE> grupoPuertoExternoBeList2 = grupoPuertoExternoBeList.Where(xyz => xyz.NombreGrupoPuerto == keyByGrupoPuerto.Puerto).ToList();
+                            if (grupoPuertoExternoBeList2.Any())
+                            {
+                                List<DetalleGrupoPuertoExternoBE> detalleGrupoPuertoList = grupoPuertoExternoBeList2.First().Puertos.Where(xyz => xyz.CodigoPuerto == puertoMinimo.PuertoFinal).ToList();
+                                //VERIFICA QUE SEA UN GRUPOPUERTO QUE NO DESCRIBA DETALLEGRUPOPUERTO EN EL EXCEL
+                                if (keyByGrupoPuerto.Puerto == puertoMinimo.PuertoFinal)
+                                {
+                                    if (!puertosFinalesMinimos.Select(xy => xy.PuertoFinal).Intersect(grupoPuertoExternoBeList2.First().Puertos.Select(xy => xy.CodigoPuerto)).ToList().Any())
+                                    {
+                                        puertoMinimo.EsBorrable = false;
+                                        continue;
+                                    }
+                                }
+                                if (detalleGrupoPuertoList.Any())
+                                {   //SI ENCUENTRA QUE EL PUERTO PERTENECE A UN "GRUPOPUERTO" SE APLICA EN MENOR PRECIO ENTRE GRUPOPUERTO.TPT Y PUERTO.TPT
+                                    if (keyByGrupoPuerto.TpT < puertoMinimo.TpT)
+                                        puertoMinimo.TpT = keyByGrupoPuerto.TpT;
+                                }
+                            }
+                        }
+                    }
+
+                    //REMOVEMOS LOS GRUPOS DE LA LISTA DE MINIMOS
+                    foreach (var puertoMinimo in puertosFinalesMinimos.ToList())
+                    {
+                        if (grupoPuertoExternoBeList.Where(xyz => xyz.NombreGrupoPuerto == puertoMinimo.PuertoFinal).Any() && puertoMinimo.EsGrupo && puertoMinimo.EsBorrable)
+                            puertosFinalesMinimos.RemoveAll(a => a.PuertoFinal == puertoMinimo.PuertoFinal);
+                    }
+
+                    //AGREGAMOS A LA LISTA FINAL LOS QUE CUMPLIERON CON TODAS LAS REGLAS
+                    RAPTItemDTOFinalList.AddRange(puertosFinalesMinimos);
+
+                    foreach (var keyByRateGroupNameWithOutF in groupedByRateGroupNameWithOutF)
+                    {
+                        keyByRateGroupNameWithOutF.TpT = 999;
+                        RAPTItemDTOFinalList.Add(keyByRateGroupNameWithOutF);
+                    }
+                }
+                if (quebrarForParent)
+                    continue;
+            }
+
+            //AGRUPAMOS POR CONTRATO
+            groupKeysByContract = (from a in RAPTItemDTOFinalList
+                                   group a by
+                                       new
+                                       {
+                                           a.CuName,
+                                           a.ContractNo
+                                       } into grupo
+                                   select new RAPTItemDTO()
+                                   {
+                                       CuName = grupo.Key.CuName,
+                                       ContractNo = grupo.Key.ContractNo
+                                   }).ToList();
+
+            //RECORREMOS CADA CONTRATO
+            foreach (var keyByContract in groupKeysByContract)
+            {
+                var groupedByContract = RAPTItemDTOFinalList.Where(x => x.CuName == keyByContract.CuName && x.ContractNo == keyByContract.ContractNo).ToList();
+
+                DateTime? inicioVigencia = null;
+                DateTime? finVigencia = null;
+
+                ActualizaAcuerdoComercialEscalonadoBE acEscalonadoBE = new ActualizaAcuerdoComercialEscalonadoBE();
+
+                //<CREAMOS LA CABECERA DEL ACUERDO>
+                if (groupedByContract.Any())
+                {
+                    var rapt = groupedByContract.First();
+                    finVigencia = rapt.RateValidTO;
+                    inicioVigencia = rapt.RateChanged > rapt.DateOfIssue ? rapt.RateChanged : rapt.DateOfIssue;
+                }
+
+                acEscalonadoBE.Estado = EstadoAcuerdoComercial.Creacion.GetDescription();
+                acEscalonadoBE.CodigoLinea = coreBL.ObtenerParametroNegocio(Convert.ToInt32(ConstantesParametrosNegocio.CodigoLinea).ToString()).Valor;
+                acEscalonadoBE.CodigoUsuarioAutorizador = acEscalonadoBE.UsuarioCreacion = (new CoreBL()).ObtenerParametroNegocio(ConstantesParametrosNegocio.CodigoAutorizadorRAPT.ToString()).Valor;
+                acEscalonadoBE.CodigoTipoCriterio = detalleCatalogoList.SingleOrDefault(xy => xy.IdCatalogo == (int)CatalogoTablas.TipoCriterio && xy.Codigo == TipoCriterio.RA.GetDescription()).Codigo;
+                acEscalonadoBE.InicioVigencia = inicioVigencia;
+                acEscalonadoBE.FinVigencia = finVigencia;
+                acEscalonadoBE.FechaAutorizacion = DateTime.Now;
+                acEscalonadoBE.Accion = Accion.Insertar.GetDescription();
+                acEscalonadoBE.UsuarioActualizacion = acEscalonadoBE.UsuarioCreacion = request.UsuarioSeguridadDTO.codigoUsuario;
+                acEscalonadoBE.CuName = groupedByContract.First().CuName;
+                //</>
+
+                //<CREAMOS LA LISTA PUERTOS>
+                acEscalonadoBE.ListaAcuerdoComercialEscalonadoPuerto = this.ObtenerPuertoList(groupedByContract, grupoPuertoExternoBeList);
+                //</>
+
+                //<CREAMOS LA LISTA DE TARIFA>
+                AcuerdoComercialEscalonadoTarifaBE tarifa = new AcuerdoComercialEscalonadoTarifaBE();
+                tarifa.CodigoTarifaEscalonado = Convert.ToInt32(coreBL.ObtenerParametroNegocio(Convert.ToInt32(ConstantesParametrosNegocio.CodigoTarifaEscalonado).ToString()).Valor);
+                tarifa.CodigoTipoDescuento = detalleCatalogoList.SingleOrDefault(xy => xy.IdCatalogo == (int)CatalogoTablas.TipoDescuento && xy.Codigo == TipoDescuento.Fijo.GetDescription()).Codigo;
+                tarifa.CodigoMonedaAcuerdo = coreBL.ObtenerParametroNegocio(Convert.ToInt32(ConstantesParametrosNegocio.MonedaAcuerdo).ToString()).Valor;
+                tarifa.CodigoTipoFechaCalculo = TipoFechaCalculo.Embarque.GetDescription();
+                tarifa.CodigoTipoDiaCalculo = detalleCatalogoList.SingleOrDefault(xy => xy.IdCatalogo == (int)CatalogoTablas.TipoDias && xy.Codigo == TipoDias.Calendario.GetDescription()).Codigo; ;
+                tarifa.DiasDelayCalculo = 0;
+                tarifa.ValorDescuento = 0;
+                tarifa.MontoAcuerdo = 0;
+                tarifa.Accion = Accion.Insertar.GetDescription();
+
+                acEscalonadoBE.ListaAcuerdoComercialEscalonadoTarifa.Add(tarifa);
+                //</>
+
+                //<CREAMOS LA LISTA DE PERIODOS>
+                acEscalonadoBE.ListaAcuerdoComercialEscalonadoTarifaPeriodo = this.ObtenerPeriodoList(groupedByContract, tarifa);
+                //</>
+
+                //<CREAMOS LA LISTA DE RA>
+                acEscalonadoBE.ListaAcuerdoComercialEscalonadoRA.Add(new AcuerdoComercialEscalonadoRABE() { CodigoRA = groupedByContract.First().ContractNo, Accion = Accion.Insertar.GetDescription() });
+                //</>
+
+                acEscalonadoBEList.Add(acEscalonadoBE);
+
+            }
+
+            #region MAPEO DE LISTAS
+
+            Mapper.CreateMap<AcuerdoComercialEscalonadoRABE, AcuerdoComercialEscalonadoRARequestDTO>();
+            Mapper.CreateMap<AcuerdoComercialEscalonadoTarifaBE, AcuerdoComercialEscalonadoTarifaRequestDTO>();
+            Mapper.CreateMap<AcuerdoComercialEscalonadoPuertoBE, AcuerdoComercialEscalonadoPuertoRequestDTO>();
+            Mapper.CreateMap<AcuerdoComercialEscalonadoTarifaPeriodoBE, AcuerdoComercialEscalonadoTarifaPeriodoRequestDTO>();
+
+            #endregion
+
+            var acEscalonadoRequestDTOList = acEscalonadoBEList.Select(x => { return Helper.MiMapper<ActualizaAcuerdoComercialEscalonadoBE, ActualizaAcuerdoComercialEscalonadoRequestDTO>(x); }).ToList();
+            foreach (var x in acEscalonadoRequestDTOList)
+            {
+                string contractNo = x.ListaAcuerdoComercialEscalonadoRA.Any() ? x.ListaAcuerdoComercialEscalonadoRA.First().CodigoRA : "";
+                //SI EL ACUERDO EXISTE AGREGAMOS LOS ELEMENTOS EXISTENTES PARA ELIMINAR Y GRABAR LOS NUEVOS
+                Result result = new Result();
+                var acEscalonadoRequestDTO = this.ModificarSiExiste(x, ref result);
+                if (result.Satisfactorio)
+                {
+                    ActualizaAcuerdoComercialEscalonadoResponseDTO ACEscalonadoResponse = this.ActualizarAcuerdoComercialEscalonado(acEscalonadoRequestDTO, true);
+                    result = ACEscalonadoResponse.Result;
+                }
+
+                #region REGISTRO DE RESPUESTA
+
+                RAPTResultDTO contratoDTO = new RAPTResultDTO();
+                contratoDTO.SeriviceID = x.CuName;
+                contratoDTO.ContractNo = contractNo;
+                contratoDTO.Comentario = "";
+
+                if (result.Satisfactorio)
+                    response.RAPTIngresadosList.Add(contratoDTO);
+                else
+                {
+                    contratoDTO.Comentario = result.Mensaje;
+                    response.RAPTNOIngresadosList.Add(contratoDTO);
+                }
+                #endregion
+            }
+            //AGREGAMOS LA LISTA RESTANTE DE ERRORES
+            RAPTResultDTOErrorList.ForEach(x => response.RAPTNOIngresadosList.Add(new RAPTResultDTO { SeriviceID = x.SeriviceID, ContractNo = x.ContractNo, Comentario = x.Comentario }));
+
+            return response;
+        }
+
+        public ConsultaSeguimientoAcuerdoComercialEscalonadoResponseDTO ConsultarSeguimientoAcuerdoComercialEscalonado(ConsultaSeguimientoAcuerdoComercialEscalonadoRequestDTO request)
+        {
+
+            ConsultaSeguimientoAcuerdoComercialEscalonadoResponseDTO response = new ConsultaSeguimientoAcuerdoComercialEscalonadoResponseDTO();
+            MaestrosBL maestrosBL = new MaestrosBL();
+
+            try
+            {
+                var lstSeguimientoAcuerdoComercialEscalonado = new List<SeguimientoAcuerdoComercialEscalonadoBE>();
+
+                var requestDTO = Helper.MiMapper<ConsultaSeguimientoAcuerdoComercialEscalonadoRequestDTO, ConsultaSeguimientoAcuerdoComercialEscalonadoBE>(request);
+
+                var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.AcuerdoComercialAGMADB);
+                var repo = new RepositorioAcuerdoComercial(contextoParaBaseDatos);
+
+                int totalRegistros, cantPaginas;
+                lstSeguimientoAcuerdoComercialEscalonado = repo.ConsultarSeguimientoAcuerdoComercialEscalonado(requestDTO, out totalRegistros, out cantPaginas);
+
+                var lstDetalleCatalogo = maestrosBL.ObtenerListaDetalleCatalogo();
+
+
+                lstSeguimientoAcuerdoComercialEscalonado.ForEach(x =>
+                {
+                    var detalleCatalogo = lstDetalleCatalogo.Where(xy => xy.IdCatalogo == (int)CatalogoTablas.EstadoAcuerdoComercial && xy.Codigo == x.Estado).FirstOrDefault();
+
+                    x.DescripcionEstado = detalleCatalogo != null ? detalleCatalogo.Descripcion : string.Empty;
+
+                });
+
+                response.SeguimientoAcuerdoComercialEscalonadoList = (from Origen in lstSeguimientoAcuerdoComercialEscalonado
+                                                                      select Helper.MiMapper<SeguimientoAcuerdoComercialEscalonadoBE, SeguimientoAcuerdoComercialEscalonadoDTO>(Origen)).ToList();
+
+                response.TotalRegistros = totalRegistros;
+                response.CantidadPaginas = cantPaginas;
+
+
+            }
+            catch (Exception ex)
+            {
+                response.Result = new Result { IdError = Guid.NewGuid(), Satisfactorio = false, Mensaje = "Ocurrio un problema interno en el servicio" };
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.LogicaNegocio);
+            }
+
+
+            return response;
+        }
+
+        public ConsultaDetalleAcuerdoComercialLocalResponseDTO ConsultarDetalleAcuerdoComercialLocal(ConsultaDetalleAcuerdoComercialLocalRequestDTO request)
+        {
+
+            ConsultaDetalleAcuerdoComercialLocalResponseDTO response = new ConsultaDetalleAcuerdoComercialLocalResponseDTO();
+            MaestrosBL maestrosBL = new MaestrosBL();
+            SeguridadBL seguridadBL = new SeguridadBL();
+            RolBL rolBL = new RolBL();
+            TarifaBL tarifaBL = new TarifaBL();
+
+            try
+            {
+                var lstDetalleACLocal = new List<DetalleAcuerdoComercialLocalBE>();
+                List<DetalleCatalogoBE> lstDetalleCatalogo = new List<DetalleCatalogoBE>();
+                DetalleCatalogoBE detalleCatalogoCab = new DetalleCatalogoBE();
+
+                RequestInfoBasicaUsuarioDTO infoBasicaUsuario = new RequestInfoBasicaUsuarioDTO();
+                SucursalBE sucursal = new SucursalBE();
+                ResponseRolesClientesSAP roles = new ResponseRolesClientesSAP();
+                TerminalPortuarioBE tportuario = new TerminalPortuarioBE();
+                string estadoCaracter;
+
+                var requestDTO = Helper.MiMapper<ConsultaDetalleAcuerdoComercialLocalRequestDTO, ConsultaDetalleAcuerdoComercialLocalBE>(request);
+
+                var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.AcuerdoComercialAGMADB);
+                var repo = new RepositorioAcuerdoComercial(contextoParaBaseDatos);
+
+                lstDetalleACLocal = repo.ConsultarDetalleAcuerdoComercialLocal(requestDTO);
+                lstDetalleCatalogo = maestrosBL.ObtenerListaDetalleCatalogo();
+                var lstRolesClientesSAP = rolBL.ObtenerListaRolesCliente();
+
+
+                lstDetalleACLocal.ForEach(x =>
+                {
+                    estadoCaracter = x.EstadoRegistro ? "1" : "0";
+                    detalleCatalogoCab = lstDetalleCatalogo.Where(xy => xy.IdCatalogo == (int)CatalogoTablas.Estado && xy.Codigo == estadoCaracter).FirstOrDefault();
+                    x.DescripcionEstadoRegistro = detalleCatalogoCab != null ? detalleCatalogoCab.Descripcion : string.Empty;
+
+                    List<string> lstCodigosUsuarios = new List<string>();
+                    lstCodigosUsuarios.Add(x.CodigoUsuarioAutorizador);
+
+                    infoBasicaUsuario.CodigosUsuario = lstCodigosUsuarios;
+
+                    x.Autorizado = seguridadBL.getNombreUsuario(infoBasicaUsuario);
+
+
+                    List<string> lstCodigoCliente = (from cBLm in x.ListaAcuerdoComercialLocalClienteBLMaster select cBLm.CodigoCliente)
+                                                    .Union(from aBLm in x.ListaAcuerdoComercialLocalAgenteBLMaster select aBLm.CodigoAgente)
+                                                    .Union(from cBLh in x.ListaAcuerdoComercialLocalClienteBLHouse select cBLh.CodigoCliente)
+                                                    .Union(from aBLh in x.ListaAcuerdoComercialLocalAgenteBLHouse select aBLh.CodigoAgente).ToList();
+
+                    var lstGenCliente = (from l in lstCodigoCliente.Distinct().ToList()
+                                         select new GenericBE { value = l }).ToList();
+
+                    List<string> lstCodigoPuerto = (from p in x.ListaAcuerdoComercialLocalPuerto select p.CodigoPuerto).ToList();
+                    lstCodigoPuerto = lstCodigoPuerto.Distinct().ToList();
+
+                    var lstGenPuerto = (from l in lstCodigoPuerto.Distinct().ToList()
+                                        select new GenericBE { value = l }).ToList();
+
+                    List<string> lstCodigoServicio = (from n in x.ListaAcuerdoComercialLocalServicioNave select n.CodigoServicio)
+                                                    .Union(from serv in x.ListaAcuerdoComercialLocalServicioBL select serv.CodigoServicio).ToList();
+                    lstCodigoServicio = lstCodigoServicio.Distinct().ToList();
+
+                    var lstGenServicio = (from l in lstCodigoServicio.Distinct().ToList()
+                                          select new GenericBE { value = l }).ToList();
+
+                    //List<ClienteBE> clienteList = (new ClienteBL()).ConsultarCliente(lstGenCliente.Select(x => { return x.value; }).ToList());
+                    var lstClientes = (new ClienteBL()).ConsultarCliente(lstGenCliente.Select(xy => { return xy.value; }).ToList());
+                    var lstPuertos = maestrosBL.ObtenerPuerto(lstGenPuerto);
+                    var lstServicio = maestrosBL.ObtenerServicio(lstGenServicio);
+
+                    x.ListaAcuerdoComercialLocalSucursal.ForEach(s =>
+                    {
+                        sucursal = maestrosBL.ObtenerSucursalPorCodigo(s.CodigoSucursal);
+                        s.Nombre = sucursal != null ? sucursal.Nombre : string.Empty;
+                    });
+
+                    x.ListaAcuerdoComercialLocalSucursalTerminal.ForEach(t =>
+                    {
+                        sucursal = maestrosBL.ObtenerSucursalPorCodigo(t.CodigoSucursal);
+                        tportuario = maestrosBL.ObtenerTerminalPortuarioPorCodigo(t.CodigoTerminalPortuario);
+
+                        t.NombreSucursal = sucursal != null ? sucursal.Nombre : string.Empty;
+                        t.NombreAlmacen = tportuario != null ? tportuario.NombreAlmacen : string.Empty;
+                    });
+
+                    x.ListaAcuerdoComercialLocalPuerto.ForEach(l =>
+                    {
+                        var puerto = lstPuertos.Where(pu => pu.CodigoPais.Equals(l.CodigoPuerto)).FirstOrDefault();
+                        l.NombrePuerto = puerto != null ? puerto.Nombre : string.Empty;
+                    });
+
+                    x.ListaAcuerdoComercialLocalClienteBLMaster.ForEach(c =>
+                    {
+                        roles = lstRolesClientesSAP.Where(r => r.Codigo.Equals(c.CodigoRol.Value.ToString())).FirstOrDefault();
+                        var cliente = lstClientes.Where(cli => cli.CodigoClienteSAP.Equals(c.CodigoCliente)).FirstOrDefault();
+                        c.Rol = roles != null ? roles.Descripcion : string.Empty;
+                        c.NombreInterlocutor = cliente != null ? cliente.Nombre : string.Empty;
+                    });
+
+                    x.ListaAcuerdoComercialLocalAgenteBLMaster.ForEach(a =>
+                    {
+                        roles = lstRolesClientesSAP.Where(r => r.Codigo.Equals(a.CodigoRol.Value.ToString())).FirstOrDefault();
+                        var cliente = lstClientes.Where(cli => cli.CodigoClienteSAP.Equals(a.CodigoAgente)).FirstOrDefault();
+                        a.Rol = roles != null ? roles.Descripcion : string.Empty;
+                        a.NombreInterlocutor = cliente != null ? cliente.Nombre : string.Empty;
+                    });
+
+                    x.ListaAcuerdoComercialLocalClienteBLHouse.ForEach(h =>
+                    {
+                        roles = lstRolesClientesSAP.Where(r => r.Codigo.Equals(h.CodigoRol.Value.ToString())).FirstOrDefault();
+                        var cliente = lstClientes.Where(cli => cli.CodigoClienteSAP.Equals(h.CodigoCliente)).FirstOrDefault();
+                        h.Rol = roles != null ? roles.Descripcion : string.Empty;
+                        h.NombreInterlocutor = cliente != null ? cliente.Nombre : string.Empty;
+                    });
+
+                    x.ListaAcuerdoComercialLocalAgenteBLHouse.ForEach(b =>
+                    {
+                        roles = lstRolesClientesSAP.Where(r => r.Codigo.Equals(b.CodigoRol.Value.ToString())).FirstOrDefault();
+                        var cliente = lstClientes.Where(cli => cli.CodigoClienteSAP.Equals(b.CodigoAgente)).FirstOrDefault();
+                        b.Rol = roles != null ? roles.Descripcion : string.Empty;
+                        b.NombreInterlocutor = cliente != null ? cliente.Nombre : string.Empty;
+                    });
+
+                    x.ListaAcuerdoComercialLocalServicioNave.ForEach(n =>
+                    {
+                        var servicio = lstServicio.Where(se => se.CodigoServicio.Equals(n.CodigoServicio)).FirstOrDefault();
+                        n.NombreServicio = servicio != null ? servicio.NombreServicio : string.Empty;
+                    });
+
+                    x.ListaAcuerdoComercialLocalServicioBL.ForEach(i =>
+                    {
+                        var servicio = lstServicio.Where(se => se.CodigoServicio.Equals(i.CodigoServicio)).FirstOrDefault();
+                        i.NombreServicio = servicio != null ? servicio.NombreServicio : string.Empty;
+                    });
+
+                    x.ListaAcuerdoComercialLocalTarifa.ForEach(o =>
+                    {
+                        var lstDetalleTarifaLocal = tarifaBL.ConsultarResumenDetalleTarifaLocal(
+                                                     new ConsultaDetalleTarifaLocalBE { CodigoTarifaLocal = o.CodigoTarifaLocal.Value });
+
+                        if (lstDetalleTarifaLocal.Any())
+                        {
+                            var detalleTarifaLocal = lstDetalleTarifaLocal.FirstOrDefault();
+                            o.DescripcionTarifa = detalleTarifaLocal.DescripcionTarifa;
+                            o.Moneda = detalleTarifaLocal.DescripcionMoneda;
+                            o.MontoBase = detalleTarifaLocal.Monto;
+                        }
+                    });
+
+                    x.ListaAcuerdoComercialLocalTarifaLigada.ForEach(tl =>
+                    {
+                        var lstDetalleTarifaLocal = tarifaBL.ConsultarResumenDetalleTarifaLocal(
+                                                     new ConsultaDetalleTarifaLocalBE { CodigoTarifaLocal = tl.CodigoTarifaLocal });
+                        var detCatalogo = lstDetalleCatalogo.Where(xy => xy.IdCatalogo == (int)CatalogoTablas.TipoConfiguracionTarifaLigada && xy.Codigo == tl.CodigoConfiguracionTarifaLigada).FirstOrDefault();
+                        var moneda = maestrosBL.ObtenerMonedaPorCodigo(tl.CodigoMoneda);
+
+                        if (lstDetalleTarifaLocal.Any())
+                        {
+                            var detalleTarifaLocal = lstDetalleTarifaLocal.FirstOrDefault();
+                            tl.CodigoTarifa = detalleTarifaLocal.CodigoTarifa;
+                            tl.DescripcionTarifaLocal = detalleTarifaLocal.DescripcionTarifa;
+                            tl.CodigoMonedaTarifaLigada = detalleTarifaLocal.CodigoMoneda;
+                            tl.DescripcionMonedaBase = detalleTarifaLocal.DescripcionMoneda;
+                            tl.MontoTarifaLocal = detalleTarifaLocal.Monto;
+                        }
+
+                        tl.DescripcionConfiguracionTarifaLigada = detCatalogo != null ? detCatalogo.Descripcion : string.Empty;
+                        tl.Moneda = moneda != null ? moneda.Nombre : string.Empty;
+
+                    });
+
+                });
+
+                Mapper.CreateMap<AcuerdoComercialLocalSucursalConsultaBE, AcuerdoComercialLocalSucursalDTO>();
+                Mapper.CreateMap<AcuerdoComercialLocalSucursalTerminalConsultaBE, AcuerdoComercialLocalSucursalTerminalDTO>();
+                Mapper.CreateMap<AcuerdoComercialLocalRABE, AcuerdoComercialLocalRADTO>();
+                Mapper.CreateMap<AcuerdoComercialLocalPuertoConsultaBE, AcuerdoComercialLocalPuertoDTO>();
+                Mapper.CreateMap<AcuerdoComercialLocalClienteBLMasterConsultaBE, AcuerdoComercialLocalClienteBLMasterDTO>();
+                Mapper.CreateMap<AcuerdoComercialLocalAgenteBLMasterConsultaBE, AcuerdoComercialLocalAgenteBLMasterDTO>();
+                Mapper.CreateMap<AcuerdoComercialLocalClienteBLHouseConsultaBE, AcuerdoComercialLocalClienteBLHouseDTO>();
+                Mapper.CreateMap<AcuerdoComercialLocalAgenteBLHouseConsultaBE, AcuerdoComercialLocalAgenteBLHouseDTO>();
+                Mapper.CreateMap<AcuerdoComercialLocalServicioNaveConsultaBE, AcuerdoComercialLocalServicioNaveDTO>();
+                Mapper.CreateMap<AcuerdoComercialLocalServicioBLConsultaBE, AcuerdoComercialLocalServicioBLDTO>();
+                Mapper.CreateMap<AcuerdoComercialLocalTipoContenedorBE, AcuerdoComercialLocalTipoContenedorDTO>();
+                Mapper.CreateMap<AcuerdoComercialLocalCargaBE, AcuerdoComercialLocalCargaDTO>();
+                Mapper.CreateMap<AcuerdoComercialLocalTarifaBE, AcuerdoComercialLocalTarifaDTO>();
+                Mapper.CreateMap<AcuerdoComercialLocalTarifaLigadaConsultaBE, AcuerdoComercialLocalTarifaLigadaDTO>();
+
+                response.DetalleAcuerdoComercialLocalList = (from Origen in lstDetalleACLocal
+                                                             select Helper.MiMapper<DetalleAcuerdoComercialLocalBE, DetalleAcuerdoComercialLocalDTO>(Origen)).ToList();
+
+            }
+            catch (Exception ex)
+            {
+                response.Result = new Result { IdError = Guid.NewGuid(), Satisfactorio = false, Mensaje = "Ocurrio un problema interno en el servicio" };
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.LogicaNegocio);
+            }
+
+
+            return response;
+        }
+
+        public ConsultaDetalleAcuerdoComercialEscalonadoResponseDTO ConsultarDetalleAcuerdoComercialEscalonado(ConsultaDetalleAcuerdoComercialEscalonadoRequestDTO request)
+        {
+
+            ConsultaDetalleAcuerdoComercialEscalonadoResponseDTO response = new ConsultaDetalleAcuerdoComercialEscalonadoResponseDTO();
+            MaestrosBL maestrosBL = new MaestrosBL();
+            SeguridadBL seguridadBL = new SeguridadBL();
+            RolBL rolBL = new RolBL();
+            TarifaBL tarifaBL = new TarifaBL();
+
+            try
+            {
+                var lstDetalleACEscalonado = new List<DetalleAcuerdoComercialEscalonadoBE>();
+                List<DetalleCatalogoBE> lstDetalleCatalogo = new List<DetalleCatalogoBE>();
+                DetalleCatalogoBE detalleCatalogoCab = new DetalleCatalogoBE();
+
+                RequestInfoBasicaUsuarioDTO infoBasicaUsuario = new RequestInfoBasicaUsuarioDTO();
+                SucursalBE sucursal = new SucursalBE();
+                ResponseRolesClientesSAP roles = new ResponseRolesClientesSAP();
+                TerminalPortuarioBE tportuario = new TerminalPortuarioBE();
+                string estadoCaracter;
+
+                var requestDTO = Helper.MiMapper<ConsultaDetalleAcuerdoComercialEscalonadoRequestDTO, ConsultaDetalleAcuerdoComercialEscalonadoBE>(request);
+
+                var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.AcuerdoComercialAGMADB);
+                var repo = new RepositorioAcuerdoComercial(contextoParaBaseDatos);
+
+                lstDetalleACEscalonado = repo.ConsultarDetalleAcuerdoComercialEscalonado(requestDTO);
+                lstDetalleCatalogo = maestrosBL.ObtenerListaDetalleCatalogo();
+                var lstRolesClientesSAP = rolBL.ObtenerListaRolesCliente();
+
+
+                lstDetalleACEscalonado.ForEach(x =>
+                {
+                    estadoCaracter = x.EstadoRegistro ? "1" : "0";
+                    detalleCatalogoCab = lstDetalleCatalogo.Where(xy => xy.IdCatalogo == (int)CatalogoTablas.Estado && xy.Codigo == estadoCaracter).FirstOrDefault();
+                    x.DescripcionEstadoRegistro = detalleCatalogoCab != null ? detalleCatalogoCab.Descripcion : string.Empty;
+
+                    string textoAutorizadorRapt = (new CoreBL()).ObtenerParametroNegocio(ConstantesParametrosNegocio.CodigoAutorizadorRAPT.ToString()).Valor;
+
+                    if (!x.CodigoUsuarioAutorizador.Equals(textoAutorizadorRapt))
+                    {
+                        List<string> lstCodigosUsuarios = new List<string>();
+                        lstCodigosUsuarios.Add(x.CodigoUsuarioAutorizador);
+
+                        infoBasicaUsuario.CodigosUsuario = lstCodigosUsuarios;
+
+                        x.Autorizado = seguridadBL.getNombreUsuario(infoBasicaUsuario);
+                    }
+                    else
+                    {
+                        x.Autorizado = textoAutorizadorRapt;
+                    }
+
+                    List<string> lstCodigoCliente = (from cBLm in x.ListaAcuerdoComercialEscalonadoClienteBLMaster select cBLm.CodigoCliente)
+                                                    .Union(from aBLm in x.ListaAcuerdoComercialEscalonadoAgenteBLMaster select aBLm.CodigoAgente)
+                                                    .Union(from cBLh in x.ListaAcuerdoComercialEscalonadoClienteBLHouse select cBLh.CodigoCliente)
+                                                    .Union(from aBLh in x.ListaAcuerdoComercialEscalonadoAgenteBLHouse select aBLh.CodigoAgente).ToList();
+
+                    var lstGenCliente = (from l in lstCodigoCliente.Distinct().ToList()
+                                         select new GenericBE { value = l }).ToList();
+
+                    List<string> lstCodigoPuerto = (from p in x.ListaAcuerdoComercialEscalonadoPuerto select p.CodigoPuerto).ToList();
+                    lstCodigoPuerto = lstCodigoPuerto.Distinct().ToList();
+
+                    var lstGenPuerto = (from l in lstCodigoPuerto.Distinct().ToList()
+                                        select new GenericBE { value = l }).ToList();
+
+                    List<string> lstCodigoServicio = (from n in x.ListaAcuerdoComercialEscalonadoServicioNave select n.CodigoServicio)
+                                                    .Union(from serv in x.ListaAcuerdoComercialEscalonadoServicioBL select serv.CodigoServicio).ToList();
+                    lstCodigoServicio = lstCodigoServicio.Distinct().ToList();
+
+                    var lstGenServicio = (from l in lstCodigoServicio.Distinct().ToList()
+                                          select new GenericBE { value = l }).ToList();
+
+                    //List<ClienteBE> clienteList = (new ClienteBL()).ConsultarCliente(lstGenCliente.Select(x => { return x.value; }).ToList());
+                    var lstClientes = (new ClienteBL()).ConsultarCliente(lstGenCliente.Select(xy => { return xy.value; }).ToList());
+                    var lstPuertos = maestrosBL.ObtenerPuerto(lstGenPuerto);
+                    var lstServicio = maestrosBL.ObtenerServicio(lstGenServicio);
+
+                    x.ListaAcuerdoComercialEscalonadoSucursal.ForEach(s =>
+                    {
+                        sucursal = maestrosBL.ObtenerSucursalPorCodigo(s.CodigoSucursal);
+                        s.Nombre = sucursal != null ? sucursal.Nombre : string.Empty;
+                    });
+
+                    x.ListaAcuerdoComercialEscalonadoSucursalTerminal.ForEach(t =>
+                    {
+                        sucursal = maestrosBL.ObtenerSucursalPorCodigo(t.CodigoSucursal);
+                        tportuario = maestrosBL.ObtenerTerminalPortuarioPorCodigo(t.CodigoTerminalPortuario);
+
+                        t.NombreSucursal = sucursal != null ? sucursal.Nombre : string.Empty;
+                        t.NombreAlmacen = tportuario != null ? tportuario.NombreAlmacen : string.Empty;
+                    });
+
+                    x.ListaAcuerdoComercialEscalonadoPuerto.ForEach(l =>
+                    {
+                        var puerto = lstPuertos.Where(pu => pu.CodigoPais.Equals(l.CodigoPuerto)).FirstOrDefault();
+                        l.NombrePuerto = puerto != null ? puerto.Nombre : string.Empty;
+                    });
+
+                    x.ListaAcuerdoComercialEscalonadoClienteBLMaster.ForEach(c =>
+                    {
+                        roles = lstRolesClientesSAP.Where(r => r.Codigo.Equals(c.CodigoRol.Value.ToString())).FirstOrDefault();
+                        var cliente = lstClientes.Where(cli => cli.CodigoClienteSAP.Equals(c.CodigoCliente)).FirstOrDefault();
+                        c.Rol = roles != null ? roles.Descripcion : string.Empty;
+                        c.NombreInterlocutor = cliente != null ? cliente.Nombre : string.Empty;
+                    });
+
+                    x.ListaAcuerdoComercialEscalonadoAgenteBLMaster.ForEach(a =>
+                    {
+                        roles = lstRolesClientesSAP.Where(r => r.Codigo.Equals(a.CodigoRol.Value.ToString())).FirstOrDefault();
+                        var cliente = lstClientes.Where(cli => cli.CodigoClienteSAP.Equals(a.CodigoAgente)).FirstOrDefault();
+                        a.Rol = roles != null ? roles.Descripcion : string.Empty;
+                        a.NombreInterlocutor = cliente != null ? cliente.Nombre : string.Empty;
+                    });
+
+                    x.ListaAcuerdoComercialEscalonadoClienteBLHouse.ForEach(h =>
+                    {
+                        roles = lstRolesClientesSAP.Where(r => r.Codigo.Equals(h.CodigoRol.Value.ToString())).FirstOrDefault();
+                        var cliente = lstClientes.Where(cli => cli.CodigoClienteSAP.Equals(h.CodigoCliente)).FirstOrDefault();
+                        h.Rol = roles != null ? roles.Descripcion : string.Empty;
+                        h.NombreInterlocutor = cliente != null ? cliente.Nombre : string.Empty;
+                    });
+
+                    x.ListaAcuerdoComercialEscalonadoAgenteBLHouse.ForEach(b =>
+                    {
+                        roles = lstRolesClientesSAP.Where(r => r.Codigo.Equals(b.CodigoRol.Value.ToString())).FirstOrDefault();
+                        var cliente = lstClientes.Where(cli => cli.CodigoClienteSAP.Equals(b.CodigoAgente)).FirstOrDefault();
+                        b.Rol = roles != null ? roles.Descripcion : string.Empty;
+                        b.NombreInterlocutor = cliente != null ? cliente.Nombre : string.Empty;
+                    });
+
+                    x.ListaAcuerdoComercialEscalonadoServicioNave.ForEach(n =>
+                    {
+                        var servicio = lstServicio.Where(se => se.CodigoServicio.Equals(n.CodigoServicio)).FirstOrDefault();
+                        n.NombreServicio = servicio != null ? servicio.NombreServicio : string.Empty;
+                    });
+
+                    x.ListaAcuerdoComercialEscalonadoServicioBL.ForEach(i =>
+                    {
+                        var servicio = lstServicio.Where(se => se.CodigoServicio.Equals(i.CodigoServicio)).FirstOrDefault();
+                        i.NombreServicio = servicio != null ? servicio.NombreServicio : string.Empty;
+                    });
+
+                    x.ListaAcuerdoComercialEscalonadoTarifa.ForEach(o =>
+                    {
+                        var lstDetalleTarifaEscalonado = tarifaBL.ConsultarResumenDetalleTarifaEscalonada(
+                                                     new ConsultaDetalleTarifaEscalonadaBE { CodigoTarifaEscalonada = o.CodigoTarifaEscalonado.Value });
+
+                        if (lstDetalleTarifaEscalonado.Any())
+                        {
+                            var detalleTarifaEscalonado = lstDetalleTarifaEscalonado.FirstOrDefault();
+                            o.DescripcionTarifa = detalleTarifaEscalonado.DescripcionTarifa;
+                            //o.Moneda = detalleTarifaEscalonado.DescripcionMoneda;
+                            //o.MontoBase = detalleTarifaEscalonado.Monto;
+                        }
+                    });
+
+                    x.ListaAcuerdoComercialEscalonadoTarifaLigada.ForEach(tl =>
+                    {
+                        var lstDetalleTarifaEscalonado = tarifaBL.ConsultarResumenDetalleTarifaEscalonada(
+                                                     new ConsultaDetalleTarifaEscalonadaBE { CodigoTarifaEscalonada = tl.CodigoTarifaEscalonado });
+                        var detCatalogo = lstDetalleCatalogo.Where(xy => xy.IdCatalogo == (int)CatalogoTablas.TipoConfiguracionTarifaLigada && xy.Codigo == tl.CodigoConfiguracionTarifaLigada).FirstOrDefault();
+                        var moneda = maestrosBL.ObtenerMonedaPorCodigo(tl.CodigoMoneda);
+
+                        if (lstDetalleTarifaEscalonado.Any())
+                        {
+                            var detalleTarifaEscalonado = lstDetalleTarifaEscalonado.FirstOrDefault();
+                            tl.CodigoTarifa = detalleTarifaEscalonado.CodigoTarifa;
+                            tl.DescripcionTarifaEscalonado = detalleTarifaEscalonado.DescripcionTarifa;
+                            //tl.CodigoMonedaTarifaLigada = detalleTarifaEscalonado.CodigoMoneda;
+                            //tl.DescripcionMonedaBase = detalleTarifaEscalonado.DescripcionMoneda;
+                            //tl.MontoTarifaEscalonado = detalleTarifaEscalonado.Monto;
+                        }
+
+                        tl.DescripcionConfiguracionTarifaLigada = detCatalogo != null ? detCatalogo.Descripcion : string.Empty;
+                        tl.Moneda = moneda != null ? moneda.Nombre : string.Empty;
+
+                    });
+
+                });
+
+                Mapper.CreateMap<AcuerdoComercialEscalonadoSucursalConsultaBE, AcuerdoComercialEscalonadoSucursalDTO>();
+                Mapper.CreateMap<AcuerdoComercialEscalonadoSucursalTerminalConsultaBE, AcuerdoComercialEscalonadoSucursalTerminalDTO>();
+                Mapper.CreateMap<AcuerdoComercialEscalonadoRAConsultaBE, AcuerdoComercialEscalonadoRADTO>();
+                Mapper.CreateMap<AcuerdoComercialEscalonadoPuertoConsultaBE, AcuerdoComercialEscalonadoPuertoDTO>();
+                Mapper.CreateMap<AcuerdoComercialEscalonadoClienteBLMasterConsultaBE, AcuerdoComercialEscalonadoClienteBLMasterDTO>();
+                Mapper.CreateMap<AcuerdoComercialEscalonadoAgenteBLMasterConsultaBE, AcuerdoComercialEscalonadoAgenteBLMasterDTO>();
+                Mapper.CreateMap<AcuerdoComercialEscalonadoClienteBLHouseConsultaBE, AcuerdoComercialEscalonadoClienteBLHouseDTO>();
+                Mapper.CreateMap<AcuerdoComercialEscalonadoAgenteBLHouseConsultaBE, AcuerdoComercialEscalonadoAgenteBLHouseDTO>();
+                Mapper.CreateMap<AcuerdoComercialEscalonadoServicioNaveConsultaBE, AcuerdoComercialEscalonadoServicioNaveDTO>();
+                Mapper.CreateMap<AcuerdoComercialEscalonadoServicioBLConsultaBE, AcuerdoComercialEscalonadoServicioBLDTO>();
+                Mapper.CreateMap<AcuerdoComercialEscalonadoTarifaPeriodoConsultaBE, AcuerdoComercialEscalonadoTarifaPeriodoDTO>();
+                Mapper.CreateMap<AcuerdoComercialEscalonadoCargaConsultaBE, AcuerdoComercialEscalonadoCargaDTO>();
+                Mapper.CreateMap<AcuerdoComercialEscalonadoTarifaConsultaBE, AcuerdoComercialEscalonadoTarifaDTO>();
+                Mapper.CreateMap<AcuerdoComercialEscalonadoTarifaLigadaConsultaBE, AcuerdoComercialEscalonadoTarifaLigadaDTO>();
+
+                response.DetalleAcuerdoComercialEscalonadoList = (from Origen in lstDetalleACEscalonado
+                                                                  select Helper.MiMapper<DetalleAcuerdoComercialEscalonadoBE, DetalleAcuerdoComercialEscalonadoDTO>(Origen)).ToList();
+
+            }
+            catch (Exception ex)
+            {
+                response.Result = new Result { IdError = Guid.NewGuid(), Satisfactorio = false, Mensaje = "Ocurrio un problema interno en el servicio" };
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.LogicaNegocio);
+            }
+
+
+            return response;
+        }
+
+        public List<LiquidacionesNoDevueltoBE> ConsultarContenedoresNoDevueltos(ConsultaContenedorNoDevueltoBE request)
+        {
+            var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.Tramarsa);
+            var repo = new RepositorioAcuerdoComercial(contextoParaBaseDatos);
+            
+            return repo.ConsultarContenedoresNoDevueltos(request);
+        }
+
+        public DetalleContenedorNoDevueltoBE ConsultarDetalleContenedoresNoDevueltos(ConsultaContenedorNoDevueltoBE request)
+        {
+            var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.Tramarsa);
+            var repo = new RepositorioAcuerdoComercial(contextoParaBaseDatos);
+            var lstContenedorNoDevueltoBE = new List<LiquidacionesNoDevueltoBE>();
+            //var lstDetalleContenedorNoDevueltoBE = new List<DetalleContenedorNoDevueltoBE>();
+            var objDetalleContenedorNoDevueltoBE = new DetalleContenedorNoDevueltoBE();
+            var lstCodigoCliente = new List<string>();
+
+            lstContenedorNoDevueltoBE = repo.ConsultarContenedoresNoDevueltos(request);
+
+            lstCodigoCliente.Add(request.CodigoCliente);
+
+
+            var cliente = (new ClienteBL()).ConsultarCliente(lstCodigoCliente).FirstOrDefault();
+            objDetalleContenedorNoDevueltoBE.NombreCliente = cliente == null ? string.Empty : cliente.Nombre;
+
+            var linea = (new MaestrosBL()).ObtenerLineaPorCodigo(request.CodigoLinea);
+            objDetalleContenedorNoDevueltoBE.DescripcionLinea = linea == null ? string.Empty : linea.Nombre;
+            objDetalleContenedorNoDevueltoBE.NroBL = request.NroBL;
+
+            var tContenedor = (new MaestrosBL()).ObtenerTipoContenedorPorCodigo(request.CodigoContenedor);
+            objDetalleContenedorNoDevueltoBE.DescripcionContenedor = tContenedor == null ? string.Empty : tContenedor.Descripcion;
+
+            objDetalleContenedorNoDevueltoBE.FechaDesde = request.Desde;
+            objDetalleContenedorNoDevueltoBE.FechaHasta = request.Hasta;
+            objDetalleContenedorNoDevueltoBE.LiquidacionesNoDevueltas = lstContenedorNoDevueltoBE;
+
+            //lstDetalleContenedorNoDevueltoBE.Add(objDetalleContenedorNoDevueltoBE);
+
+            return objDetalleContenedorNoDevueltoBE;
+
+        }
+
+        public bool NotificarContenedoresNoDevueltos(string codigoLinea)
+        {
+            //CONSULTAMOS LA LIQUIDACIONES NO DEVUELTAS
+<<<<<<< HEAD
+            List<ContenedorNoDevueltoBE> contenedoresNoDevueltosBEList = this.ConsultarContenedoresNoDevueltos(new ConsultaContenedorNoDevueltoBE { CodigoLinea = (new CoreBL()).ObtenerParametroNegocio(Convert.ToInt32(ConstantesParametrosNegocio.CodigoLinea).ToString()).Valor });
+
+=======
+            List<LiquidacionesNoDevueltoBE> contenedoresNoDevueltosBEList = this.ConsultarContenedoresNoDevueltos(new ConsultaContenedorNoDevueltoBE { CodigoLinea = (new CoreBL()).ObtenerParametroNegocio(Convert.ToInt32(ConstantesParametrosNegocio.CodigoLinea).ToString()).Valor });
+            (new ManejadorLog()).GrabarLog("1");
+>>>>>>> 46375ded936f10124aca1a15c0919579103d5c8d
+            //OBTENEMOS LOS CORREOS DE LOS CLIENTES
+            List<ConsultaClienteCorreoDTO> consultaClienteCorreoDTOList = contenedoresNoDevueltosBEList.Select(x => { return new ConsultaClienteCorreoDTO { CodigoCliente = x.CodigoAgente, CodigoTipoCorreo = (new CoreBL()).ObtenerParametroNegocio(Convert.ToInt32(ConstantesParametrosNegocio.ClienteTipoCorreo).ToString()).Valor }; }).ToList();
+            consultaClienteCorreoDTOList = consultaClienteCorreoDTOList.GroupBy(x => new { x.CodigoCliente, x.CodigoTipoCorreo }).Select(x => new ConsultaClienteCorreoDTO { CodigoCliente = x.Key.CodigoCliente, CodigoTipoCorreo = x.Key.CodigoTipoCorreo }).ToList();
+            List<ClienteCorreoBE> clienteCorreoBEList = (new ClienteBL()).ConsultarClienteCorreo(consultaClienteCorreoDTOList);
+
+            //ASIGNAMOS LOS CORREOS CORRESPONDIENTES
+            clienteCorreoBEList.ForEach(x =>
+            {
+                contenedoresNoDevueltosBEList.Where(xy => xy.CodigoAgente == x.CodigoCliente).ToList().ForEach(z =>
+                {
+                    z.CorreoElectronico = x.CorreoElectronico;
+                });
+            });
+
+            //OBTENEMOS LOS DATOS DEL CLIENTE
+            List<ClienteBE> clienteList = (new ClienteBL()).ConsultarCliente(contenedoresNoDevueltosBEList.Select(x => x.CodigoAgente).Distinct().ToList());
+
+            //AGRUPAMOS POR CODIGO DE CLIENTE LAS LIQUIDACIONES CON DIAS MAYORES A CEROS
+            var liquidacionDiasMayorACero = contenedoresNoDevueltosBEList.Where(x => x.DiasSobrantes > 0).ToList();
+            List<string> codigoClienteDiasMayorACero = liquidacionDiasMayorACero.GroupBy(x => x.CodigoAgente).Select(x => x.First().CodigoAgente).ToList();
+            bool done = this.NotificarContenedoresNoDevueltos(liquidacionDiasMayorACero, codigoClienteDiasMayorACero, clienteList);
+
+            var liquidacionDiasCeroATreintaNegativo = contenedoresNoDevueltosBEList.Where(x => x.DiasSobrantes > -30 && x.DiasSobrantes <= 0).ToList();
+            List<string> codigoClienteDiasCeroATreintaNegativo = liquidacionDiasCeroATreintaNegativo.GroupBy(x => x.CodigoAgente).Select(x => x.First().CodigoAgente).ToList();
+            done = this.NotificarContenedoresNoDevueltos(liquidacionDiasCeroATreintaNegativo, codigoClienteDiasCeroATreintaNegativo, clienteList);
+
+            var liquidacionDiasMenorATreintaNegativo = contenedoresNoDevueltosBEList.Where(x => x.DiasSobrantes <= -30).ToList();
+            List<string> codigoClienteDiasMenorATreintaNegativo = liquidacionDiasMenorATreintaNegativo.GroupBy(x => x.CodigoAgente).Select(x => x.First().CodigoAgente).ToList();
+            done = this.NotificarContenedoresNoDevueltos(liquidacionDiasMenorATreintaNegativo, codigoClienteDiasMenorATreintaNegativo, clienteList);
+
+            #region OLD
+            ////AGRUPAMOS POR CODIGO DE CLIENTE LAS LIQUIDACIONES CON DIAS MAYORES A CEROS
+            //List<string> codigoClienteDiasMayorACero = liquidacionDiasMayorACero.GroupBy(x => x.CodigoAgente).Select(x => x.First().CodigoAgente).ToList();
+            //foreach (var codigoCliente in codigoClienteDiasMayorACero)
+            //{
+            //    //OBTENEMOS LAS LIQUIDACIONES ESPECIFICAS DE CADA CLIENTE
+            //    var liquidacionDiasMayorACeroXCliente = liquidacionDiasMayorACero.Where(xy => xy.CodigoAgente == codigoCliente).ToList();
+            //    string correElectronico = liquidacionDiasMayorACeroXCliente.First().CorreoElectronico;
+            //    if (string.IsNullOrEmpty(correElectronico))
+            //        continue;
+
+            //    #region OBTENEMOS EL NOMBRE DEL CLIENTE
+
+            //    string nombreCliente = "";
+            //    var clienteListFound = clienteList.Where(xy => xy.CodigoCliente == codigoCliente).ToList();
+            //    if (clienteListFound.Any())
+            //        nombreCliente = clienteListFound.First().Nombre;
+
+            //    #endregion
+
+            //    NotificacionBL notificacionBL = new NotificacionBL();
+            //    RequestNotificacionDTO requestNotificacion = new RequestNotificacionDTO();
+
+            //    requestNotificacion.CorreosPara.Add(correElectronico);
+            //    requestNotificacion.CorreoDe = WebConfigReader.Mailer.From;
+            //    requestNotificacion.CodigoNotificacion = (int)TipoNotificacion.ContenedeorNoDevueltoMayorACero;
+            //    requestNotificacion.CuerpoValores = new Dictionary<string, string>() {
+            //                                        { "{NombreCliente}", nombreCliente }};
+
+            //    var tipoCliente = (new MaestrosBL()).ObtenerListaDetalleCatalogo().SingleOrDefault(xy => xy.IdCatalogo == (int)CatalogoTablas.TipoCliente && xy.Codigo == TipoCliente.CLiente1.GetDescription()).Codigo;
+            //    var linea = (new CoreBL()).ObtenerParametroNegocio(Convert.ToInt32(ConstantesParametrosNegocio.CodigoLinea).ToString()).ValorRelacionado;
+
+            //    requestNotificacion.Adjuntos.Add((new LiquidacionesReporte()).RenderizarPDF(liquidacionDiasMayorACeroXCliente, nombreCliente, tipoCliente, linea, "", "", ""));
+
+            //    notificacionBL.requestNotificationDTO = requestNotificacion;
+            //    notificacionBL.EnviarNotificacion();
+            //}
+
+            //var liquidacionDiasCeroATreintaNegativo = contenedoresNoDevueltosBEList.Where(x => x.DiasSobrantes > -30 && x.DiasSobrantes <= 0).ToList();
+
+            //var liquidacionDiasMenorATreintaNegativo = contenedoresNoDevueltosBEList.Where(x => x.DiasSobrantes <= -30).ToList();
+            #endregion
+
+            return true;
+        }
+        
+    }
+}
