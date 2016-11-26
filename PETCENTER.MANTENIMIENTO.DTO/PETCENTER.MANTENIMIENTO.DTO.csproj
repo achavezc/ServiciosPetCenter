@@ -53,6 +53,11 @@
     <Compile Include="Core\Response\ActualizarParametroNegocioResponseDTO.cs" />
     <Compile Include="Core\Response\EliminarParametroNegocioResponseDTO.cs" />
     <Compile Include="Core\Response\ParametroNegocioResponseDTO.cs" />
+    <Compile Include="Mantenimientos\Area\AreaDTO.cs" />
+    <Compile Include="Mantenimientos\Area\Response\ConsultarAreaResponseDTO.cs" />
+    <Compile Include="Mantenimientos\EstadoSolicitud\EstadoSolicitudDTO.cs" />
+    <Compile Include="Mantenimientos\EstadoSolicitud\Response\ConsultarEstadoSolicitudResponseDTO.cs" />
+    <Compile Include="Mantenimientos\Sede\Response\ConsultarSedeResponseDTO.cs" />
     <Compile Include="Mantenimientos\Sede\SedeDTO.cs" />
     <Compile Include="Mantenimientos\Solicitud\MantenimientoDTO.cs" />
     <Compile Include="Mantenimientos\Solicitud\MantenimientoListDTO.cs" />
@@ -63,7 +68,6 @@
     <Compile Include="Mantenimientos\Solicitud\Response\ObtenerSolicitudResponseDTO.cs" />
     <Compile Include="Mantenimientos\Solicitud\Response\RegistrarSolicitudResponseDTO.cs" />
     <Compile Include="Mantenimientos\Solicitud\SolicitudDTO.cs" />
-    <Compile Include="Mantenimientos\TipoMantenimiento\AreaDTO.cs" />
     <Compile Include="Mantenimientos\TipoMantenimiento\Response\ConsultarTipoMantenimientoResponseDTO.cs" />
     <Compile Include="Mantenimientos\TipoMantenimiento\TipoMantenimientoDTO.cs" />
     <Compile Include="ParametroSistema\BusquedaParametroSistemaValidacionDTO.cs" />
@@ -113,6 +117,7 @@
       <Name>TRAMARSA.RECLAMOS.Entidades</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

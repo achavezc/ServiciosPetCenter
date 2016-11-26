@@ -17,6 +17,9 @@ using System.Reflection;
 using System.ServiceModel.Activation;
 using AutoMapper;
 using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.TipoMantenimiento.Response;
+using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.EstadoSolicitud.Response;
+using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Sede.Response;
+using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Area.Response;
 
 namespace PETCENTER.MANTENIMIENTO.ServicioWCF.MAESTROS
 {
@@ -98,5 +101,85 @@ namespace PETCENTER.MANTENIMIENTO.ServicioWCF.MAESTROS
             }
         }
 
+        public ConsultarEstadoSolicitudResponseDTO ConsultarEstadoSolicitud()
+        {
+            ConsultarEstadoSolicitudResponseDTO response = new ConsultarEstadoSolicitudResponseDTO();
+            try
+            {
+                MaestrosBL maestrosBL = new MaestrosBL();
+                response = maestrosBL.ConsultarEstadoSolicitud ();
+
+                return response;
+            }
+            catch (ResultException ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(string.Format("{0}: {1}", MethodBase.GetCurrentMethod().Name, ex.Result.Mensaje));
+                ex.Result.Satisfactorio = false;
+                response.Result = ex.Result;
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+                response.Result = new Result { Satisfactorio = false, Mensaje = "Ocurrio un problema interno en el servicio", IdError = Guid.NewGuid() };
+
+                return response;
+            }
+        }
+
+        public ConsultarSedeResponseDTO ConsultarSede()
+        {
+            ConsultarSedeResponseDTO response = new ConsultarSedeResponseDTO();
+            try
+            {
+                MaestrosBL maestrosBL = new MaestrosBL();
+                response = maestrosBL.ConsultarSede();
+
+                return response;
+            }
+            catch (ResultException ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(string.Format("{0}: {1}", MethodBase.GetCurrentMethod().Name, ex.Result.Mensaje));
+                ex.Result.Satisfactorio = false;
+                response.Result = ex.Result;
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+                response.Result = new Result { Satisfactorio = false, Mensaje = "Ocurrio un problema interno en el servicio", IdError = Guid.NewGuid() };
+
+                return response;
+            }
+        }
+
+        public ConsultarAreaResponseDTO ConsultarArea()
+        {
+            ConsultarAreaResponseDTO response = new ConsultarAreaResponseDTO();
+            try
+            {
+                MaestrosBL maestrosBL = new MaestrosBL();
+                response = maestrosBL.ConsultarArea();
+
+                return response;
+            }
+            catch (ResultException ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(string.Format("{0}: {1}", MethodBase.GetCurrentMethod().Name, ex.Result.Mensaje));
+                ex.Result.Satisfactorio = false;
+                response.Result = ex.Result;
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+                response.Result = new Result { Satisfactorio = false, Mensaje = "Ocurrio un problema interno en el servicio", IdError = Guid.NewGuid() };
+
+                return response;
+            }
+        }
     }
 }

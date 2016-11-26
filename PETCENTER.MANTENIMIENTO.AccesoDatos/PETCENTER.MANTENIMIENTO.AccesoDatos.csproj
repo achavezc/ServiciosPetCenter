@@ -49,7 +49,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ContextoParaBaseDatos.cs" />
+    <Compile Include="MANTENIMIENTO\RepositorioArea.cs" />
+    <Compile Include="MANTENIMIENTO\RepositorioEstadoSolicitud.cs" />
     <Compile Include="MANTENIMIENTO\RepositorioObtenerSolicitud.cs" />
+    <Compile Include="MANTENIMIENTO\RepositorioSede.cs" />
     <Compile Include="MANTENIMIENTO\RepositorioSolicitud.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RepositorioBase.cs" />

@@ -36,7 +36,9 @@ namespace PETCENTER.MANTENIMIENTO.Framework
         TipoDevolucion,
         Flujo,
         //mantenimiento local
-        TipoMantenimiento
+        TipoMantenimiento,
+        EstadoSolicitud,
+        Area
     }
 
     public enum Accion {

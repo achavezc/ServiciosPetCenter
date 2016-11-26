@@ -4,19 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Sede
+namespace PETCENTER.MANTENIMIENTO.Entidades.Mantenimientos
 {
-   public class SedeDTO
+   public  class Area
     {
+
+        public int CodigoArea { get; set; }
         public int CodigoSede { get; set; }
         public string Nombre { get; set; }
-        public string Direccion { get; set; }
-        public string Telefono { get; set; }
+        public string Descripcion { get; set; }
         public string UsuarioCreacion { get; set; }
         public DateTime FechaHoraCreacion { get; set; }
-        public string UsuarioActualizacion { get; set; }
+        public String UsuarioActualizacion { get; set; }
         public DateTime FechaHoraActualizacion { get; set; }
-        public bool EstadoRegistro { get; set; }
-
+        public Boolean EstadoRegistro { get; set; }
     }
 }
