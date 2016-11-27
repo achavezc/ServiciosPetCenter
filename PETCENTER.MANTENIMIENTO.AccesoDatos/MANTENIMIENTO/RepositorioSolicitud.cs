@@ -99,7 +99,7 @@ namespace PETCENTER.MANTENIMIENTO.AccesoDatos.MANTENIMIENTO
                     parametrosIn.AddWithValue("@CodigoArea", request.CodigoArea);
                     parametrosIn.AddWithValue("@CodigoTipoMantenimiento", request.CodigoTipoMantenimiento);
                     parametrosIn.AddWithValue("@CodigoEmpleado1", request.CodigoEmpleado1);
-                    parametrosIn.AddWithValue("@UsuarioRegistro", request.UsuarioCreacion );
+                    parametrosIn.AddWithValue("@UsuarioRegistro", request.UsuarioRegistro );
                     parametrosIn.AddWithValue("@FechaHoraRegistro", DateTime.Now);
                     parametrosIn.AddWithValue("@Accion", request.Accion);
                     parametrosIn.Add("@CodigoSolicitudOut", DbType.Int32).Direction = ParameterDirection.InputOutput;
@@ -113,7 +113,7 @@ namespace PETCENTER.MANTENIMIENTO.AccesoDatos.MANTENIMIENTO
             return CodigoSolicitudOut;
 
         }
-        public void RegistrarMantenimientto(List<MantenimientoList> Mantenimiento)
+        public void RegistrarMantenimiento(List<MantenimientoList> Mantenimiento)
         {
             if (Mantenimiento.Count > 0)
             {

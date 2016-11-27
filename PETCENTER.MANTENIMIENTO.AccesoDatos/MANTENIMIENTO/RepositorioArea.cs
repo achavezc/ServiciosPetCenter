@@ -19,7 +19,7 @@ namespace PETCENTER.MANTENIMIENTO.AccesoDatos.MANTENIMIENTO
 
             using (SqlConnection conexion = new SqlConnection(ContextoParaBaseDatos.DecryptedConnectionString("PETCENTERDB")))
             {
-                using (SqlCommand cmd = SqlHelper.CreateCommand("[dbo].[USP_CONSULTAR_AREA] ", conexion, true))
+                using (SqlCommand cmd = SqlHelper.CreateCommand("dbo.USP_CONSULTAR_AREA", conexion, true))
                 {
                     using (IDataReader dr = cmd.ExecuteReader())
                     {

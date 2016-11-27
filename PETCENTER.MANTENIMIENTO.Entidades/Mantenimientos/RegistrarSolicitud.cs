@@ -18,10 +18,11 @@ namespace PETCENTER.MANTENIMIENTO.Entidades.Mantenimientos
         public int Estado { get; set; }
         public int CodigoArea { get; set; }
         public int CodigoTipoMantenimiento { get; set; }
-        public int CodigoEmpleado1 { get; set; }    
-        public string UsuarioCreacion { get; set; }
-        public DateTime FechaHoraCreacion { get; set; }
+        public int CodigoEmpleado1 { get; set; }
+        public string UsuarioRegistro { get; set; }
+        public DateTime FechaHoraRegistro { get; set; }
         public string  Accion { get; set; }
         public List<MantenimientoList> MantenimientoList { get; set; }
+
     }
 }

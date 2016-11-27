@@ -35,19 +35,19 @@ namespace PETCENTER.MANTENIMIENTO.AccesoDatos.MANTENIMIENTO
                         {
                             objeto = new Solicitud ()
                             {
-                                CodigoSolicitud = dr.IsDBNull(dr.GetOrdinal("CodigoReclamo")) ? 0 : dr.GetInt32(dr.GetOrdinal("CodigoReclamo")),
-                                Descripcion = dr.IsDBNull(dr.GetOrdinal("CodigoSociedad")) ? string.Empty  : dr.GetString (dr.GetOrdinal("CodigoSociedad")),
-                                Fecha = dr.IsDBNull(dr.GetOrdinal("CodigoNegocio")) ? new DateTime() : dr.GetDateTime(dr.GetOrdinal("CodigoNegocio")),
-                                Estado = dr.IsDBNull(dr.GetOrdinal("CodigoSede")) ? 0 : dr.GetInt32(dr.GetOrdinal("CodigoSede")),
-                                CodigoArea = dr.IsDBNull(dr.GetOrdinal("CodigoTipoReclamo")) ? 0 : dr.GetInt32(dr.GetOrdinal("CodigoTipoReclamo")),
-                                CodigoTipoMantenimiento = dr.IsDBNull(dr.GetOrdinal("CodigoSubTipoReclamo")) ? 0 : dr.GetInt32(dr.GetOrdinal("CodigoSubTipoReclamo")),
-                                CodigoEmpleado1 = dr.IsDBNull(dr.GetOrdinal("CodigoCliente")) ? 0 : dr.GetInt32(dr.GetOrdinal("CodigoCliente")),
-                                CodigoEmpleado2 = dr.IsDBNull(dr.GetOrdinal("Cliente")) ? 0 : dr.GetInt32(dr.GetOrdinal("Cliente")),
+                                CodigoSolicitud = dr.IsDBNull(dr.GetOrdinal("CodigoSolicitud")) ? 0 : dr.GetInt32(dr.GetOrdinal("CodigoSolicitud")),
+                                Descripcion = dr.IsDBNull(dr.GetOrdinal("DescripcionSolicitud")) ? string.Empty : dr.GetString(dr.GetOrdinal("DescripcionSolicitud")),
+                                Fecha = dr.IsDBNull(dr.GetOrdinal("FechaSolicitud")) ? new DateTime() : dr.GetDateTime(dr.GetOrdinal("FechaSolicitud")),
+                                Estado = dr.IsDBNull(dr.GetOrdinal("CodigoEstadoSolicitud")) ? 0 : dr.GetInt32(dr.GetOrdinal("CodigoEstadoSolicitud")),
+                                CodigoArea = dr.IsDBNull(dr.GetOrdinal("CodigoArea")) ? 0 : dr.GetInt32(dr.GetOrdinal("CodigoArea")),
+                                CodigoTipoMantenimiento = dr.IsDBNull(dr.GetOrdinal("CodigoTipoMantenimiento")) ? 0 : dr.GetInt32(dr.GetOrdinal("CodigoTipoMantenimiento")),
+                                CodigoEmpleado1 = dr.IsDBNull(dr.GetOrdinal("CodigoEmpleadoRegistra")) ? 0 : dr.GetInt32(dr.GetOrdinal("CodigoEmpleadoRegistra")),
+                                CodigoEmpleado2 = dr.IsDBNull(dr.GetOrdinal("CodigoEmpleadoAprueba")) ? 0 : dr.GetInt32(dr.GetOrdinal("CodigoEmpleadoAprueba")),
                                 UsuarioCreacion = dr.IsDBNull(dr.GetOrdinal("UsuarioCreacion")) ? string.Empty : dr.GetString(dr.GetOrdinal("UsuarioCreacion")),
                                 FechaHoraCreacion = dr.IsDBNull(dr.GetOrdinal("FechaHoraCreacion")) ? new DateTime() : dr.GetDateTime(dr.GetOrdinal("FechaHoraCreacion")),
                                 UsuarioActualizacion = dr.IsDBNull(dr.GetOrdinal("UsuarioActualizacion")) ? string.Empty : dr.GetString(dr.GetOrdinal("UsuarioActualizacion")),
                                 FechaHoraActualizacion = dr.IsDBNull(dr.GetOrdinal("FechaHoraActualizacion")) ? new DateTime() : dr.GetDateTime(dr.GetOrdinal("FechaHoraActualizacion")),
-                                EstadoRegistro = !dr.IsDBNull(dr.GetOrdinal("EstadoRegistro")) && dr.GetBoolean(dr.GetOrdinal("EstadoRegistro"))
+                                
                             };
                         }
                         SqlHelper.CloseConnection(conexion);
@@ -75,15 +75,16 @@ namespace PETCENTER.MANTENIMIENTO.AccesoDatos.MANTENIMIENTO
                         {
                             var objeto = new Mantenimiento()
                             {
-                              
-                                CodigoMantenimiento = dr.IsDBNull(dr.GetOrdinal("CodigoMantenimiento")) ? 0 : dr.GetInt32(dr.GetOrdinal("CodigoMantenimiento")),
-                                Nombre = dr.IsDBNull(dr.GetOrdinal("CodigoReclamo")) ? string.Empty  : dr.GetString(dr.GetOrdinal("CodigoReclamo")),
-                                Fecha = dr.IsDBNull(dr.GetOrdinal("NombreArchivo")) ? new DateTime()  : dr.GetDateTime(dr.GetOrdinal("NombreArchivo")),
-                                Descripcion = dr.IsDBNull(dr.GetOrdinal("NombreArchivo")) ? string.Empty : dr.GetString(dr.GetOrdinal("NombreArchivo")),
-                                CodigoSolicitud = dr.IsDBNull(dr.GetOrdinal("Extension")) ? 0 : dr.GetInt32(dr.GetOrdinal("Extension")),
-                                CodigoTipoMantenimiento = dr.IsDBNull(dr.GetOrdinal("NombreArchivoInterno")) ? 0: dr.GetInt32(dr.GetOrdinal("NombreArchivoInterno")),
-                                CodigoArea = dr.IsDBNull(dr.GetOrdinal("CodigoTipo")) ? 0 : dr.GetInt32(dr.GetOrdinal("CodigoTipo")),
 
+                                CodigoMantenimiento = dr.IsDBNull(dr.GetOrdinal("CodigoMantenimiento")) ? 0 : dr.GetInt32(dr.GetOrdinal("CodigoMantenimiento")),
+                                Nombre = dr.IsDBNull(dr.GetOrdinal("Nombre")) ? string.Empty : dr.GetString(dr.GetOrdinal("Nombre")),
+                                Fecha = dr.IsDBNull(dr.GetOrdinal("Fecha")) ? new DateTime() : dr.GetDateTime(dr.GetOrdinal("Fecha")),
+                                Descripcion = dr.IsDBNull(dr.GetOrdinal("Descripcion")) ? string.Empty : dr.GetString(dr.GetOrdinal("Descripcion")),
+                                CodigoSolicitud = dr.IsDBNull(dr.GetOrdinal("CodigoSolicitud")) ? 0 : dr.GetInt32(dr.GetOrdinal("CodigoSolicitud")),
+                                CodigoTipoMantenimiento = dr.IsDBNull(dr.GetOrdinal("CodigoTipoMantenimiento")) ? 0 : dr.GetInt32(dr.GetOrdinal("CodigoTipoMantenimiento")),
+                                CodigoArea = dr.IsDBNull(dr.GetOrdinal("CodigoArea")) ? 0 : dr.GetInt32(dr.GetOrdinal("CodigoArea")),
+                                UsuarioCreacion = dr.IsDBNull(dr.GetOrdinal("UsuarioCreacion")) ? string.Empty : dr.GetString(dr.GetOrdinal("UsuarioCreacion")),
+                                FechaHoraCreacion = dr.IsDBNull(dr.GetOrdinal("FechaHoraCreacion")) ? new DateTime() : dr.GetDateTime(dr.GetOrdinal("FechaHoraCreacion")),
                                 UsuarioActualizacion = dr.IsDBNull(dr.GetOrdinal("UsuarioActualizacion")) ? string.Empty  : dr.GetString(dr.GetOrdinal("UsuarioActualizacion")),
                                 FechaHoraActualizacion = dr.IsDBNull(dr.GetOrdinal("FechaHoraActualizacion")) ? new DateTime() : dr.GetDateTime(dr.GetOrdinal("FechaHoraActualizacion")),
                                 EstadoRegistro = !dr.IsDBNull(dr.GetOrdinal("EstadoRegistro")) && dr.GetBoolean(dr.GetOrdinal("EstadoRegistro")),

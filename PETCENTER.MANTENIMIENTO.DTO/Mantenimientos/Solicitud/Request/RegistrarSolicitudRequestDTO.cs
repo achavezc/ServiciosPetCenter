@@ -19,7 +19,6 @@ namespace PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Solicitud.Request
    public int CodigoArea {get;set;}
    public int CodigoTipoMantenimiento {get;set;}
    public int CodigoEmpleado1 {get;set;}
-   public int CodigoEmpleado2 {get;set;}
    public string  UsuarioRegistro {get;set;}
    public DateTime FechaHoraRegistro {get;set;}
    public string  Accion {get;set;}

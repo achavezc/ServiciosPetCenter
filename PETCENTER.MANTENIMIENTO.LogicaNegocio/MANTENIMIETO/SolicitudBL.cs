@@ -53,14 +53,14 @@ namespace PETCENTER.MANTENIMIENTO.LogicaNegocio.MANTENIMIETO
         {
 
             var response = new RegistrarSolicitudResponseDTO();
-            var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.Reclamos);
+            var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.Petcenterdb);
             var repo = new RepositorioSolicitud(contextoParaBaseDatos);
             int CodigoSolicitud = 0;
 
             Mapper.CreateMap<MantenimientoListDTO, MantenimientoList>();
             var requestBE = Helper.MiMapper<RegistrarSolicitudRequestDTO, RegistrarSolicitud>(request);
 
-            requestBE.FechaHoraCreacion = DateTime.Now;
+            requestBE.FechaHoraRegistro = DateTime.Now;
 
             //AdjuntarArchivo(request.ReclamoAdjuntoList);
 
@@ -78,11 +78,11 @@ namespace PETCENTER.MANTENIMIENTO.LogicaNegocio.MANTENIMIETO
                     requestBE.MantenimientoList.ForEach(x =>
                     {
                         x.CodigoSolicitud  = CodigoSolicitud;
-                        x.UsuarioCreacion  = requestBE.UsuarioCreacion ;
+                        x.UsuarioCreacion  = requestBE.UsuarioRegistro ;
                         x.FechaHoraCreacion = request.FechaHoraRegistro;
                     });
 
-                    repo.RegistrarMantenimientto(requestBE.MantenimientoList);
+                    repo.RegistrarMantenimiento(requestBE.MantenimientoList);
 
                 }
                 Transaccion.Complete();
