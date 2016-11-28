@@ -13,8 +13,8 @@ namespace PETCENTER.MANTENIMIENTO.Entidades.Mantenimientos
         public DateTime Fecha { get; set; }
         public string Descripcion { get; set; }
         public int CodigoSolicitud { get; set; }
-        public int CodigoTipoMantenimiento { get; set; }
-        public int CodigoArea { get; set; }
+        //public int CodigoTipoMantenimiento { get; set; }
+        //public int CodigoArea { get; set; }
         public string UsuarioCreacion { get; set; }
         public DateTime FechaHoraCreacion { get; set; }
         public string  Accion { get; set; } 

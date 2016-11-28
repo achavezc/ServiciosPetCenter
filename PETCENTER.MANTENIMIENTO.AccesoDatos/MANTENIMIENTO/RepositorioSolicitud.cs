@@ -128,8 +128,8 @@ namespace PETCENTER.MANTENIMIENTO.AccesoDatos.MANTENIMIENTO
                                                Fecha=origin.Fecha,
                                                Descripcion =origin.Descripcion ,
                                                CodigoSolicitud =origin.CodigoSolicitud ,
-                                               CodigoTipoMantenimiento =origin.CodigoTipoMantenimiento ,
-                                               CodigoArea =origin.CodigoArea ,
+                                               //CodigoTipoMantenimiento =origin.CodigoTipoMantenimiento ,
+                                               //CodigoArea =origin.CodigoArea ,
                                                UsuarioCreacion=origin.UsuarioCreacion ,
                                                FechaHoraCreacion =origin.FechaHoraCreacion ,
                                                Accion =origin.Accion 

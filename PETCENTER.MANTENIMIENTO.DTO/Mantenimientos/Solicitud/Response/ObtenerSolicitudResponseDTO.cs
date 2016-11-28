@@ -12,6 +12,7 @@ namespace PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Solicitud.Response
     {
         public ObtenerSolicitudResponseDTO()
         {
+            this.Result = new Result();
             this.ListaMantenimientos = new List<MantenimientoDTO>();
         }
         [DataMember(Order = 0)]

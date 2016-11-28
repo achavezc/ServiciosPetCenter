@@ -19,15 +19,15 @@ namespace PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Solicitud
      public string Descripcion {get; set;}
     [DataMember(Order = 5)]
      public int CodigoSolicitud {get; set;}
+    //[DataMember(Order = 6)]
+    // public int CodigoTipoMantenimiento {get; set;}
+    //[DataMember(Order = 7)]
+    // public int CodigoArea {get; set;}
     [DataMember(Order = 6)]
-     public int CodigoTipoMantenimiento {get; set;}
-    [DataMember(Order = 7)]
-     public int CodigoArea {get; set;}
-    [DataMember(Order = 8)]
      public string  UsuarioCreacion {get; set;}
-    [DataMember(Order = 9)]
+    [DataMember(Order = 7)]
      public DateTime  FechaHoraCreacion {get; set;}
-    [DataMember(Order = 10)]
+    [DataMember(Order = 8)]
      public string Accion { get; set; }
     }
 }

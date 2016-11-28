@@ -74,7 +74,7 @@ namespace PETCENTER.MANTENIMIENTO.ServicioWCF.SOLICITUDMANTENIMIENTO
 
         public ObtenerSolicitudResponseDTO ObtenerSolicitud(ObtenerSolicitudRequestDTO request)
         {
-            var response = new ObtenerSolicitudResponseDTO();
+            ObtenerSolicitudResponseDTO response = new ObtenerSolicitudResponseDTO();
             try
             {
                 var solicitudBL = new SolicitudBL();
