@@ -10,7 +10,8 @@ namespace PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Solicitud.Request
     {        
     public int CodigoSolicitud {get;set;}
     public int CodigoTipoMantenimiento {get;set;}
-    public DateTime  Fecha  {get;set;}
+    public DateTime FechaInicio { get; set; }
+    public DateTime FechaFin { get; set; }
     public int Estado {get;set;}
     public int CodigoSede {get;set;}
     public int CodigoArea {get;set;}
