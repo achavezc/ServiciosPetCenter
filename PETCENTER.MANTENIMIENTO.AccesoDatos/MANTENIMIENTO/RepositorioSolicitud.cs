@@ -101,6 +101,7 @@ namespace PETCENTER.MANTENIMIENTO.AccesoDatos.MANTENIMIENTO
                     parametrosIn.AddWithValue("@Descripcion", request.Descripcion);
                     parametrosIn.AddWithValue("@Fecha", request.Fecha);
                     parametrosIn.AddWithValue("@Estado", request.Estado);
+                    parametrosIn.AddWithValue("@CodigoSede", request.CodigoSede);
                     parametrosIn.AddWithValue("@CodigoArea", request.CodigoArea);
                     parametrosIn.AddWithValue("@CodigoTipoMantenimiento", request.CodigoTipoMantenimiento);
                     parametrosIn.AddWithValue("@CodigoEmpleado1", request.CodigoEmpleado1);

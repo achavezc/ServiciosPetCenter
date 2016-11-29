@@ -16,6 +16,7 @@ namespace PETCENTER.MANTENIMIENTO.Entidades.Mantenimientos
         public string Descripcion { get; set; }
         public DateTime Fecha { get; set; }
         public int Estado { get; set; }
+        public int CodigoSede { get; set; }
         public int CodigoArea { get; set; }
         public int CodigoTipoMantenimiento { get; set; }
         public int CodigoEmpleado1 { get; set; }
@@ -23,6 +24,7 @@ namespace PETCENTER.MANTENIMIENTO.Entidades.Mantenimientos
         public DateTime FechaHoraRegistro { get; set; }
         public string  Accion { get; set; }
         public List<MantenimientoList> MantenimientoList { get; set; }
+        
 
     }
 }
