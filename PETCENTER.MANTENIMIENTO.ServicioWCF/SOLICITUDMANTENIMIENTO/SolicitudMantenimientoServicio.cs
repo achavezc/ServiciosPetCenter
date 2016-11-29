@@ -21,6 +21,11 @@ namespace PETCENTER.MANTENIMIENTO.ServicioWCF.SOLICITUDMANTENIMIENTO
     {
         public ConsultarSolicitudResponseDTO ConsultarSolicitud(ConsultarSolicitudRequestDTO request)
         {
+            ManejadorLog manejadorLog = new ManejadorLog();
+
+            manejadorLog.GrabarLog(request.FechaFin.ToString());
+            manejadorLog.GrabarLog(request.FechaFin.ToString());
+
             ConsultarSolicitudResponseDTO result = new ConsultarSolicitudResponseDTO();
             try
             {
