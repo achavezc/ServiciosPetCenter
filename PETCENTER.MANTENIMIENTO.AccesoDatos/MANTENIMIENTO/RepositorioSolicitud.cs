@@ -29,7 +29,7 @@ namespace PETCENTER.MANTENIMIENTO.AccesoDatos.MANTENIMIENTO
 
 
                 parametrosIn.Add("@CodigoSolicitud", request.CodigoSolicitud);
-                parametrosIn.Add("@@Descripcion", request.Descripcion);
+                parametrosIn.Add("@Descripcion", request.Descripcion);
                 parametrosIn.Add("@CodigoTipoMantenimiento", request.CodigoTipoMantenimiento);
                 parametrosIn.Add("@FechaInicio", request.FechaInicio );
                 parametrosIn.Add("@FechaFin", request.FechaFin);
