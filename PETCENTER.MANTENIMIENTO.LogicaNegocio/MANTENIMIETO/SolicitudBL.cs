@@ -77,9 +77,9 @@ namespace PETCENTER.MANTENIMIENTO.LogicaNegocio.MANTENIMIETO
 
                     requestBE.MantenimientoList.ForEach(x =>
                     {
-                        x.CodigoSolicitud  = CodigoSolicitud;
+                        x.CodigoSolicitud = CodigoSolicitud;
                         x.UsuarioCreacion  = requestBE.UsuarioRegistro ;
-                        x.FechaHoraCreacion = request.FechaHoraRegistro;
+                        x.FechaHoraCreacion = requestBE.FechaHoraRegistro;
                     });
 
                     repo.RegistrarMantenimiento(requestBE.MantenimientoList);
@@ -93,7 +93,7 @@ namespace PETCENTER.MANTENIMIENTO.LogicaNegocio.MANTENIMIETO
 
         public ObtenerSolicitudResponseDTO ObtenerSolicitud(ObtenerSolicitudRequestDTO req)
         {
-            var lstDatos = new Solicitud();
+            var lstDatos = new SolicitudDTO();
             var lstDatosMantenimiento = new List<Mantenimiento>();
             var result = new ObtenerSolicitudResponseDTO();
             try
@@ -105,13 +105,22 @@ namespace PETCENTER.MANTENIMIENTO.LogicaNegocio.MANTENIMIETO
                 lstDatosMantenimiento = ObtenerMantenimientoSolicitud(req);
 
                 result.CodigoSolicitud = lstDatos.CodigoSolicitud;
-                result.DescripcionSolicitud = lstDatos.Descripcion ;
-                result.FechaSolicitud = lstDatos.Fecha ;
-                result.CodigoEstadoSolicitud = lstDatos.Estado;
+                result.DescripcionSolicitud = lstDatos.DescripcionSolicitud  ;
+                result.FechaSolicitud = lstDatos.FechaSolicitud ;
+                result.CodigoEstadoSolicitud = lstDatos.CodigoEstadoSolicitud ;
+                result.DescripcionEstadoSolicitud = lstDatos.DescripcionEstadoSolicitud;
+
+                result.CodigoSede = lstDatos.CodigoSede;
+                result.DescripcionSedeSolicitud = lstDatos.DescripcionSedeSolicitud;
+
                 result.CodigoArea  = lstDatos.CodigoArea;
+                result.DescripcionAreaSolicitud = lstDatos.DescripcionAreaSolicitud;
                 result.CodigoTipoMantenimiento = lstDatos.CodigoTipoMantenimiento;
-                result.CodigoEmpleadoRegistra = lstDatos.CodigoEmpleado1;
-                result.CodigoEmpleadoAprueba = lstDatos.CodigoEmpleado2;
+                result.DescripcionTipoMantenimiento = lstDatos.DescripcionTipoMantenimiento;
+                result.CodigoEmpleadoRegistra = lstDatos.CodigoEmpleadoRegistra ;
+                result.NombreEmpleadoRegistra=lstDatos.NombreEmpleadoRegistra;
+                result.CodigoEmpleadoAprueba = lstDatos.CodigoEmpleadoAprueba ;
+                result.NombreEmpleadoAprueba = lstDatos.NombreEmpleadoAprueba;
 
                 result.UsuarioCreacion = lstDatos.UsuarioCreacion;
                 result.FechaHoraCreacion = lstDatos.FechaHoraCreacion;

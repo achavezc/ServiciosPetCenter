@@ -57,6 +57,10 @@ namespace PETCENTER.MANTENIMIENTO.AccesoDatos.MANTENIMIENTO
                                 FechaSolicitud = dr.IsDBNull(dr.GetOrdinal("FechaSolicitud")) ? new DateTime() : dr.GetDateTime(dr.GetOrdinal("FechaSolicitud")),
                                 CodigoEstadoSolicitud = dr.IsDBNull(dr.GetOrdinal("CodigoEstadoSolicitud")) ? 0 : dr.GetInt32(dr.GetOrdinal("CodigoEstadoSolicitud")),
                                 DescripcionEstadoSolicitud = dr.IsDBNull(dr.GetOrdinal("DescripcionEstadoSolicitud")) ? "" : dr.GetString(dr.GetOrdinal("DescripcionEstadoSolicitud")).Trim(),
+
+                                CodigoSede = dr.IsDBNull(dr.GetOrdinal("CodigoSede")) ? 0 : dr.GetInt32(dr.GetOrdinal("CodigoSede")),
+                                DescripcionSedeSolicitud = dr.IsDBNull(dr.GetOrdinal("DescripcionSedeSolicitud")) ? "" : dr.GetString(dr.GetOrdinal("DescripcionSedeSolicitud")).Trim(),
+                                
                                 CodigoArea = dr.IsDBNull(dr.GetOrdinal("CodigoArea")) ? 0 : dr.GetInt32(dr.GetOrdinal("CodigoArea")),
                                 DescripcionAreaSolicitud = dr.IsDBNull(dr.GetOrdinal("DescripcionAreaSolicitud")) ? "" : dr.GetString(dr.GetOrdinal("DescripcionAreaSolicitud")).Trim(),
                                 CodigoTipoMantenimiento = dr.IsDBNull(dr.GetOrdinal("CodigoTipoMantenimiento")) ? 0 : dr.GetInt32(dr.GetOrdinal("CodigoTipoMantenimiento")),

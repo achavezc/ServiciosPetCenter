@@ -17,8 +17,8 @@ namespace PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Solicitud
      public DateTime  Fecha {get; set;}
     [DataMember(Order = 4)]
      public string Descripcion {get; set;}
-    [DataMember(Order = 5)]
-     public int CodigoSolicitud {get; set;}
+    //[DataMember(Order = 5)]
+    // public int CodigoSolicitud {get; set;}
     //[DataMember(Order = 6)]
     // public int CodigoTipoMantenimiento {get; set;}
     //[DataMember(Order = 7)]
