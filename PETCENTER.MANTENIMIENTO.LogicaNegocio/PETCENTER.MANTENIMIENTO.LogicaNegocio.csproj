@@ -51,6 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MANTENIMIETO\FichaMantenimientoBL.cs" />
     <Compile Include="MANTENIMIETO\SolicitudBL.cs" />
     <Compile Include="NotificacionBL.cs" />
     <Compile Include="RolBL.cs" />

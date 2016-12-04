@@ -51,6 +51,8 @@
     <Compile Include="ContextoParaBaseDatos.cs" />
     <Compile Include="MANTENIMIENTO\RepositorioArea.cs" />
     <Compile Include="MANTENIMIENTO\RepositorioEstadoSolicitud.cs" />
+    <Compile Include="MANTENIMIENTO\RepositorioFichaMantenimiento.cs" />
+    <Compile Include="MANTENIMIENTO\RepositorioObtenerFichaMantenimiento.cs" />
     <Compile Include="MANTENIMIENTO\RepositorioObtenerSolicitud.cs" />
     <Compile Include="MANTENIMIENTO\RepositorioSede.cs" />
     <Compile Include="MANTENIMIENTO\RepositorioSolicitud.cs" />

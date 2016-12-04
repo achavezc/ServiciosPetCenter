@@ -61,6 +61,8 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FICHAMANTENIMIENTO\FichaMantenimientoServicio.cs" />
+    <Compile Include="FICHAMANTENIMIENTO\IFichaMantenimientoServicio.cs" />
     <Compile Include="MAESTROS\MaestroServicio.cs" />
     <Compile Include="MAESTROS\IMaestroServicio.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

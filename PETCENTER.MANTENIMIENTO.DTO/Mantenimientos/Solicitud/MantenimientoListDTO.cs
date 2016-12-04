@@ -9,7 +9,7 @@ namespace PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Solicitud
 {   [DataContract]
    public class MantenimientoListDTO
     {
-        [DataMember (Order=1)]
+    [DataMember (Order=1)]
      public int   CodigoMantenimiento {get; set;}
     [DataMember(Order = 2)]
      public string Nombre {get; set;}
