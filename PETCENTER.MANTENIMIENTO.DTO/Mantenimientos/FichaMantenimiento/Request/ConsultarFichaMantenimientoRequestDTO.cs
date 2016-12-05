@@ -8,6 +8,7 @@ namespace PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.FichaMantenimiento.Request
 {
     public class ConsultarFichaMantenimientoRequestDTO
     {
+        public int CodigoFichaMantenimiento { get; set; }
          public string DescripcionFicha {get;set;}
 public int CodigoTipoMantenimiento {get;set;}
 public DateTime  FechaInicio  {get;set;}

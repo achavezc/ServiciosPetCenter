@@ -44,14 +44,17 @@
     <Compile Include="Flujo\ResponsableActividad.cs" />
     <Compile Include="Flujo\ResponsableTarea.cs" />
     <Compile Include="Flujo\Tarea.cs" />
+    <Compile Include="Mantenimientos\Actividad.cs" />
     <Compile Include="Mantenimientos\ActividadesxFichaMantenimientoList.cs" />
     <Compile Include="Mantenimientos\ActividadxFichaMantenimiento.cs" />
     <Compile Include="Mantenimientos\Area.cs" />
+    <Compile Include="Mantenimientos\EstadoFichaMantenimiento.cs" />
     <Compile Include="Mantenimientos\EstadoMantenimiento.cs" />
     <Compile Include="Mantenimientos\EstadoSolicitud.cs" />
     <Compile Include="Mantenimientos\FichaMantenimiento.cs" />
     <Compile Include="Mantenimientos\Mantenimiento.cs" />
     <Compile Include="Mantenimientos\MantenimientoList.cs" />
+    <Compile Include="Mantenimientos\Material.cs" />
     <Compile Include="Mantenimientos\MaterialesxFichaMantenimiento.cs" />
     <Compile Include="Mantenimientos\MaterialesxFichaMantenimientoList.cs" />
     <Compile Include="Mantenimientos\RegistrarFichaMantenimiento.cs" />

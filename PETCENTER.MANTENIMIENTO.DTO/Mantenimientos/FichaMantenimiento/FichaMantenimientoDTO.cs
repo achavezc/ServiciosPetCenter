@@ -29,7 +29,7 @@ namespace PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.FichaMantenimiento
         [DataMember(Order = 8)]
         public string  DescripcionAreaMantenimiento { get; set; }
         [DataMember(Order = 9)]
-        public string  DescrpcionFichaMantenimiento { get; set; }
+        public string  DescripcionFichaMantenimiento { get; set; }
         [DataMember(Order = 10)]
         public DateTime  FechaFichaMantenimiento { get; set; }
         [DataMember(Order = 11)]

@@ -5,6 +5,9 @@ using PETCENTER.MANTENIMIENTO.DTO;
 using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.FichaMantenimiento;
 using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.FichaMantenimiento.Request;
 using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.FichaMantenimiento.Response;
+using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Mantenimiento;
+using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Mantenimiento.Request;
+using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Mantenimiento.Response;
 using PETCENTER.MANTENIMIENTO.Entidades.Constantes;
 using PETCENTER.MANTENIMIENTO.Entidades.Mantenimientos;
 using PETCENTER.MANTENIMIENTO.Framework;
@@ -32,6 +35,32 @@ namespace PETCENTER.MANTENIMIENTO.LogicaNegocio.MANTENIMIETO
                 lista_fichamantenimiento = repo.ConsultarFichaMantenimiento(req, out totalRegistros, out cantPaginas);
 
                 response.FichaMantenimientoList = lista_fichamantenimiento;
+                response.TotalRegistros = totalRegistros;
+                response.CantidadPaginas = cantPaginas;
+
+            }
+            catch (Exception e)
+            {
+                response.Result = new Result { IdError = Guid.NewGuid(), Satisfactorio = false, Mensaje = "Ocurrio un problema interno en el servicio" };
+                ManejadorExcepciones.PublicarExcepcion(e, PoliticaExcepcion.LogicaNegocio);
+            }
+
+            return response;
+        }
+
+        public ConsultarMantenimientoResponseDTO ConsultarMantenimiento(ConsultarMantenimientoRequestDTO req)
+        {
+            ConsultarMantenimientoResponseDTO response = new ConsultarMantenimientoResponseDTO();
+            try
+            {
+
+                List<MantenimientoDTO> lista_mantenimiento = new List<MantenimientoDTO>();
+                var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.Petcenterdb);
+                var repo = new RepositorioMantenimiento(contextoParaBaseDatos);
+                int totalRegistros, cantPaginas;
+                lista_mantenimiento = repo.ConsultarMantenimiento(req, out totalRegistros, out cantPaginas);
+
+                response.MantenimientoList = lista_mantenimiento;
                 response.TotalRegistros = totalRegistros;
                 response.CantidadPaginas = cantPaginas;
 
@@ -122,7 +151,7 @@ namespace PETCENTER.MANTENIMIENTO.LogicaNegocio.MANTENIMIETO
 
                 result.CodigoArea=lstDatos.CodigoArea;
                 result.DescripcionAreaMantenimiento=lstDatos.DescripcionAreaMantenimiento;
-                result.DescrpcionFichaMantenimiento=lstDatos.DescrpcionFichaMantenimiento;
+                result.DescrpcionFichaMantenimiento=lstDatos.DescripcionFichaMantenimiento;
                 result.FechaFichaMantenimiento=lstDatos.FechaFichaMantenimiento;
                 result.FechaInicioFichaMantenimiento=lstDatos.FechaInicioFichaMantenimiento;
                 result.FechaFinFichaMantenimiento=lstDatos.FechaFinFichaMantenimiento;

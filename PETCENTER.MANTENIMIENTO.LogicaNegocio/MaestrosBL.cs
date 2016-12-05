@@ -25,6 +25,14 @@ using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Sede.Response;
 using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Area.Response;
 using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Sede;
 using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Area;
+using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.EstadoFichaMantenimiento.Response;
+using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.EstadoFichaMantenimiento;
+using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Actividades.Response;
+using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Actividades.Request;
+using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Actividades;
+using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Materiales.Response;
+using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Materiales.Request;
+using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Materiales;
 
 namespace PETCENTER.MANTENIMIENTO.LogicaNegocio
 {
@@ -101,6 +109,40 @@ namespace PETCENTER.MANTENIMIENTO.LogicaNegocio
 
         }
 
+        public ConsultarEstadoFichaMantenimientoResponseDTO ConsultarEstadoFichaMantenimiento()
+        {
+
+            ConsultarEstadoFichaMantenimientoResponseDTO result = new ConsultarEstadoFichaMantenimientoResponseDTO();
+            List<EstadoFichaMantenimiento> lstDatos = new List<EstadoFichaMantenimiento>();
+
+            try
+            {
+                string keyCache = Convert.ToString(KeyCache.EstadoSolicitud);
+
+                ManejadorCache manejadorCache = new ManejadorCache();
+
+                lstDatos = manejadorCache.ObtenerValorCache<List<EstadoFichaMantenimiento>>(keyCache);
+
+                if (lstDatos == null || lstDatos.Count == 0)
+                {
+                    var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.Petcenterdb);
+                    var repo = new RepositorioEstadoFichaMantenimiento(contextoParaBaseDatos);
+                    lstDatos = repo.ConsultarEstadoFichaMantenimiento();
+                }
+
+                result.EstadoFichaMatenimientoList= (from Origen in lstDatos
+                                                     select Helper.MiMapper<EstadoFichaMantenimiento, EstadoFichaMantenimientoDTO>(Origen)).ToList();
+
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.LogicaNegocio);
+            }
+
+            return result;
+
+        }
+
         public ConsultarSedeResponseDTO ConsultarSede()
         {
 
@@ -158,6 +200,67 @@ namespace PETCENTER.MANTENIMIENTO.LogicaNegocio
 
                 result.AreaList = (from Origen in lstDatos
                                               select Helper.MiMapper<Area , AreaDTO >(Origen)).ToList();
+
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.LogicaNegocio);
+            }
+
+            return result;
+
+        }
+
+        public ConsultarActividadResponseDTO ConsultarActividad(ConsultarActividadesRequestDTO request)
+        {
+
+            ConsultarActividadResponseDTO result = new ConsultarActividadResponseDTO();
+            List<Actividad> lstDatos = new List<Actividad>();
+
+            try
+            {
+                string keyCache = Convert.ToString(KeyCache.Sede);
+
+                //ManejadorCache manejadorCache = new ManejadorCache();
+
+                //lstDatos = manejadorCache.ObtenerValorCache<List<Actividad >>(keyCache);
+
+                //if (lstDatos == null || lstDatos.Count == 0)
+                //{
+                    var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.Petcenterdb);
+                    var repo = new RepositorioActividad(contextoParaBaseDatos);
+                    lstDatos = repo.ConsultarActividad(request);
+                //}
+
+                result.ActividadList = (from Origen in lstDatos
+                                   select Helper.MiMapper<Actividad, ActividadDTO>(Origen)).ToList();
+
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.LogicaNegocio);
+            }
+
+            return result;
+
+        }
+
+        public ConsultarMaterialResponseDTO ConsultarMaterial(ConsultarMaterialesRequestDTO request)
+        {
+
+            ConsultarMaterialResponseDTO result = new ConsultarMaterialResponseDTO();
+            List<Material> lstDatos = new List<Material>();
+
+            try
+            {
+                
+                    var contextoParaBaseDatos = new ContextoParaBaseDatos(ConstantesDB.Petcenterdb);
+                    var repo = new RepositorioMaterial(contextoParaBaseDatos);
+                    lstDatos = repo.ConsultarMaterial(request);
+                
+
+                result.MaterialList  = (from Origen in lstDatos
+                                   select Helper.MiMapper<Material , MaterialDTO>(Origen)).ToList();
 
             }
             catch (Exception ex)

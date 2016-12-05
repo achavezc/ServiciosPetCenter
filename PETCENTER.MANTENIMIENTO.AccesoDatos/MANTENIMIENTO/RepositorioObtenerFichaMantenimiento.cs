@@ -46,7 +46,7 @@ namespace PETCENTER.MANTENIMIENTO.AccesoDatos.MANTENIMIENTO
 
                                 CodigoArea = dr.IsDBNull(dr.GetOrdinal("CodigoArea")) ? 0 : dr.GetInt32(dr.GetOrdinal("CodigoArea")),
                                 DescripcionAreaMantenimiento = dr.IsDBNull(dr.GetOrdinal("DescripcionAreaMantenimiento")) ? "" : dr.GetString(dr.GetOrdinal("DescripcionAreaMantenimiento")).Trim(),
-                                DescrpcionFichaMantenimiento = dr.IsDBNull(dr.GetOrdinal("DescrpcionFichaMantenimiento")) ? "" : dr.GetString(dr.GetOrdinal("DescrpcionFichaMantenimiento")).Trim(),
+                                DescripcionFichaMantenimiento = dr.IsDBNull(dr.GetOrdinal("DescrpcionFichaMantenimiento")) ? "" : dr.GetString(dr.GetOrdinal("DescrpcionFichaMantenimiento")).Trim(),
                                 FechaFichaMantenimiento = dr.IsDBNull(dr.GetOrdinal("FechaFichaMantenimiento")) ? new DateTime() : dr.GetDateTime(dr.GetOrdinal("FechaFichaMantenimiento")),
                                 FechaInicioFichaMantenimiento = dr.IsDBNull(dr.GetOrdinal("FechaInicioFichaMantenimiento")) ? new DateTime() : dr.GetDateTime(dr.GetOrdinal("FechaInicioFichaMantenimiento")),
                                 FechaFinFichaMantenimiento = dr.IsDBNull(dr.GetOrdinal("FechaFinFichaMantenimiento")) ? new DateTime() : dr.GetDateTime(dr.GetOrdinal("FechaFinFichaMantenimiento")),

@@ -53,8 +53,13 @@
     <Compile Include="Core\Response\ActualizarParametroNegocioResponseDTO.cs" />
     <Compile Include="Core\Response\EliminarParametroNegocioResponseDTO.cs" />
     <Compile Include="Core\Response\ParametroNegocioResponseDTO.cs" />
+    <Compile Include="Mantenimientos\Actividades\Request\ConsultarActividadesRequestDTO.cs" />
+    <Compile Include="Mantenimientos\Actividades\ActividadDTO.cs" />
+    <Compile Include="Mantenimientos\Actividades\Response\ConsultarActividadResponseDTO.cs" />
     <Compile Include="Mantenimientos\Area\AreaDTO.cs" />
     <Compile Include="Mantenimientos\Area\Response\ConsultarAreaResponseDTO.cs" />
+    <Compile Include="Mantenimientos\EstadoFichaMantenimiento\EstadoFichaMantenimientoDTO.cs" />
+    <Compile Include="Mantenimientos\EstadoFichaMantenimiento\Response\ConsultarEstadoFichaMantenimientoResponseDTO.cs" />
     <Compile Include="Mantenimientos\EstadoSolicitud\EstadoSolicitudDTO.cs" />
     <Compile Include="Mantenimientos\EstadoSolicitud\Response\ConsultarEstadoSolicitudResponseDTO.cs" />
     <Compile Include="Mantenimientos\FichaMantenimiento\ActividadxFichaMantenimientoDTO.cs" />
@@ -68,6 +73,12 @@
     <Compile Include="Mantenimientos\FichaMantenimiento\Response\ConsultarFichaMantenimientoResponseDTO.cs" />
     <Compile Include="Mantenimientos\FichaMantenimiento\Response\ObtenerFichaMantenimientoResponseDTO.cs" />
     <Compile Include="Mantenimientos\FichaMantenimiento\Response\RegistrarFichaMantenimientoResponseDTO.cs" />
+    <Compile Include="Mantenimientos\Mantenimiento\MantenimientoDTO.cs" />
+    <Compile Include="Mantenimientos\Mantenimiento\Request\ConsultarMantenimientoRequestDTO.cs" />
+    <Compile Include="Mantenimientos\Mantenimiento\Response\ConsultarMantenimientoResponseDTO.cs" />
+    <Compile Include="Mantenimientos\Materiales\MaterialDTO.cs" />
+    <Compile Include="Mantenimientos\Materiales\Request\ConsultarMaterialesRequestDTO.cs" />
+    <Compile Include="Mantenimientos\Materiales\Response\ConsultarMaterialResponseDTO.cs" />
     <Compile Include="Mantenimientos\Sede\Response\ConsultarSedeResponseDTO.cs" />
     <Compile Include="Mantenimientos\Sede\SedeDTO.cs" />
     <Compile Include="Mantenimientos\Solicitud\MantenimientoDTO.cs" />

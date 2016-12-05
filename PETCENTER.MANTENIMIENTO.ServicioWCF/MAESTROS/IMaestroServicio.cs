@@ -15,6 +15,11 @@ using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.TipoMantenimiento.Response;
 using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.EstadoSolicitud.Response;
 using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Sede.Response;
 using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Area.Response;
+using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.EstadoFichaMantenimiento.Response;
+using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Actividades.Response;
+using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Actividades.Request;
+using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Materiales.Response;
+using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Materiales.Request;
 
 namespace PETCENTER.MANTENIMIENTO.ServicioWCF.MAESTROS
 {
@@ -42,13 +47,24 @@ namespace PETCENTER.MANTENIMIENTO.ServicioWCF.MAESTROS
         ConsultarEstadoSolicitudResponseDTO ConsultarEstadoSolicitud();
 
         [OperationContract]
+        [WebInvoke(UriTemplate = "/ConsultarEstadoFichaMantenimiento", Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        ConsultarEstadoFichaMantenimientoResponseDTO ConsultarEstadoFichaMantenimiento();
+
+        [OperationContract]
         [WebInvoke(UriTemplate = "/ConsultarSede", Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
         ConsultarSedeResponseDTO ConsultarSede();
 
         [OperationContract]
         [WebInvoke(UriTemplate = "/ConsultarArea", Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
         ConsultarAreaResponseDTO ConsultarArea();
-        //[OperationContract]
+
+        [OperationContract]
+        [WebInvoke(UriTemplate = "/ConsultarActividades", Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        ConsultarActividadResponseDTO ConsultarActividades(ConsultarActividadesRequestDTO request);
+
+        [OperationContract]
+        [WebInvoke(UriTemplate = "/ConsultarMateriales", Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        ConsultarMaterialResponseDTO ConsultarMateriales(ConsultarMaterialesRequestDTO request);
         //[WebInvoke(UriTemplate = "/ConsultarArea", Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
         //ConsultarTipoMantenimientoResponseDTO ConsultarTipoMantenimiento();
     }

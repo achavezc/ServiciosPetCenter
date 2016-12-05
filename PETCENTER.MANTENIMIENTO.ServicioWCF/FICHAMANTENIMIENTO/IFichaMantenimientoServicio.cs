@@ -1,5 +1,7 @@
 ﻿using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.FichaMantenimiento.Request;
 using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.FichaMantenimiento.Response;
+using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Mantenimiento.Request;
+using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Mantenimiento.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +18,11 @@ namespace PETCENTER.MANTENIMIENTO.ServicioWCF.FICHAMANTENIMIENTO
     {
         [OperationContract]
         [WebInvoke(UriTemplate = "/ConsultarFichaMantenimieto", Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
-        ConsultarFichaMantenimientoResponseDTO ConsultarFichaMantenimieto(ConsultarFichaMantenimientoRequestDTO request);
+        ConsultarFichaMantenimientoResponseDTO ConsultarFichaMantenimiento(ConsultarFichaMantenimientoRequestDTO request);
+
+        [OperationContract]
+        [WebInvoke(UriTemplate = "/ConsultarMantenimiento", Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        ConsultarMantenimientoResponseDTO ConsultarMantenimiento(ConsultarMantenimientoRequestDTO request);
 
         [OperationContract]
         [WebInvoke(UriTemplate = "/RegistrarFichaMantenimiento", Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]

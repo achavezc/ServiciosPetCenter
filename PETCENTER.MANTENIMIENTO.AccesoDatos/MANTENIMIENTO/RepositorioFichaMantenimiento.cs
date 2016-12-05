@@ -29,6 +29,7 @@ namespace PETCENTER.MANTENIMIENTO.AccesoDatos.MANTENIMIENTO
                 int cantRegs = 0;
 
 
+                parametrosIn.Add("@CodigoFichaMantenimiento", request.CodigoFichaMantenimiento);
                 parametrosIn.Add("@DescripcionFicha", request.DescripcionFicha);
                 parametrosIn.Add("@CodigoTipoMantenimiento", request.CodigoTipoMantenimiento);
                 parametrosIn.Add("@FechaInicio", request.FechaInicio);
@@ -57,17 +58,17 @@ namespace PETCENTER.MANTENIMIENTO.AccesoDatos.MANTENIMIENTO
                                 CodigoMantenimiento = dr.IsDBNull(dr.GetOrdinal("CodigoMantenimiento")) ? 0 : dr.GetInt32(dr.GetOrdinal("CodigoMantenimiento")),
                                 CodigoSolicitud = dr.IsDBNull(dr.GetOrdinal("CodigoSolicitud")) ? 0 : dr.GetInt32(dr.GetOrdinal("CodigoSolicitud")),
                                 CodigoTipoMantenimiento = dr.IsDBNull(dr.GetOrdinal("CodigoTipoMantenimiento")) ? 0 : dr.GetInt32(dr.GetOrdinal("CodigoTipoMantenimiento")),
-                                DescripcionTipoMantenimiento = dr.IsDBNull(dr.GetOrdinal("DescripcionTipoMantenimiento")) ? "" : dr.GetString(dr.GetOrdinal("DescripcionEstadoSolicitud")).Trim(),
+                                DescripcionTipoMantenimiento = dr.IsDBNull(dr.GetOrdinal("DescripcionTipoMantenimiento")) ? "" : dr.GetString(dr.GetOrdinal("DescripcionTipoMantenimiento")).Trim(),
 
                                 CodigoEmpleadoAprueba = dr.IsDBNull(dr.GetOrdinal("CodigoEmpleadoAprueba")) ? 0 : dr.GetInt32(dr.GetOrdinal("CodigoEmpleadoAprueba")),
                                 NombreEmpleadoAprueba = dr.IsDBNull(dr.GetOrdinal("NombreEmpleadoAprueba")) ? "" : dr.GetString(dr.GetOrdinal("NombreEmpleadoAprueba")).Trim(),
 
                                 CodigoArea = dr.IsDBNull(dr.GetOrdinal("CodigoArea")) ? 0 : dr.GetInt32(dr.GetOrdinal("CodigoArea")),
                                 DescripcionAreaMantenimiento = dr.IsDBNull(dr.GetOrdinal("DescripcionAreaMantenimiento")) ? "" : dr.GetString(dr.GetOrdinal("DescripcionAreaMantenimiento")).Trim(),
-                                DescrpcionFichaMantenimiento = dr.IsDBNull(dr.GetOrdinal("DescrpcionFichaMantenimiento")) ? "" : dr.GetString(dr.GetOrdinal("CodigoTipoMantenimiento")).Trim() ,
+                                DescripcionFichaMantenimiento = dr.IsDBNull(dr.GetOrdinal("DescrpcionFichaMantenimiento")) ? "" : dr.GetString(dr.GetOrdinal("DescrpcionFichaMantenimiento")).Trim(),
                                 FechaFichaMantenimiento = dr.IsDBNull(dr.GetOrdinal("FechaFichaMantenimiento")) ? new DateTime() : dr.GetDateTime(dr.GetOrdinal("FechaFichaMantenimiento")),
                                 FechaInicioFichaMantenimiento = dr.IsDBNull(dr.GetOrdinal("FechaInicioFichaMantenimiento")) ? new DateTime() : dr.GetDateTime(dr.GetOrdinal("FechaInicioFichaMantenimiento")),
-                                FechaFinFichaMantenimiento = dr.IsDBNull(dr.GetOrdinal("FechaFinFichaMantenimiento ")) ? new DateTime() : dr.GetDateTime(dr.GetOrdinal("FechaFinFichaMantenimiento ")),
+                                FechaFinFichaMantenimiento = dr.IsDBNull(dr.GetOrdinal("FechaFinFichaMantenimiento")) ? new DateTime() : dr.GetDateTime(dr.GetOrdinal("FechaFinFichaMantenimiento")),
                                 CantidadTecnicosFichaMantenimiento = dr.IsDBNull(dr.GetOrdinal("CantidadTecnicosFichaMantenimiento")) ? 0 : dr.GetInt32(dr.GetOrdinal("CantidadTecnicosFichaMantenimiento")),
                                 CodigoEstadoFichaMantenimiento = dr.IsDBNull(dr.GetOrdinal("CodigoEstadoFichaMantenimiento")) ? 0 : dr.GetInt32(dr.GetOrdinal("CodigoEstadoFichaMantenimiento")),
                                 DescrpcionEstadoFichaMantenimiento = dr.IsDBNull(dr.GetOrdinal("DescrpcionEstadoFichaMantenimiento")) ? "" : dr.GetString(dr.GetOrdinal("DescrpcionEstadoFichaMantenimiento")).Trim(),

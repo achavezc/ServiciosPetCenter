@@ -1,6 +1,8 @@
 ﻿using PETCENTER.MANTENIMIENTO.DTO;
 using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.FichaMantenimiento.Request;
 using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.FichaMantenimiento.Response;
+using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Mantenimiento.Request;
+using PETCENTER.MANTENIMIENTO.DTO.Mantenimientos.Mantenimiento.Response;
 using PETCENTER.MANTENIMIENTO.Framework;
 using PETCENTER.MANTENIMIENTO.LogicaNegocio.MANTENIMIETO;
 using System;
@@ -21,7 +23,7 @@ namespace PETCENTER.MANTENIMIENTO.ServicioWCF.FICHAMANTENIMIENTO
     {
 
          
-        public ConsultarFichaMantenimientoResponseDTO ConsultarFichaMantenimieto(ConsultarFichaMantenimientoRequestDTO request)
+        public ConsultarFichaMantenimientoResponseDTO ConsultarFichaMantenimiento(ConsultarFichaMantenimientoRequestDTO request)
         {
 
             ManejadorLog manejadorLog = new ManejadorLog();
@@ -34,6 +36,42 @@ namespace PETCENTER.MANTENIMIENTO.ServicioWCF.FICHAMANTENIMIENTO
             {
                 FichaMantenimientoBL solicitud = new FichaMantenimientoBL();
                 result = solicitud.ConsultarFichaMantenimeinto(request);
+            }
+            catch (ResultException ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(string.Format("{0}: {1}", MethodBase.GetCurrentMethod().Name,
+                    ex.Result.Mensaje));
+                ex.Result.Satisfactorio = false;
+                result.Result = ex.Result;
+
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.PublicarExcepcion(ex, PoliticaExcepcion.ServicioWCF);
+                result.Result = new Result
+                {
+                    Satisfactorio = false,
+                    Mensaje = "Ocurrio un problema interno en el servicio",
+                    IdError = Guid.NewGuid()
+                };
+
+            }
+            return result;
+        }
+
+        public ConsultarMantenimientoResponseDTO ConsultarMantenimiento(ConsultarMantenimientoRequestDTO request)
+        {
+
+            ManejadorLog manejadorLog = new ManejadorLog();
+
+            manejadorLog.GrabarLog(request.FechaFin.ToString());
+            manejadorLog.GrabarLog(request.FechaFin.ToString());
+
+            ConsultarMantenimientoResponseDTO result = new ConsultarMantenimientoResponseDTO();
+            try
+            {
+                FichaMantenimientoBL mantenimiento = new FichaMantenimientoBL();
+                result = mantenimiento.ConsultarMantenimiento(request);
             }
             catch (ResultException ex)
             {
